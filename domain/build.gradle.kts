@@ -15,4 +15,5 @@ dependencies {
   implementation(libs.dagger.core)
   ksp(libs.dagger.compiler)
 
+  implementation(libs.kotlinx.coroutines.android)
 }

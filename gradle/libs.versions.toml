@@ -16,9 +16,8 @@ dagger = "2.48.1"
 glide = "1.0.0-beta01"
 retrofit = "2.9.0"
 parcelize = "1.9.22"
-appcompat = "1.6.1"
-material = "1.11.0"
 org-jetbrains-kotlin-jvm = "1.9.22"
+kotlinx-coroutines-android = "1.7.3"
 
 [libraries]
 core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
@@ -48,8 +47,7 @@ glide-compose = { group = "com.github.bumptech.glide", name = "compose", version
 retrofit-core = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
 retrofit-gsonConverter = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
 icons = { group = "androidx.compose.material", name = "material-icons-extended" }
-#appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
-#material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinx-coroutines-android" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
