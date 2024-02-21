@@ -1,4 +1,4 @@
-package info.sergeikolinichenko.myapplication.ui.theme
+package info.sergeikolinichenko.myapplication.presentation.ui.theme
 
 import android.app.Activity
 import android.os.Build

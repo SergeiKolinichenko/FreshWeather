@@ -2,6 +2,8 @@
 plugins {
   alias(libs.plugins.androidApplication)
   alias(libs.plugins.kotlinAndroid)
+  alias(libs.plugins.ksp)
+  alias(libs.plugins.parcelize)
 }
 
 android {
@@ -28,17 +30,17 @@ android {
     }
   }
   compileOptions {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
   }
   kotlinOptions {
-    jvmTarget = "1.8"
+    jvmTarget = "17"
   }
   buildFeatures {
     compose = true
   }
   composeOptions {
-    kotlinCompilerExtensionVersion = "1.5.1"
+    kotlinCompilerExtensionVersion = "1.5.9"
   }
   packaging {
     resources {
@@ -48,6 +50,8 @@ android {
 }
 
 dependencies {
+  implementation(project(":domain"))
+  implementation(project(":data"))
 
   implementation(libs.core.ktx)
   implementation(libs.lifecycle.runtime.ktx)
@@ -57,6 +61,24 @@ dependencies {
   implementation(libs.ui.graphics)
   implementation(libs.ui.tooling.preview)
   implementation(libs.material3)
+
+  // MVIKotlin
+  implementation(libs.mvikotlin.core)
+  implementation(libs.mvikotlin.main)
+  implementation(libs.mvikotlin.coroutines)
+
+  // Decompose
+  implementation(libs.decompose.core)
+  implementation(libs.decompose.jetpack)
+
+  // Dagger 2
+  implementation(libs.dagger.core)
+  ksp(libs.dagger.compiler)
+
+  implementation(libs.glide.compose)
+
+  implementation(libs.icons)
+
   testImplementation(libs.junit)
   androidTestImplementation(libs.androidx.test.ext.junit)
   androidTestImplementation(libs.espresso.core)
