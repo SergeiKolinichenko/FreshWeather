@@ -15,6 +15,8 @@ android {
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     consumerProguardFiles("consumer-rules.pro")
+    val key = property("apikey")?.toString() ?: error("Set apikey property in local.properties")
+    buildConfigField("String", "API_KEY", key)
   }
 
   buildTypes {
@@ -29,6 +31,9 @@ android {
   }
   kotlinOptions {
     jvmTarget = "17"
+  }
+  buildFeatures {
+    buildConfig = true
   }
 }
 

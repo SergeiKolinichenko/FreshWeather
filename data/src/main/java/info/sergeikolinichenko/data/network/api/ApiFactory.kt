@@ -1,5 +1,7 @@
 package info.sergeikolinichenko.data.network.api
 
+import info.sergeikolinichenko.data.BuildConfig
+import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.create
@@ -9,10 +11,27 @@ import retrofit2.create
 object ApiFactory {
 
   private const val BASE_URL = "https://api.weatherapi.com/v1/"
+  private const val PARAM_KEY = "key"
+
+  private val okHttpClient = OkHttpClient.Builder()
+    .addInterceptor{ chain ->
+      // Add API key to every request
+      val originalRequest = chain.request()
+      val originalHttpUrl = originalRequest.url()
+      val url = originalHttpUrl.newBuilder()
+        .addQueryParameter( PARAM_KEY, BuildConfig.API_KEY)
+        .build()
+      val desiredRequest = originalRequest.newBuilder()
+        .url(url)
+        .build()
+      chain.proceed(desiredRequest)
+    }.build()
+
 
   private val retrofit = Retrofit.Builder()
     .baseUrl(BASE_URL)
     .addConverterFactory(GsonConverterFactory.create())
+    .client(okHttpClient)
     .build()
 
   val apiService: ApiService = retrofit.create()
