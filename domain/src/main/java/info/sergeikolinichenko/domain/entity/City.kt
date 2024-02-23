@@ -5,5 +5,7 @@ package info.sergeikolinichenko.domain.entity
 data class City(
   val id: Int,
   val name: String,
+  val region: String,
   val country: String,
+  val url: String,
 )

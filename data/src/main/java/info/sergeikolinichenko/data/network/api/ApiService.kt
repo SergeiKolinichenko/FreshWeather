@@ -3,6 +3,7 @@ package info.sergeikolinichenko.data.network.api
 import info.sergeikolinichenko.data.network.dto.CityDto
 import info.sergeikolinichenko.data.network.dto.WeatherCurrentDto
 import info.sergeikolinichenko.data.network.dto.WeatherForecastDto
+import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query
 
@@ -12,14 +13,14 @@ interface ApiService {
   @GET("current.json")
   suspend fun getCurrentWeather(
     @Query("q") location: String,
-  ): WeatherCurrentDto
+  ): Response<WeatherCurrentDto>
   @GET("forecast.json")
   suspend fun getWeatherForecast(
     @Query("q") location: String,
     @Query("days") days: Int = 4,
-  ): WeatherForecastDto
+  ): Response<WeatherForecastDto>
   @GET("search.json")
   suspend fun searchCities(
     @Query("q") query: String,
-  ): List<CityDto>
+  ): Response<List<CityDto>>
 }

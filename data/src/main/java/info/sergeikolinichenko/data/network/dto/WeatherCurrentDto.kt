@@ -7,7 +7,7 @@ import com.google.gson.annotations.SerializedName
 // This class is used to parse the current weather data from the API,
 // it returned as a part of the WeatherForecastDto,
 // returned by method getWeatherForecast in WeatherApiService
-data class WeatherCurrentDto(
+data class  WeatherCurrentDto(
   @SerializedName("current")
   val current: WeatherDto
 )
