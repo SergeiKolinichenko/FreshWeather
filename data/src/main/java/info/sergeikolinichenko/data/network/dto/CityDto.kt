@@ -15,4 +15,7 @@ data class CityDto(
 
   @SerializedName("country")
   val country: String,
+
+  @SerializedName("url")
+  val url: String,
 )
