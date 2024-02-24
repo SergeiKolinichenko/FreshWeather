@@ -75,6 +75,9 @@ dependencies {
   implementation(libs.dagger.core)
   ksp(libs.dagger.compiler)
 
+  implementation(libs.room.core)
+  ksp(libs.room.compiler)
+
   implementation(libs.glide.compose)
 
   implementation(libs.icons)
