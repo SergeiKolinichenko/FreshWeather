@@ -6,9 +6,13 @@ import dagger.Component
 
 /** Created by Sergei Kolinichenko on 23.02.2024 at 22:39 (GMT+3) **/
 @ApplicationScope
-@Component(modules = [DataModule::class])
+@Component(
+  modules = [
+    DataModule::class,
+    PresentationModule::class
+  ]
+)
 interface ApplicationComponent {
-
   @Component.Factory
   interface Factory {
     fun create(
