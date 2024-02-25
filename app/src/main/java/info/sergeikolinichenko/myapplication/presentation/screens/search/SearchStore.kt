@@ -7,54 +7,129 @@ import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineBootstrapper
 import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineExecutor
+import info.sergeikolinichenko.domain.entity.City
+import info.sergeikolinichenko.domain.usecases.ChangeFavouriteStateUseCase
+import info.sergeikolinichenko.domain.usecases.SearchCityUseCase
 import info.sergeikolinichenko.myapplication.presentation.screens.search.SearchStore.Intent
 import info.sergeikolinichenko.myapplication.presentation.screens.search.SearchStore.Label
 import info.sergeikolinichenko.myapplication.presentation.screens.search.SearchStore.State
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-internal interface SearchStore : Store<Intent, State, Label> {
+interface SearchStore : Store<Intent, State, Label> {
 
-    sealed interface Intent {
+  sealed interface Intent {
+    data class SearchQueryChanged(val query: String) : Intent
+    data class CityClicked(val city: City) : Intent
+    data object ClickSearch : Intent
+    data object ClickBack : Intent
+  }
+
+  data class State(
+    val query: String,
+    val state: SearchState
+  ) {
+    sealed interface SearchState {
+      data object Initial : SearchState
+      data object Loading : SearchState
+      data object Error : SearchState
+      data object Empty : SearchState
+      data class SuccessLoaded(val cities: List<City>) : SearchState
     }
+  }
 
-    data class State(val todo: Unit = Unit)
-
-    sealed interface Label {
-    }
+  sealed interface Label {
+    data object ClickBack : Label
+    data object SavedToFavorite : Label
+    data class OpenCityForecast(val city: City) : Label
+  }
 }
 
-internal class SearchStoreFactory(
-    private val storeFactory: StoreFactory
+class SearchStoreFactory @Inject constructor(
+  private val storeFactory: StoreFactory,
+  private val searchCity: SearchCityUseCase,
+  private val changeFavouriteState: ChangeFavouriteStateUseCase
 ) {
 
-    fun create(): SearchStore =
-        object : SearchStore, Store<Intent, State, Label> by storeFactory.create(
-            name = "SearchStore",
-            initialState = State(),
-            bootstrapper = BootstrapperImpl(),
-            executorFactory = ::ExecutorImpl,
-            reducer = ReducerImpl
-        ) {}
+  fun create(openingOptions: OpeningOptions): SearchStore =
+    object : SearchStore, Store<Intent, State, Label> by storeFactory.create(
+      name = "SearchStore",
+      initialState = State(
+        query = "",
+        state = State.SearchState.Initial
+      ),
+      bootstrapper = BootstrapperImpl(),
+      executorFactory = { ExecutorImpl(openingOptions) },
+      reducer = ReducerImpl
+    ) {}
 
-    private sealed interface Action {
+  private sealed interface Action
+
+  private sealed interface Message {
+    data class SearchQuery(val query: String) : Message
+    data class SearchResultLoaded(val cities: List<City>) : Message
+    data object SearchResultLoading : Message
+    data object SearchResultError : Message
+
+  }
+
+  private class BootstrapperImpl : CoroutineBootstrapper<Action>() {
+    override fun invoke() {
     }
+  }
 
-    private sealed interface Msg {
-    }
-
-    private class BootstrapperImpl : CoroutineBootstrapper<Action>() {
-        override fun invoke() {
+  private inner class ExecutorImpl(private val openingOptions: OpeningOptions) :
+    CoroutineExecutor<Intent, Action, State, Message, Label>() {
+    private var job: Job? = null
+    override fun executeIntent(intent: Intent, getState: () -> State) {
+      when (intent) {
+        is Intent.SearchQueryChanged -> dispatch(Message.SearchQuery(intent.query))
+        is Intent.ClickBack -> publish(Label.ClickBack)
+        is Intent.ClickSearch -> {
+          job?.cancel()
+          job = scope.launch {
+            dispatch(Message.SearchResultLoading)
+            try {
+              val query = getState().query
+              val cities = searchCity(query)
+              dispatch(Message.SearchResultLoaded(cities))
+            } catch (e: Exception) {
+              dispatch(Message.SearchResultError)
+            }
+          }
         }
-    }
 
-    private class ExecutorImpl : CoroutineExecutor<Intent, Action, State, Msg, Label>() {
-        override fun executeIntent(intent: Intent, getState: () -> State) {
+        is Intent.CityClicked -> {
+          when (openingOptions) {
+            OpeningOptions.ADD_TO_FAVORITES -> {
+              scope.launch {
+                changeFavouriteState.addToFavourite(intent.city)
+                publish(Label.SavedToFavorite)
+              }
+            }
+
+            OpeningOptions.ORDINARY_SEARCH -> publish(Label.OpenCityForecast(intent.city))
+          }
         }
+      }
 
-        override fun executeAction(action: Action, getState: () -> State) {
+    }
+  }
+
+  private object ReducerImpl : Reducer<State, Message> {
+    override fun State.reduce(msg: Message): State =
+      when (msg) {
+        is Message.SearchQuery -> copy(query = msg.query)
+        is Message.SearchResultLoading -> copy(state = State.SearchState.Loading)
+        is Message.SearchResultError -> copy(state = State.SearchState.Error)
+        is Message.SearchResultLoaded -> {
+          if (msg.cities.isEmpty()) {
+            copy(state = State.SearchState.Empty)
+          } else {
+            copy(state = State.SearchState.SuccessLoaded(msg.cities))
+          }
         }
-    }
-
-    private object ReducerImpl : Reducer<State, Msg> {
-        override fun State.reduce(message: Msg): State = State()
-    }
+      }
+  }
 }

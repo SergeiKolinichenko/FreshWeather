@@ -16,12 +16,12 @@ import info.sergeikolinichenko.myapplication.presentation.screens.favourite.Favo
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-internal interface FavouriteStore : Store<Intent, State, Label> {
+interface FavouriteStore : Store<Intent, State, Label> {
 
   sealed interface Intent {
-    data object ClickSearch : Intent
-    data object ClickToButton : Intent
-    data class OnClickCity(val city: City) : Intent
+    data object SearchClicked : Intent
+    data object ButtonClicked : Intent
+    data class ItemClicked(val city: City) : Intent
   }
 
   data class State(
@@ -51,7 +51,7 @@ internal interface FavouriteStore : Store<Intent, State, Label> {
   }
 }
 
-internal class FavouriteStoreFactory @Inject constructor(
+class FavouriteStoreFactory @Inject constructor(
   private val storeFactory: StoreFactory,
   private val getFavouriteCities: GetFavouriteCitiesUseCase,
   private val getCurrentWeather: GetCurrentWeatherUseCase
@@ -95,9 +95,9 @@ internal class FavouriteStoreFactory @Inject constructor(
   private inner class ExecutorImpl : CoroutineExecutor<Intent, Action, State, Message, Label>() {
     override fun executeIntent(intent: Intent, getState: () -> State) {
       when (intent) {
-        is Intent.ClickSearch -> publish(Label.ClickSearch)
-        is Intent.ClickToButton -> publish(Label.ClickToButton)
-        is Intent.OnClickCity -> publish(Label.OnClickCity(intent.city))
+        is Intent.SearchClicked -> publish(Label.ClickSearch)
+        is Intent.ButtonClicked -> publish(Label.ClickToButton)
+        is Intent.ItemClicked -> publish(Label.OnClickCity(intent.city))
       }
     }
 

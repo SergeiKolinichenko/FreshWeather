@@ -18,11 +18,11 @@ import info.sergeikolinichenko.myapplication.presentation.screens.details.Detail
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-internal interface DetailsStore : Store<Intent, State, Label> {
+interface DetailsStore : Store<Intent, State, Label> {
 
   sealed interface Intent {
-    data object OnClickFavourite : Intent
-    data object OnClickBack : Intent
+    data object ChangeFavouriteStatusClicked : Intent
+    data object OnBackClicked : Intent
   }
 
   data class State(
@@ -39,11 +39,11 @@ internal interface DetailsStore : Store<Intent, State, Label> {
   }
 
   sealed interface Label {
-    data object OnClickBack : Label
+    data object OnBackClicked : Label
   }
 }
 
-internal class DetailsStoreFactory @Inject constructor(
+class DetailsStoreFactory @Inject constructor(
   private val storeFactory: StoreFactory,
   private val getForecast: GerForecastUseCase,
   private val changeFavouriteState: ChangeFavouriteStateUseCase,
@@ -101,7 +101,7 @@ internal class DetailsStoreFactory @Inject constructor(
   private inner class ExecutorImpl : CoroutineExecutor<Intent, Action, State, Message, Label>() {
     override fun executeIntent(intent: Intent, getState: () -> State) {
       when (intent) {
-        is Intent.OnClickFavourite -> {
+        is Intent.ChangeFavouriteStatusClicked -> {
           scope.launch {
             val city = getState().city
             val isFavourite = getState().isFavourite
@@ -113,8 +113,8 @@ internal class DetailsStoreFactory @Inject constructor(
           }
         }
 
-        is Intent.OnClickBack -> {
-          publish(Label.OnClickBack)
+        is Intent.OnBackClicked -> {
+          publish(Label.OnBackClicked)
         }
       }
     }
