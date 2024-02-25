@@ -7,14 +7,15 @@ import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineBootstrapper
 import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineExecutor
-import info.sergeikolinichenko.domain.entity.City
 import info.sergeikolinichenko.domain.entity.Forecast
 import info.sergeikolinichenko.domain.usecases.ChangeFavouriteStateUseCase
 import info.sergeikolinichenko.domain.usecases.GerForecastUseCase
 import info.sergeikolinichenko.domain.usecases.ObserveFavouriteStateUseCase
+import info.sergeikolinichenko.myapplication.entity.CityToScreen
 import info.sergeikolinichenko.myapplication.presentation.screens.details.DetailsStore.Intent
 import info.sergeikolinichenko.myapplication.presentation.screens.details.DetailsStore.Label
 import info.sergeikolinichenko.myapplication.presentation.screens.details.DetailsStore.State
+import info.sergeikolinichenko.myapplication.utils.toCity
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -26,7 +27,7 @@ interface DetailsStore : Store<Intent, State, Label> {
   }
 
   data class State(
-    val city: City,
+    val city: CityToScreen,
     val isFavourite: Boolean,
     val forecastState: ForecastState
   ) {
@@ -50,7 +51,7 @@ class DetailsStoreFactory @Inject constructor(
   private val observeFavouriteState: ObserveFavouriteStateUseCase
 ) {
 
-  fun create(city: City): DetailsStore =
+  fun create(city: CityToScreen): DetailsStore =
     object : DetailsStore, Store<Intent, State, Label> by storeFactory.create(
       name = "DetailsStore",
       initialState = State(
@@ -78,7 +79,7 @@ class DetailsStoreFactory @Inject constructor(
   }
 
   private inner class BootstrapperImpl(
-    private val city: City
+    private val city: CityToScreen
   ) : CoroutineBootstrapper<Action>() {
     override fun invoke() {
       scope.launch {
@@ -108,7 +109,7 @@ class DetailsStoreFactory @Inject constructor(
             if (isFavourite) {
               changeFavouriteState.removeFromFavourite(city.id)
             } else {
-              changeFavouriteState.addToFavourite(city)
+              changeFavouriteState.addToFavourite(city.toCity())
             }
           }
         }

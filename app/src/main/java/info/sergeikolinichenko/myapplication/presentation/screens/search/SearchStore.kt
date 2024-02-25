@@ -10,9 +10,11 @@ import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineExecutor
 import info.sergeikolinichenko.domain.entity.City
 import info.sergeikolinichenko.domain.usecases.ChangeFavouriteStateUseCase
 import info.sergeikolinichenko.domain.usecases.SearchCityUseCase
+import info.sergeikolinichenko.myapplication.entity.CityToScreen
 import info.sergeikolinichenko.myapplication.presentation.screens.search.SearchStore.Intent
 import info.sergeikolinichenko.myapplication.presentation.screens.search.SearchStore.Label
 import info.sergeikolinichenko.myapplication.presentation.screens.search.SearchStore.State
+import info.sergeikolinichenko.myapplication.utils.toCity
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -21,7 +23,7 @@ interface SearchStore : Store<Intent, State, Label> {
 
   sealed interface Intent {
     data class SearchQueryChanged(val query: String) : Intent
-    data class CityClicked(val city: City) : Intent
+    data class CityClicked(val city: CityToScreen) : Intent
     data object ClickSearch : Intent
     data object ClickBack : Intent
   }
@@ -42,7 +44,7 @@ interface SearchStore : Store<Intent, State, Label> {
   sealed interface Label {
     data object ClickBack : Label
     data object SavedToFavorite : Label
-    data class OpenCityForecast(val city: City) : Label
+    data class OpenCityForecast(val city: CityToScreen) : Label
   }
 }
 
@@ -104,12 +106,13 @@ class SearchStoreFactory @Inject constructor(
           when (openingOptions) {
             OpeningOptions.ADD_TO_FAVORITES -> {
               scope.launch {
-                changeFavouriteState.addToFavourite(intent.city)
+                changeFavouriteState.addToFavourite(intent.city.toCity())
                 publish(Label.SavedToFavorite)
               }
             }
 
-            OpeningOptions.ORDINARY_SEARCH -> publish(Label.OpenCityForecast(intent.city))
+            OpeningOptions.ORDINARY_SEARCH ->
+              publish(Label.OpenCityForecast(intent.city))
           }
         }
       }

@@ -7,16 +7,15 @@ import com.arkivanov.mvikotlin.extensions.coroutines.stateFlow
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import info.sergeikolinichenko.domain.entity.City
+import info.sergeikolinichenko.myapplication.entity.CityToScreen
 import info.sergeikolinichenko.myapplication.utils.componentScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 class DefaultDetailsComponent @AssistedInject constructor(
   @Assisted("onClickBack") private val onClickBack: () -> Unit,
-  @Assisted("city") private val city: City,
+  @Assisted("city") private val city: CityToScreen,
   @Assisted("componentContext") private val componentContext: ComponentContext,
   private val storeFactory: DetailsStoreFactory
 ) : DetailsComponent, ComponentContext by componentContext {
@@ -43,7 +42,7 @@ class DefaultDetailsComponent @AssistedInject constructor(
   interface Factory {
     fun create(
       @Assisted("onClickBack") onClickBack: () -> Unit,
-      @Assisted("city") city: City,
+      @Assisted("city") city: CityToScreen,
       @Assisted("componentContext") componentContext: ComponentContext
     ): DefaultDetailsComponent
   }
