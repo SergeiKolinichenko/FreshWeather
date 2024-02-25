@@ -3,6 +3,10 @@ package info.sergeikolinichenko.myapplication.presentation.root
 import android.os.Parcelable
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.stack.ChildStack
+import com.arkivanov.decompose.router.stack.StackNavigation
+import com.arkivanov.decompose.router.stack.childStack
+import com.arkivanov.decompose.router.stack.pop
+import com.arkivanov.decompose.router.stack.push
 import com.arkivanov.decompose.value.Value
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -21,8 +25,14 @@ class DefaultRootComponent @AssistedInject constructor(
     @Assisted("componentContext") private val componentContext: ComponentContext
 ) : RootComponent, ComponentContext by componentContext {
 
-    override val stack: Value<ChildStack<*, RootComponent.Child>>
-        get() = TODO("Not yet implemented")
+    private val navigation = StackNavigation<Config>()
+
+    override val stack: Value<ChildStack<*, RootComponent.Child>> = childStack(
+        source = navigation,
+        initialConfiguration = Config.Favourite,
+        handleBackButton = true,
+        childFactory = ::child
+    )
 
     private fun child(
         config: Config,
@@ -31,9 +41,9 @@ class DefaultRootComponent @AssistedInject constructor(
         is Config.Favourite -> {
             val component = favouriteComponentFactory.create(
                 componentContext = componentContext,
-                onClickSearch = { /*TODO*/ },
-                onClickButton = { /*TODO*/ },
-                onClickCity = { /*TODO*/ }
+                onClickSearch = { navigation.push(Config.Search(OpeningOptions.ORDINARY_SEARCH)) },
+                onClickButton = { navigation.push(Config.Search(OpeningOptions.ADD_TO_FAVORITES)) },
+                onClickCity = { navigation.push(Config.Details(it))}
             )
             RootComponent.Child.Favourite(component)
         }
@@ -41,7 +51,7 @@ class DefaultRootComponent @AssistedInject constructor(
             val component = detailsComponentFactory.create(
                 componentContext = componentContext,
                 city = config.city,
-                onClickBack = { /*TODO*/ }
+                onClickBack = { navigation.pop() }
             )
             RootComponent.Child.Details(component)
         }
@@ -49,9 +59,9 @@ class DefaultRootComponent @AssistedInject constructor(
             val component = searchComponentFactory.create(
                 componentContext = componentContext,
                 openingOptions = config.options,
-                onClickBack = { /*TODO*/ },
-                onClickItem = { /*TODO*/ },
-                savedToFavourite = { /*TODO*/ }
+                onClickBack = { navigation.pop() },
+                onClickItem = { navigation.push(Config.Details(it)) },
+                savedToFavourite = { navigation.pop() }
             )
             RootComponent.Child.Search(component)
         }
