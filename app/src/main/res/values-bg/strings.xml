@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="app_name">Свежо Време</string>
+  <string name="ext_floating_action_button_title">Добавяне към Любими</string>
+  <string name="favourite_content_card_weather_icon">Икона за времето</string>
+  <string name="favourite_content_text_search">Търсене</string>
+</resources>

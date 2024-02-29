@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="app_name">Свежая Погода</string>
+  <string name="ext_floating_action_button_title">Добавить в Избранное</string>
+  <string name="favourite_content_card_weather_icon">Значок погоды</string>
+  <string name="favourite_content_text_search">Поиск</string>
+</resources>

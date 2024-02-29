@@ -1,3 +1,6 @@
 <resources>
-  <string name="app_name">FreshWeather</string>
+  <string name="app_name">Fresh Weather</string>
+  <string name="ext_floating_action_button_title">Add to Favourites</string>
+  <string name="favourite_content_card_weather_icon">Weather icon</string>
+  <string name="favourite_content_text_search">Search</string>
 </resources>

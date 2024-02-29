@@ -40,7 +40,7 @@ interface FavouriteStore : Store<Intent, State, Label> {
       data object Loading : WeatherState
       data object Error : WeatherState
       data class LoadedWeather(
-        val temperature: String,
+        val temperature: Float,
         val iconUrl: String
       ) : WeatherState
     }
@@ -155,7 +155,7 @@ class FavouriteStoreFactory @Inject constructor(
               if (cityItem.city.id == msg.cityId) {
                 cityItem.copy(
                   weatherState = State.WeatherState.LoadedWeather(
-                    temperature = msg.temperature.toString(),
+                    temperature = msg.temperature,
                     iconUrl = msg.iconUrl
                   )
                 )
