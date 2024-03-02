@@ -2,6 +2,10 @@
 <resources>
   <string name="app_name">Свежо Време</string>
   <string name="ext_floating_action_button_title">Добавяне към Любими</string>
-  <string name="favourite_content_card_weather_icon">Икона за времето</string>
+  <string name="content_icon_description_weather_icon">Икона за времето</string>
   <string name="favourite_content_text_search">Търсене</string>
+  <string name="details_content_text_description_button_back">Бутон обратно</string>
+  <string name="details_content_text_description_button_favourite">Икона Любими</string>
+  <string name="details_content_text_description_weather_condition">Състояние на времето</string>
+  <string name="details_content_title_block_upcoming_weather">Предстоящо време</string>
 </resources>

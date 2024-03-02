@@ -1,6 +1,10 @@
 <resources>
   <string name="app_name">Fresh Weather</string>
   <string name="ext_floating_action_button_title">Add to Favourites</string>
-  <string name="favourite_content_card_weather_icon">Weather icon</string>
+  <string name="content_icon_description_weather_icon">Weather icon</string>
   <string name="favourite_content_text_search">Search</string>
+  <string name="details_content_text_description_button_back">Button Back</string>
+  <string name="details_content_text_description_button_favourite">Icon Favourite</string>
+  <string name="details_content_text_description_weather_condition">Weather condition</string>
+  <string name="details_content_title_block_upcoming_weather">"Upcoming weather: "</string>
 </resources>

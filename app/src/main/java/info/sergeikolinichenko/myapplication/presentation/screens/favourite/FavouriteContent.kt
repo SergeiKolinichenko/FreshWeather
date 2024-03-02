@@ -162,7 +162,7 @@ private fun CityCard(
                   .align(Alignment.End)
                   .size(60.dp),
                 model = weatherState.iconUrl,
-                contentDescription = stringResource(R.string.favourite_content_card_weather_icon)
+                contentDescription = stringResource(R.string.content_icon_description_weather_icon)
               )
               Text(
                 modifier = Modifier.align(Alignment.Start),
@@ -248,7 +248,7 @@ private fun SearchCard(
         contentDescription = "Search"
       )
       Text(
-        modifier = Modifier.padding(horizontal = 16.dp),
+        modifier = Modifier.padding(end = 16.dp),
         text = stringResource(R.string.favourite_content_text_search),
         color = MaterialTheme.colorScheme.background)
     }
