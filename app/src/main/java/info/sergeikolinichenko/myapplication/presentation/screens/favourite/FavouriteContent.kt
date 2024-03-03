@@ -43,6 +43,7 @@ import info.sergeikolinichenko.myapplication.R
 import info.sergeikolinichenko.myapplication.entity.CityToScreen
 import info.sergeikolinichenko.myapplication.presentation.ui.theme.CardGradients
 import info.sergeikolinichenko.myapplication.presentation.ui.theme.Gradient
+import info.sergeikolinichenko.myapplication.utils.ResponsiveText
 import info.sergeikolinichenko.myapplication.utils.toCelsius
 import kotlin.random.Random
 
@@ -65,7 +66,7 @@ fun FavouriteContent(component: FavouriteComponent) {
     )
     AddFavouriteFloatingActionButton(
       modifier = Modifier.align(Alignment.BottomCenter),
-      onClickFloatingActionButton = { component.onButtonClicked()}
+      onClickFloatingActionButton = { component.onButtonClicked() }
     )
 
   }
@@ -97,11 +98,11 @@ private fun FavoriteVerticalGrid(
     itemsIndexed(
       items = state.value.cityItems,
       key = { _, item -> item.city.id }
-    ) {index , item ->
+    ) { index, item ->
       CityCard(
         item = item,
         index = index,
-        onClickToCity = { onClickToCity(item.city)}
+        onClickToCity = { onClickToCity(item.city) }
       )
     }
   }
@@ -144,7 +145,7 @@ private fun CityCard(
         }
         .padding(24.dp)
         .clickable { onClickToCity() }
-    ){
+    ) {
 
       Column(
         modifier = Modifier
@@ -153,50 +154,62 @@ private fun CityCard(
         verticalArrangement = Arrangement.SpaceEvenly
       ) {
 
-          when(val weatherState = item.weatherState) {
-            FavouriteStore.State.WeatherState.Error -> {}
-            FavouriteStore.State.WeatherState.Initial -> {}
-            is FavouriteStore.State.WeatherState.LoadedWeather -> {
-              GlideImage(
-                modifier = Modifier
-                  .align(Alignment.End)
-                  .size(60.dp),
-                model = weatherState.iconUrl,
-                contentDescription = stringResource(R.string.content_icon_description_weather_icon)
-              )
+        when (val weatherState = item.weatherState) {
+          FavouriteStore.State.WeatherState.Error -> {
+            Box(
+              modifier = Modifier.fillMaxSize(),
+              contentAlignment = Alignment.Center
+            ) {
               Text(
-                modifier = Modifier.align(Alignment.Start),
-                style = MaterialTheme.typography.bodyLarge.copy(fontSize = 50.sp),
-                color = MaterialTheme.colorScheme.background,
-                text = weatherState.temperature.toCelsius()
-              )
-            }
-            FavouriteStore.State.WeatherState.Loading -> {
-              CircularProgressIndicator(
-                modifier = Modifier
-                  .align(Alignment.CenterHorizontally),
-                color = MaterialTheme.colorScheme.background
+                text = stringResource(R.string.favourtite_content_error_weather_for_city),
+                style = MaterialTheme.typography.bodyLarge.copy(fontSize = 40.sp)
               )
             }
           }
-        Text(
+
+          FavouriteStore.State.WeatherState.Initial -> {}
+          is FavouriteStore.State.WeatherState.LoadedWeather -> {
+            GlideImage(
+              modifier = Modifier
+                .align(Alignment.End)
+                .size(60.dp),
+              model = weatherState.iconUrl,
+              contentDescription = stringResource(R.string.content_icon_description_weather_icon)
+            )
+            Text(
+              modifier = Modifier.align(Alignment.Start),
+              style = MaterialTheme.typography.bodyLarge.copy(fontSize = 40.sp),
+              color = MaterialTheme.colorScheme.background,
+              text = weatherState.temperature.toCelsius()
+            )
+          }
+
+          FavouriteStore.State.WeatherState.Loading -> {
+            CircularProgressIndicator(
+              modifier = Modifier
+                .align(Alignment.CenterHorizontally),
+              color = MaterialTheme.colorScheme.background
+            )
+          }
+        }
+        ResponsiveText(
+          text = item.city.name,
           modifier = Modifier.align(Alignment.Start),
-          style = MaterialTheme.typography.titleLarge,
-          color = MaterialTheme.colorScheme.background,
-          text = item.city.name
+          textStyle = MaterialTheme.typography.titleLarge,
+          color = MaterialTheme.colorScheme.background
         )
-        Text(
+        ResponsiveText(
+          text = item.city.country,
           modifier = Modifier.align(Alignment.Start),
-          style = MaterialTheme.typography.titleMedium,
+          textStyle = MaterialTheme.typography.titleSmall,
           color = MaterialTheme.colorScheme.background,
-          text = item.city.country
         )
       }
     }
   }
 }
 
-private fun getGradient(index: Int) : Gradient {
+private fun getGradient(index: Int): Gradient {
   val gradients = CardGradients.gradients
   val number = index % gradients.size
   return gradients[number]
@@ -207,19 +220,23 @@ private fun AddFavouriteFloatingActionButton(
   modifier: Modifier = Modifier,
   onClickFloatingActionButton: () -> Unit
 ) {
-    ExtendedFloatingActionButton(
-      modifier = modifier
-        .padding(16.dp),
-      onClick = { onClickFloatingActionButton() },
-      icon = { Icon(
-          Icons.Filled.Add,
-          "Add Favourite"
-        ) },
-      text = { Text(
-          text = stringResource(R.string.ext_floating_action_button_title),
-          style = MaterialTheme.typography.titleMedium
-        ) },
-    )
+  ExtendedFloatingActionButton(
+    modifier = modifier
+      .padding(16.dp),
+    onClick = { onClickFloatingActionButton() },
+    icon = {
+      Icon(
+        Icons.Filled.Add,
+        "Add Favourite"
+      )
+    },
+    text = {
+      Text(
+        text = stringResource(R.string.ext_floating_action_button_title),
+        style = MaterialTheme.typography.titleMedium
+      )
+    },
+  )
 }
 
 @Composable
@@ -236,8 +253,8 @@ private fun SearchCard(
     Row(
       modifier = modifier
         .fillMaxWidth()
-        .background(gradient.primaryGradient).
-        clickable { onClickSearch() },
+        .background(gradient.primaryGradient)
+        .clickable { onClickSearch() },
       verticalAlignment = Alignment.CenterVertically,
     ) {
       Icon(
@@ -250,7 +267,8 @@ private fun SearchCard(
       Text(
         modifier = Modifier.padding(end = 16.dp),
         text = stringResource(R.string.favourite_content_text_search),
-        color = MaterialTheme.colorScheme.background)
+        color = MaterialTheme.colorScheme.background
+      )
     }
   }
 }

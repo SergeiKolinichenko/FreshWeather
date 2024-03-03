@@ -5,6 +5,7 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.create
+import java.util.Locale
 
 /** Created by Sergei Kolinichenko on 21.02.2024 at 19:53 (GMT+3) **/
 
@@ -12,6 +13,7 @@ object ApiFactory {
 
   private const val BASE_URL = "https://api.weatherapi.com/v1/"
   private const val PARAM_KEY = "key"
+  private const val PARAM_LANG = "lang"
 
   private val okHttpClient = OkHttpClient.Builder()
     .addInterceptor{ chain ->
@@ -20,6 +22,7 @@ object ApiFactory {
       val originalHttpUrl = originalRequest.url()
       val url = originalHttpUrl.newBuilder()
         .addQueryParameter( PARAM_KEY, BuildConfig.API_KEY)
+        .addQueryParameter(PARAM_LANG, Locale.getDefault().language)
         .build()
       val desiredRequest = originalRequest.newBuilder()
         .url(url)

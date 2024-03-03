@@ -8,4 +8,7 @@
   <string name="details_content_text_description_button_favourite">Икона Любимое</string>
   <string name="details_content_text_description_weather_condition">Состояние погоды</string>
   <string name="details_content_title_block_upcoming_weather">Погода на ближайшее время</string>
+  <string name="search_content_message_text_nothing_found_on_your_request">По вашему запросу ничего не найдено</string>
+  <string name="search_content_message_text_error_something_gone_wrong">Ошибка! Что то пошло не так.</string>
+  <string name="favourtite_content_error_weather_for_city">Ошибка! Погода в этом городе сейчас недоступна. Пожалуйста, повторите попытку позже.</string>
 </resources>
