@@ -6,7 +6,12 @@ import java.util.Calendar
 
 data class Weather(
     val temperature: Float,
+    val maxTemp: Float?,
+    val minTemp: Float?,
     val descriptionWeather: String,
     val conditionUrl: String,
+    val windSpeed: Float,
+    val airPressure: Float,
+    val humidity: Int,
     val date: Calendar
     )

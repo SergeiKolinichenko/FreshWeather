@@ -4,5 +4,6 @@ package info.sergeikolinichenko.domain.entity
 
 data class Forecast(
   val currentWeather: Weather,
-  val upcoming: List<Weather>
+  val upcomingDays: List<Weather>,
+  val upcomingHours: List<Weather>
 )

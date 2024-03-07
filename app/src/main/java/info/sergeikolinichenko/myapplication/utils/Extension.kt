@@ -22,6 +22,11 @@ fun Calendar.formattedFullDate(): String {
   return format.format(time)
 }
 fun Calendar.formattedShortDayOfWeek(): String {
-  val format = SimpleDateFormat("EEE", Locale.getDefault())
+  val format = SimpleDateFormat("EEE | dd.MM", Locale.getDefault())
+  return format.format(time)
+}
+
+fun Calendar.formattedHourAtDay(): String {
+  val format = SimpleDateFormat("HH:mm", Locale.getDefault())
   return format.format(time)
 }

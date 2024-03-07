@@ -7,8 +7,12 @@
   <string name="details_content_text_description_button_back">Бутон обратно</string>
   <string name="details_content_text_description_button_favourite">Икона Любими</string>
   <string name="details_content_text_description_weather_condition">Състояние на времето</string>
-  <string name="details_content_title_block_upcoming_weather">Предстоящо време</string>
+  <string name="details_content_title_block_upcoming_weather">Времето за следващите 2 дни</string>
   <string name="search_content_message_text_nothing_found_on_your_request">Нищо не беше намерено за вашата заявка</string>
   <string name="search_content_message_text_error_something_gone_wrong">Грешка! Нещо се е объркало.</string>
   <string name="favourtite_content_error_weather_for_city">Грешка! Времето за този град в момента не е налично. Моля, опитайте отново по-късно.</string>
+  <string name="deatails_content_wind_speed_km_h">Скорост на вятъра %1$s км/ч</string>
+  <string name="deatails_content_atmospheric_pressure_mbar">Атм. налягане %1$s mbar</string>
+  <string name="details_content_humidity">Влажност %1$s %%</string>
+  <string name="details_content_title_block_upcoming_hourly_weather">Почасова прогноза за времето</string>
 </resources>

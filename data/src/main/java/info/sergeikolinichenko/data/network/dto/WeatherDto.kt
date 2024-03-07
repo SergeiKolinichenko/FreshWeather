@@ -14,6 +14,14 @@ data class WeatherDto(
   @SerializedName("temp_f")
   val temperatureF: Float,
 
+  @SerializedName("wind_kph")
+  val windSpeed: Float,
+
+  @SerializedName("pressure_mb")
+  val airPressure: Float,
+
+  val humidity: Int,
+
   @SerializedName("condition")
   val condition: ConditionDto
 )

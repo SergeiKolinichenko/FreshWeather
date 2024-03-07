@@ -2,6 +2,7 @@ package info.sergeikolinichenko.data.network.api
 
 import info.sergeikolinichenko.data.BuildConfig
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.create
@@ -15,11 +16,18 @@ object ApiFactory {
   private const val PARAM_KEY = "key"
   private const val PARAM_LANG = "lang"
 
+  private val logging = HttpLoggingInterceptor()
+  init {
+    logging.level = HttpLoggingInterceptor.Level.BODY
+  }
+
+
   private val okHttpClient = OkHttpClient.Builder()
+    .addInterceptor(logging)
     .addInterceptor{ chain ->
       // Add API key to every request
       val originalRequest = chain.request()
-      val originalHttpUrl = originalRequest.url()
+      val originalHttpUrl = originalRequest.url
       val url = originalHttpUrl.newBuilder()
         .addQueryParameter( PARAM_KEY, BuildConfig.API_KEY)
         .addQueryParameter(PARAM_LANG, Locale.getDefault().language)
@@ -28,8 +36,8 @@ object ApiFactory {
         .url(url)
         .build()
       chain.proceed(desiredRequest)
-    }.build()
-
+    }
+    .build()
 
   private val retrofit = Retrofit.Builder()
     .baseUrl(BASE_URL)

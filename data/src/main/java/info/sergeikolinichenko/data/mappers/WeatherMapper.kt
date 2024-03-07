@@ -12,21 +12,47 @@ import java.util.Calendar
 fun WeatherCurrentDto.toWeather(): Weather = current.toWeather()
 fun WeatherForecastDto.toForecast() = Forecast(
   currentWeather = current.toWeather(),
-  upcoming = forecast.forecastDay.drop(1).map { dayDto ->
-    val weatherDto = dayDto.dayWeatherDto
+  upcomingDays = forecast.forecastDay.drop(1).map { dayDto ->
+    val weatherDto = dayDto.dayWeather
     Weather(
       temperature = weatherDto.avgTemperatureC,
+      maxTemp = weatherDto.maxTemperatureC,
+      minTemp = weatherDto.minTemperatureC,
       descriptionWeather = weatherDto.conditionDto.condition,
       conditionUrl = weatherDto.conditionDto.conditionUrl.correctUrl(),
+      windSpeed = current.windSpeed,
+      airPressure = current.airPressure,
+      humidity = current.humidity,
       date = dayDto.date.toCalendar()
     )
+  },
+
+  upcomingHours = forecast.forecastDay.flatMap { day ->
+    day.hourWeatherArray.map{ hour ->
+      Weather(
+        temperature = hour.hourTemp,
+        maxTemp = null,
+        minTemp = null,
+        descriptionWeather = hour.hourCond.description,
+        conditionUrl = hour.hourCond.icon.correctUrl(),
+        windSpeed = hour.hourWindKph,
+        airPressure = hour.hourPressure,
+        humidity = hour.hourHumidity,
+        date = hour.hourTime.toCalendar()
+      )
+    }
   }
 )
 fun WeatherDto.toWeather(): Weather {
   return Weather(
     temperature = temperatureC,
+    maxTemp = null,
+    minTemp = null,
     descriptionWeather = condition.condition,
     conditionUrl = condition.conditionUrl.correctUrl(),
+    windSpeed = windSpeed,
+    airPressure = airPressure,
+    humidity = humidity,
     date = date.toCalendar()
   )
 }

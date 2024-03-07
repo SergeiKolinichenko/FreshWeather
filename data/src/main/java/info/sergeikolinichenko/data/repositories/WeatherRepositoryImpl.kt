@@ -9,7 +9,7 @@ import info.sergeikolinichenko.domain.repositories.WeatherRepository
 import javax.inject.Inject
 
 class WeatherRepositoryImpl @Inject constructor(
-  val apiService: ApiService
+  private val apiService: ApiService
 ) : WeatherRepository {
   override suspend fun getWeather(id: Int): Weather {
     val response = apiService.getCurrentWeather("$PREFIX_CITY_ID$id")
@@ -28,6 +28,7 @@ class WeatherRepositoryImpl @Inject constructor(
       return response.body()!!.toForecast()
     }
   }
+
   companion object {
     private const val PREFIX_CITY_ID = "id:"
   }

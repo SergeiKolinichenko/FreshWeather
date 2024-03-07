@@ -16,6 +16,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Star
@@ -25,6 +28,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -38,7 +42,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -48,9 +54,12 @@ import info.sergeikolinichenko.domain.entity.Forecast
 import info.sergeikolinichenko.domain.entity.Weather
 import info.sergeikolinichenko.myapplication.R
 import info.sergeikolinichenko.myapplication.presentation.ui.theme.CardGradients
+import info.sergeikolinichenko.myapplication.utils.ResponsiveText
 import info.sergeikolinichenko.myapplication.utils.formattedFullDate
+import info.sergeikolinichenko.myapplication.utils.formattedHourAtDay
 import info.sergeikolinichenko.myapplication.utils.formattedShortDayOfWeek
 import info.sergeikolinichenko.myapplication.utils.toCelsius
+import java.util.Calendar
 import kotlin.random.Random
 
 /** Created by Sergei Kolinichenko on 21.02.2024 at 15:57 (GMT+3) **/
@@ -81,21 +90,32 @@ fun DetailsContent(component: DetailsComponent) {
 
         DetailsStore.State.ForecastState.Initial -> Initial()
 
-        is DetailsStore.State.ForecastState.Loaded -> ForecastLoaded( forecast = forecast.forecast)
+        is DetailsStore.State.ForecastState.Loaded -> ForecastLoaded(forecast = forecast.forecast)
 
         DetailsStore.State.ForecastState.Loading -> Loading()
       }
     }
   }
 }
+
 @Composable
 private fun Initial() {
   // TODO()
 }
+
 @Composable
 private fun Error() {
-  // TODO()
+  Box(
+    modifier = Modifier.fillMaxSize(),
+    contentAlignment = Alignment.Center
+  ) {
+    Text(
+      text = stringResource(R.string.favourtite_content_error_weather_for_city),
+      style = MaterialTheme.typography.bodyLarge
+    )
+  }
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun TopBar(
@@ -135,6 +155,7 @@ private fun TopBar(
     }
   )
 }
+
 @Composable
 private fun Loading() {
   Box(
@@ -146,6 +167,7 @@ private fun Loading() {
     )
   }
 }
+
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 private fun ForecastLoaded(
@@ -159,8 +181,17 @@ private fun ForecastLoaded(
     Spacer(modifier = Modifier.weight(1f))
 
     Text(
+      text = forecast.currentWeather.date.formattedFullDate(),
+      style = MaterialTheme.typography.titleLarge,
+    )
+
+    HorizontalDivider(
+      modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)
+    )
+    Text(
       text = forecast.currentWeather.descriptionWeather,
       style = MaterialTheme.typography.titleLarge,
+      fontWeight = FontWeight.W500
     )
     Row(
       horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -180,27 +211,84 @@ private fun ForecastLoaded(
         contentDescription = stringResource(R.string.details_content_text_description_weather_condition)
       )
     }
-    Text(
-      text = forecast.currentWeather.date.formattedFullDate(),
-      style = MaterialTheme.typography.titleLarge,
-    )
-
+    DetailsCurrentWeather(forecast = forecast)
     Spacer(modifier = Modifier.weight(1f))
-
-    AnimatedUpcomingWeather(upcoming = forecast.upcoming)
-
+    UpcomingHourlyWeather(upcoming = forecast.upcomingHours)
+    Spacer(modifier = Modifier.weight(0.5f))
+    AnimatedUpcomingWeather(upcoming = forecast.upcomingDays)
     Spacer(modifier = Modifier.weight(0.5f))
   }
 }
 @Composable
-private fun UpcomingWeather(
+private fun DetailsCurrentWeather(
+  modifier: Modifier = Modifier,
+  forecast: Forecast
+) {
+  Column(
+    modifier = modifier.padding(start = 20.dp),
+    horizontalAlignment = Alignment.Start
+  ) {
+    Row(
+      verticalAlignment = Alignment.CenterVertically
+    ) {
+      Icon(
+        painter = painterResource(id = R.drawable.air_humidity),
+        contentDescription = null
+      )
+      Spacer(modifier = Modifier.padding(4.dp))
+      Text(
+        text = stringResource(
+          R.string.details_content_humidity,
+          forecast.currentWeather.humidity
+        ),
+        style = MaterialTheme.typography.titleSmall,
+      )
+    }
+    Row(
+      verticalAlignment = Alignment.CenterVertically
+    ) {
+      Icon(
+        painter = painterResource(id = R.drawable.wind_speed),
+        contentDescription = null
+      )
+      Spacer(modifier = Modifier.padding(4.dp))
+      Text(
+        text = stringResource(
+          R.string.deatails_content_wind_speed_km_h,
+          forecast.currentWeather.windSpeed
+        ),
+        style = MaterialTheme.typography.titleSmall,
+      )
+    }
+    Row(
+      verticalAlignment = Alignment.CenterVertically
+    ) {
+      Icon(
+        painter = painterResource(id = R.drawable.atmospheric_pressure),
+        contentDescription = null
+      )
+      Spacer(modifier = Modifier.padding(4.dp))
+      Text(
+        text = stringResource(
+          R.string.deatails_content_atmospheric_pressure_mbar,
+          forecast.currentWeather.airPressure
+        ),
+        style = MaterialTheme.typography.titleSmall,
+      )
+    }
+  }
+}
+@Composable
+private fun UpcomingHourlyWeather(
   modifier: Modifier = Modifier,
   upcoming: List<Weather>
 ) {
+  val currentDate = Calendar.getInstance()
+  val nextHours = upcoming.filter { it.date > currentDate }
   Card(
     modifier = modifier
       .fillMaxWidth()
-      .padding(24.dp),
+      .padding(horizontal = 14.dp, vertical = 6.dp),
     shape = MaterialTheme.shapes.extraLarge,
     colors = CardDefaults.cardColors(
       containerColor = MaterialTheme.colorScheme.background.copy(
@@ -209,35 +297,74 @@ private fun UpcomingWeather(
     )
   ) {
     Column(
-      modifier = Modifier.padding(16.dp)
+      modifier = Modifier.padding(vertical = 4.dp, horizontal = 12.dp)
     ) {
-      Text(
+      ResponsiveText(
         modifier = Modifier
-          .padding(bottom = 24.dp)
+          .align(Alignment.CenterHorizontally),
+        text = stringResource(R.string.details_content_title_block_upcoming_hourly_weather),
+        textStyle = MaterialTheme.typography.headlineMedium
+      )
+      LazyRow(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
+      ) {
+        items(
+          items = nextHours,
+          key = { it.date }
+        ) {
+          WeatherHourItem(weather = it)
+        }
+      }
+    }
+  }
+}
+@Composable
+private fun UpcomingDailyWeather(
+  modifier: Modifier = Modifier,
+  upcoming: List<Weather>
+) {
+  Card(
+    modifier = modifier
+      .fillMaxWidth()
+      .padding(horizontal = 14.dp, vertical = 6.dp),
+    shape = MaterialTheme.shapes.extraLarge,
+    colors = CardDefaults.cardColors(
+      containerColor = MaterialTheme.colorScheme.background.copy(
+        alpha = 0.30f
+      )
+    )
+  ) {
+    Column(
+      modifier = Modifier.padding(vertical = 4.dp, horizontal = 12.dp)
+    ) {
+      ResponsiveText(
+        modifier = Modifier
           .align(Alignment.CenterHorizontally),
         text = stringResource(R.string.details_content_title_block_upcoming_weather),
-        style = MaterialTheme.typography.headlineMedium,
+        textStyle = MaterialTheme.typography.headlineMedium
       )
       Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(16.dp)
       ) {
         upcoming.forEach { weather ->
-          WeatherItem(weather = weather)
+          WeatherDayItem(weather = weather)
         }
       }
     }
   }
 }
+
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-private fun RowScope.WeatherItem(
+private fun RowScope.WeatherDayItem(
   modifier: Modifier = Modifier,
   weather: Weather
 ) {
   Card(
     modifier = modifier
-      .size(130.dp)
+      .sizeIn(minWidth = 100.dp, maxWidth = 150.dp, minHeight = 130.dp, maxHeight = 200.dp)
       .weight(1f),
     colors = CardDefaults.cardColors(
       containerColor = MaterialTheme.colorScheme.background
@@ -246,20 +373,80 @@ private fun RowScope.WeatherItem(
     Column(
       modifier = Modifier
         .fillMaxSize()
-        .padding(8.dp),
+        .padding(4.dp),
       horizontalAlignment = Alignment.CenterHorizontally,
       verticalArrangement = Arrangement.SpaceBetween
     ) {
-      Text(text = weather.temperature.toCelsius())
+      Text(
+        text = "max: ${weather.maxTemp?.toCelsius()}",
+        style = MaterialTheme.typography.bodyLarge
+      )
+      Text(
+        text = "min: ${weather.minTemp?.toCelsius()}",
+        style = MaterialTheme.typography.bodyLarge
+      )
       GlideImage(
-        modifier = Modifier.size(50.dp),
+        modifier = Modifier.size(70.dp),
         model = weather.conditionUrl,
         contentDescription = stringResource(R.string.content_icon_description_weather_icon)
       )
-      Text(text = weather.date.formattedShortDayOfWeek())
+      Text(
+        text = weather.date.formattedShortDayOfWeek(),
+        style = MaterialTheme.typography.bodyLarge
+      )
     }
   }
 }
+
+@OptIn(ExperimentalGlideComposeApi::class)
+@Composable
+private fun WeatherHourItem(
+  modifier: Modifier = Modifier,
+  weather: Weather
+) {
+  Card(
+    modifier = modifier
+      .sizeIn(
+        minWidth = 60.dp,
+        maxWidth = 80.dp,
+        minHeight = 70.dp,
+        maxHeight = 124.dp
+      ),
+    colors = CardDefaults.cardColors(
+      containerColor = MaterialTheme.colorScheme.background
+    )
+  ) {
+    Column(
+      modifier = Modifier
+        .fillMaxSize()
+        .padding(4.dp),
+      horizontalAlignment = Alignment.CenterHorizontally,
+      verticalArrangement = Arrangement.SpaceBetween
+    ) {
+      Text(
+        text = weather.date.formattedHourAtDay(),
+        style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.W500)
+      )
+      HorizontalDivider(
+        modifier = Modifier.padding(horizontal = 10.dp, vertical = 2.dp)
+      )
+      GlideImage(
+        modifier = Modifier.size(48.dp),
+        model = weather.conditionUrl,
+        contentDescription = stringResource(R.string.content_icon_description_weather_icon)
+      )
+      Text(
+        text = weather.temperature.toCelsius(),
+        style = MaterialTheme.typography.bodySmall
+      )
+      Text(
+        text = "${weather.humidity}%",
+        style = MaterialTheme.typography.bodySmall
+      )
+    }
+  }
+}
+
 @Composable
 private fun AnimatedUpcomingWeather(upcoming: List<Weather>) {
 
@@ -270,8 +457,8 @@ private fun AnimatedUpcomingWeather(upcoming: List<Weather>) {
     visibleState = state,
     enter = fadeIn(animationSpec = tween(500))
         + slideIn(animationSpec = tween(500),
-          initialOffset = { IntOffset(0, it.height) }),
+      initialOffset = { IntOffset(0, it.height) }),
   ) {
-    UpcomingWeather(upcoming = upcoming)
+    UpcomingDailyWeather(upcoming = upcoming)
   }
 }

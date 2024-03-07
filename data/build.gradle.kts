@@ -48,6 +48,7 @@ dependencies {
 
   implementation(libs.retrofit.core)
   implementation(libs.retrofit.gsonConverter)
+  implementation(libs.retrofit.logging.interceptor)
 
   testImplementation(libs.junit)
   androidTestImplementation(libs.androidx.test.ext.junit)

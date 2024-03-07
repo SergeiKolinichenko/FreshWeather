@@ -162,7 +162,7 @@ private fun CityCard(
             ) {
               Text(
                 text = stringResource(R.string.favourtite_content_error_weather_for_city),
-                style = MaterialTheme.typography.bodyLarge.copy(fontSize = 40.sp)
+                style = MaterialTheme.typography.bodyLarge
               )
             }
           }

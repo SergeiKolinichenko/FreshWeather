@@ -9,5 +9,8 @@ data class DayDto(
   val date: Long,
 
   @SerializedName("day")
-  val dayWeatherDto: DayWeatherDto,
+  val dayWeather: DayWeatherDto,
+
+  @SerializedName("hour")
+  val hourWeatherArray: List<HourDto>
 )
