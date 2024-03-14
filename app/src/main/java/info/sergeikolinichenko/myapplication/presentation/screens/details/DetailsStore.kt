@@ -11,7 +11,7 @@ import info.sergeikolinichenko.domain.entity.Forecast
 import info.sergeikolinichenko.domain.usecases.ChangeFavouriteStateUseCase
 import info.sergeikolinichenko.domain.usecases.GerForecastUseCase
 import info.sergeikolinichenko.domain.usecases.ObserveFavouriteStateUseCase
-import info.sergeikolinichenko.myapplication.entity.CityToScreen
+import info.sergeikolinichenko.myapplication.entity.CityScreen
 import info.sergeikolinichenko.myapplication.presentation.screens.details.DetailsStore.Intent
 import info.sergeikolinichenko.myapplication.presentation.screens.details.DetailsStore.Label
 import info.sergeikolinichenko.myapplication.presentation.screens.details.DetailsStore.State
@@ -27,7 +27,7 @@ interface DetailsStore : Store<Intent, State, Label> {
   }
 
   data class State(
-    val city: CityToScreen,
+    val city: CityScreen,
     val isFavourite: Boolean,
     val forecastState: ForecastState
   ) {
@@ -51,7 +51,7 @@ class DetailsStoreFactory @Inject constructor(
   private val observeFavouriteState: ObserveFavouriteStateUseCase
 ) {
 
-  fun create(city: CityToScreen): DetailsStore =
+  fun create(city: CityScreen): DetailsStore =
     object : DetailsStore, Store<Intent, State, Label> by storeFactory.create(
       name = "DetailsStore",
       initialState = State(
@@ -79,7 +79,7 @@ class DetailsStoreFactory @Inject constructor(
   }
 
   private inner class BootstrapperImpl(
-    private val city: CityToScreen
+    private val city: CityScreen
   ) : CoroutineBootstrapper<Action>() {
     override fun invoke() {
       scope.launch {

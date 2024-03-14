@@ -26,38 +26,72 @@ data class Gradient(
   )
 }
 
-object CardGradients {
+object CardLightGradients {
   val gradients = listOf(
     Gradient(
-      firstColor = Color(0xFFFFDF37),
-      secondColor = Color(0xFFFF5621),
-      thirdColor = Color(0xFFFFCE21),
-      fourthColor = Color(0xFFFF7F57),
+      firstColor = Color(0xFFEFE8A4),
+      secondColor = Color(0xFFEFA984),
+      thirdColor = Color(0xFFEFD984),
+      fourthColor = Color(0xFFEFBFA3),
     ),
     Gradient(
-      firstColor = Color(0xFFFB37FF),
-      secondColor = Color(0xFF3531FF),
-      thirdColor = Color(0x245000FF),
-      fourthColor = Color(0x8A8433FF),
+      firstColor = Color(0xFFEFA4EF),
+      secondColor = Color(0xFFA4A4EF),
+      thirdColor = Color(0xFFD0A4EF),
+      fourthColor = Color(0xFFC1B3EF),
     ),
     Gradient(
-      firstColor = Color(0xFF5CFF63),
-      secondColor = Color(0xFF25FFFF),
-      thirdColor = Color(0x1600B498),
-      fourthColor = Color(0x00029A14),
+      firstColor = Color(0xFFA4EFA7),
+      secondColor = Color(0xFFA4EFEF),
+      thirdColor = Color(0xFFA4D6C2),
+      fourthColor = Color(0xFFA4C8B0),
     ),
     Gradient(
-      firstColor = Color(0xFF379FFF),
-      secondColor = Color(0xFF4021FF),
-      thirdColor = Color(0x633B67FF),
-      fourthColor = Color(0x523895FF),
+      firstColor = Color(0xFFA4EFEF),
+      secondColor = Color(0xFFA4A4EF),
+      thirdColor = Color(0xFFB3B3EF),
+      fourthColor = Color(0xFFB3B3EF),
     ),
     Gradient(
-      firstColor = Color(0xFFFF7AA2),
-      secondColor = Color(0xFF9021FF),
-      thirdColor = Color(0xFFB33DE2),
-      fourthColor = Color(0x00F270AD),
+      firstColor = Color(0xFFEFA4C1),
+      secondColor = Color(0xFFC1A4EF),
+      thirdColor = Color(0xFFD6A4E1),
+      fourthColor = Color(0xFFEFA4B9),
     )
   )
+}
 
+object CardDarkGradients {
+  val gradients = listOf(
+    Gradient(
+      firstColor = Color(0xFF6B7280),
+      secondColor = Color(0xFF374151),
+      thirdColor = Color(0xFF4B5563),
+      fourthColor = Color(0xFF6B7280),
+    ),
+    Gradient(
+      firstColor = Color(0xFF4B5563),
+      secondColor = Color(0xFF6B7280),
+      thirdColor = Color(0xFF4B5563),
+      fourthColor = Color(0xFF6B7280),
+    ),
+    Gradient(
+      firstColor = Color(0xFF374151),
+      secondColor = Color(0xFF4B5563),
+      thirdColor = Color(0xFF6B7280),
+      fourthColor = Color(0xFF4B5563),
+    ),
+    Gradient(
+      firstColor = Color(0xFF4B5563),
+      secondColor = Color(0xFF374151),
+      thirdColor = Color(0xFF6B7280),
+      fourthColor = Color(0xFF4B5563),
+    ),
+    Gradient(
+      firstColor = Color(0xFF6B7280),
+      secondColor = Color(0xFF4B5563),
+      thirdColor = Color(0xFF374151),
+      fourthColor = Color(0xFF6B7280),
+    )
+  )
 }

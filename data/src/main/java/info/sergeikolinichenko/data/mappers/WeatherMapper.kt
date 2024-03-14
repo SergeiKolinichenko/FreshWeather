@@ -5,7 +5,6 @@ import info.sergeikolinichenko.data.network.dto.WeatherDto
 import info.sergeikolinichenko.data.network.dto.WeatherForecastDto
 import info.sergeikolinichenko.domain.entity.Forecast
 import info.sergeikolinichenko.domain.entity.Weather
-import java.util.Calendar
 
 /** Created by Sergei Kolinichenko on 23.02.2024 at 20:18 (GMT+3) **/
 
@@ -23,12 +22,12 @@ fun WeatherForecastDto.toForecast() = Forecast(
       windSpeed = current.windSpeed,
       airPressure = current.airPressure,
       humidity = current.humidity,
-      date = dayDto.date.toCalendar()
+      date = dayDto.date
     )
   },
 
   upcomingHours = forecast.forecastDay.flatMap { day ->
-    day.hourWeatherArray.map{ hour ->
+    day.hourWeatherArray.map { hour ->
       Weather(
         temperature = hour.hourTemp,
         maxTemp = null,
@@ -38,11 +37,12 @@ fun WeatherForecastDto.toForecast() = Forecast(
         windSpeed = hour.hourWindKph,
         airPressure = hour.hourPressure,
         humidity = hour.hourHumidity,
-        date = hour.hourTime.toCalendar()
+        date = hour.hourTime
       )
     }
   }
 )
+
 fun WeatherDto.toWeather(): Weather {
   return Weather(
     temperature = temperatureC,
@@ -53,14 +53,8 @@ fun WeatherDto.toWeather(): Weather {
     windSpeed = windSpeed,
     airPressure = airPressure,
     humidity = humidity,
-    date = date.toCalendar()
+    date = date
   )
-}
-
-private fun Long.toCalendar(): Calendar {
-  val calendar = Calendar.getInstance()
-  calendar.timeInMillis = this * 1000
-  return calendar
 }
 
 private fun String.correctUrl() = "https:$this".replace(

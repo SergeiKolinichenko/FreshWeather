@@ -11,7 +11,7 @@ import com.arkivanov.decompose.value.Value
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import info.sergeikolinichenko.myapplication.entity.CityToScreen
+import info.sergeikolinichenko.myapplication.entity.CityScreen
 import info.sergeikolinichenko.myapplication.presentation.screens.details.DefaultDetailsComponent
 import info.sergeikolinichenko.myapplication.presentation.screens.favourite.DefaultFavouriteComponent
 import info.sergeikolinichenko.myapplication.presentation.screens.search.DefaultSearchComponent
@@ -71,7 +71,7 @@ class DefaultRootComponent @AssistedInject constructor(
         @Parcelize
         data object Favourite : Config
         @Parcelize
-        data class Details(val city: CityToScreen) : Config
+        data class Details(val city: CityScreen) : Config
         @Parcelize
         data class Search(val options: OpeningOptions) : Config
     }

@@ -10,11 +10,11 @@ import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineExecutor
 import info.sergeikolinichenko.domain.entity.City
 import info.sergeikolinichenko.domain.usecases.GetCurrentWeatherUseCase
 import info.sergeikolinichenko.domain.usecases.GetFavouriteCitiesUseCase
-import info.sergeikolinichenko.myapplication.entity.CityToScreen
+import info.sergeikolinichenko.myapplication.entity.CityScreen
 import info.sergeikolinichenko.myapplication.presentation.screens.favourite.FavouriteStore.Intent
 import info.sergeikolinichenko.myapplication.presentation.screens.favourite.FavouriteStore.Label
 import info.sergeikolinichenko.myapplication.presentation.screens.favourite.FavouriteStore.State
-import info.sergeikolinichenko.myapplication.utils.toCityToScreen
+import info.sergeikolinichenko.myapplication.utils.toCityScreen
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -23,7 +23,7 @@ interface FavouriteStore : Store<Intent, State, Label> {
   sealed interface Intent {
     data object SearchClicked : Intent
     data object ButtonClicked : Intent
-    data class ItemClicked(val city: CityToScreen) : Intent
+    data class ItemClicked(val city: CityScreen) : Intent
   }
 
   data class State(
@@ -31,7 +31,7 @@ interface FavouriteStore : Store<Intent, State, Label> {
   ) {
 
     data class CityItem(
-      val city: CityToScreen,
+      val city: CityScreen,
       val weatherState: WeatherState
     )
 
@@ -49,7 +49,7 @@ interface FavouriteStore : Store<Intent, State, Label> {
   sealed interface Label {
     data object ClickSearch : Label
     data object ClickToButton : Label
-    data class OnClickCity(val city: CityToScreen) : Label
+    data class OnClickCity(val city: CityScreen) : Label
   }
 }
 
@@ -99,7 +99,7 @@ class FavouriteStoreFactory @Inject constructor(
       when (intent) {
         is Intent.SearchClicked -> publish(Label.ClickSearch)
         is Intent.ButtonClicked -> publish(Label.ClickToButton)
-        is Intent.ItemClicked -> publish(Label.OnClickCity(intent.city))
+        is Intent.ItemClicked -> publish(Label.OnClickCity(intent.city) )
       }
     }
 
@@ -141,7 +141,7 @@ class FavouriteStoreFactory @Inject constructor(
           copy(
             cityItems = msg.cities.map { city ->
               State.CityItem(
-                city = city.toCityToScreen(),
+                city = city.toCityScreen(),
                 weatherState = State.WeatherState.Initial
               )
             }
