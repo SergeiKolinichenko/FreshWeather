@@ -1,6 +1,6 @@
 package info.sergeikolinichenko.myapplication.presentation.screens.search
 
-import info.sergeikolinichenko.myapplication.entity.CityToScreen
+import info.sergeikolinichenko.myapplication.entity.CityScreen
 import kotlinx.coroutines.flow.StateFlow
 
 /** Created by Sergei Kolinichenko on 21.02.2024 at 15:11 (GMT+3) **/
@@ -11,5 +11,5 @@ interface SearchComponent {
   fun onSearchClicked()
   fun onBackClicked()
   fun onQueryChanged(query: String)
-  fun onItemClicked(city: CityToScreen)
+  fun onItemClicked(city: CityScreen)
 }

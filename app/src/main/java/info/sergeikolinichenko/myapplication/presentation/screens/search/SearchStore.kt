@@ -10,7 +10,7 @@ import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineExecutor
 import info.sergeikolinichenko.domain.entity.City
 import info.sergeikolinichenko.domain.usecases.ChangeFavouriteStateUseCase
 import info.sergeikolinichenko.domain.usecases.SearchCityUseCase
-import info.sergeikolinichenko.myapplication.entity.CityToScreen
+import info.sergeikolinichenko.myapplication.entity.CityScreen
 import info.sergeikolinichenko.myapplication.presentation.screens.search.SearchStore.Intent
 import info.sergeikolinichenko.myapplication.presentation.screens.search.SearchStore.Label
 import info.sergeikolinichenko.myapplication.presentation.screens.search.SearchStore.State
@@ -23,7 +23,7 @@ interface SearchStore : Store<Intent, State, Label> {
 
   sealed interface Intent {
     data class SearchQueryChanged(val query: String) : Intent
-    data class CityClicked(val city: CityToScreen) : Intent
+    data class CityClicked(val city: CityScreen) : Intent
     data object ClickSearch : Intent
     data object ClickBack : Intent
   }
@@ -44,7 +44,7 @@ interface SearchStore : Store<Intent, State, Label> {
   sealed interface Label {
     data object ClickBack : Label
     data object SavedToFavorite : Label
-    data class OpenCityForecast(val city: CityToScreen) : Label
+    data class OpenCityForecast(val city: CityScreen) : Label
   }
 }
 

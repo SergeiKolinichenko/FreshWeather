@@ -7,7 +7,7 @@ import com.arkivanov.mvikotlin.extensions.coroutines.stateFlow
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import info.sergeikolinichenko.myapplication.entity.CityToScreen
+import info.sergeikolinichenko.myapplication.entity.CityScreen
 import info.sergeikolinichenko.myapplication.utils.componentScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.StateFlow
@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 
 class DefaultSearchComponent @AssistedInject constructor(
   @Assisted("onClickBack") private val onClickBack: () -> Unit,
-  @Assisted("onClickItem") private val onClickItem: (CityToScreen) -> Unit,
+  @Assisted("onClickItem") private val onClickItem: (CityScreen) -> Unit,
   @Assisted("savedToFavourite") private val savedToFavourite: () -> Unit,
   @Assisted("openingOptions") private val openingOptions: OpeningOptions,
   @Assisted("componentContext") private val componentContext: ComponentContext,
@@ -47,14 +47,14 @@ class DefaultSearchComponent @AssistedInject constructor(
   override fun onQueryChanged(query: String) =
     store.accept(SearchStore.Intent.SearchQueryChanged(query))
 
-  override fun onItemClicked(city: CityToScreen) =
+  override fun onItemClicked(city: CityScreen) =
     store.accept(SearchStore.Intent.CityClicked(city))
 
   @AssistedFactory
   interface Factory {
     fun create(
       @Assisted("onClickBack") onClickBack: () -> Unit,
-      @Assisted("onClickItem") onClickItem: (CityToScreen) -> Unit,
+      @Assisted("onClickItem") onClickItem: (CityScreen) -> Unit,
       @Assisted("savedToFavourite") savedToFavourite: () -> Unit,
       @Assisted("openingOptions") openingOptions: OpeningOptions,
       @Assisted("componentContext") componentContext: ComponentContext

@@ -35,7 +35,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import info.sergeikolinichenko.domain.entity.City
 import info.sergeikolinichenko.myapplication.R
-import info.sergeikolinichenko.myapplication.utils.toCityToScreen
+import info.sergeikolinichenko.myapplication.utils.toCityScreen
 
 /** Created by Sergei Kolinichenko on 21.02.2024 at 16:06 (GMT+3) **/
 
@@ -109,7 +109,7 @@ fun SearchContent(component: SearchComponent) {
           ) { item ->
             CityCard(
               city = item,
-              onCityClicked = { component.onItemClicked(city = it.toCityToScreen()) }
+              onCityClicked = { component.onItemClicked(city = it.toCityScreen()) }
             )
           }
         }

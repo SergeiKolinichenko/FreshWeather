@@ -7,7 +7,7 @@ import com.arkivanov.mvikotlin.extensions.coroutines.stateFlow
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import info.sergeikolinichenko.myapplication.entity.CityToScreen
+import info.sergeikolinichenko.myapplication.entity.CityScreen
 import info.sergeikolinichenko.myapplication.utils.componentScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.StateFlow
@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 class DefaultFavouriteComponent @AssistedInject constructor(
   @Assisted("onClickSearch") private val onClickSearch: () -> Unit,
   @Assisted("onClickButton") private val onClickButton: () -> Unit,
-  @Assisted("onClickCity") private val onClickCity: (CityToScreen) -> Unit,
+  @Assisted("onClickCity") private val onClickCity: (CityScreen) -> Unit,
   @Assisted("componentContext") private val componentContext: ComponentContext,
   private val storeFactory: FavouriteStoreFactory
 ) : FavouriteComponent, ComponentContext by componentContext {
@@ -47,7 +47,7 @@ class DefaultFavouriteComponent @AssistedInject constructor(
     store.accept(FavouriteStore.Intent.ButtonClicked)
   }
 
-  override fun onItemClicked(city: CityToScreen) {
+  override fun onItemClicked(city: CityScreen) {
     store.accept(FavouriteStore.Intent.ItemClicked(city))
   }
   @AssistedFactory
@@ -55,7 +55,7 @@ class DefaultFavouriteComponent @AssistedInject constructor(
     fun create(
       @Assisted("onClickSearch") onClickSearch: () -> Unit,
       @Assisted("onClickButton") onClickButton: () -> Unit,
-      @Assisted("onClickCity") onClickCity: (CityToScreen) -> Unit,
+      @Assisted("onClickCity") onClickCity: (CityScreen) -> Unit,
       @Assisted("componentContext") componentContext: ComponentContext
     ): DefaultFavouriteComponent
   }

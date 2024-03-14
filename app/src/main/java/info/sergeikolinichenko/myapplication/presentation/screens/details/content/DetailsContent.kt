@@ -1,4 +1,4 @@
-package info.sergeikolinichenko.myapplication.presentation.screens.details
+package info.sergeikolinichenko.myapplication.presentation.screens.details.content
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.MutableTransitionState
@@ -6,6 +6,8 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideIn
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,11 +16,14 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Star
@@ -53,28 +58,36 @@ import com.bumptech.glide.integration.compose.GlideImage
 import info.sergeikolinichenko.domain.entity.Forecast
 import info.sergeikolinichenko.domain.entity.Weather
 import info.sergeikolinichenko.myapplication.R
-import info.sergeikolinichenko.myapplication.presentation.ui.theme.CardGradients
+import info.sergeikolinichenko.myapplication.presentation.screens.details.DetailsComponent
+import info.sergeikolinichenko.myapplication.presentation.screens.details.DetailsStore
+import info.sergeikolinichenko.myapplication.presentation.ui.theme.CardDarkGradients
+import info.sergeikolinichenko.myapplication.presentation.ui.theme.CardLightGradients
+import info.sergeikolinichenko.myapplication.presentation.ui.theme.Gradient
 import info.sergeikolinichenko.myapplication.utils.ResponsiveText
 import info.sergeikolinichenko.myapplication.utils.formattedFullDate
 import info.sergeikolinichenko.myapplication.utils.formattedHourAtDay
 import info.sergeikolinichenko.myapplication.utils.formattedShortDayOfWeek
+import info.sergeikolinichenko.myapplication.utils.toCalendar
 import info.sergeikolinichenko.myapplication.utils.toCelsius
+import info.sergeikolinichenko.myapplication.utils.toWeatherScreen
 import java.util.Calendar
 import kotlin.random.Random
 
 /** Created by Sergei Kolinichenko on 21.02.2024 at 15:57 (GMT+3) **/
-
 @Composable
 fun DetailsContent(component: DetailsComponent) {
 
   val state by component.model.collectAsState()
+
+  val gradient = if (isSystemInDarkTheme()) CardDarkGradients.gradients[Random.nextInt(0, 5)]
+  else CardLightGradients.gradients[Random.nextInt(0, 5)]
 
   Scaffold(
     containerColor = Color.Transparent,
     contentColor = MaterialTheme.colorScheme.background,
     modifier = Modifier
       .fillMaxSize()
-      .background(CardGradients.gradients[Random.nextInt(0, 5)].primaryGradient),
+      .background(gradient.primaryGradient),
     topBar = {
       TopBar(
         cityName = state.city.name,
@@ -90,7 +103,10 @@ fun DetailsContent(component: DetailsComponent) {
 
         DetailsStore.State.ForecastState.Initial -> Initial()
 
-        is DetailsStore.State.ForecastState.Loaded -> ForecastLoaded(forecast = forecast.forecast)
+        is DetailsStore.State.ForecastState.Loaded -> ForecastLoaded(
+          forecast = forecast.forecast,
+          gradient = gradient
+        )
 
         DetailsStore.State.ForecastState.Loading -> Loading()
       }
@@ -128,14 +144,14 @@ private fun TopBar(
     title = { Text(text = cityName) },
     colors = TopAppBarDefaults.topAppBarColors(
       containerColor = Color.Transparent,
-      titleContentColor = MaterialTheme.colorScheme.background,
+      titleContentColor = MaterialTheme.colorScheme.onBackground,
     ),
     navigationIcon = {
       IconButton(onClick = { onBack() }) {
         Icon(
           imageVector = Icons.Default.ArrowBackIosNew,
           contentDescription = stringResource(R.string.details_content_text_description_button_back),
-          tint = MaterialTheme.colorScheme.background
+          tint = MaterialTheme.colorScheme.onBackground
         )
       }
     },
@@ -149,7 +165,7 @@ private fun TopBar(
         Icon(
           imageVector = icon,
           contentDescription = stringResource(R.string.details_content_text_description_button_favourite),
-          tint = MaterialTheme.colorScheme.background
+          tint = MaterialTheme.colorScheme.onBackground
         )
       }
     }
@@ -172,26 +188,35 @@ private fun Loading() {
 @Composable
 private fun ForecastLoaded(
   modifier: Modifier = Modifier,
-  forecast: Forecast
+  forecast: Forecast,
+  gradient: Gradient
 ) {
+
   Column(
-    modifier = modifier.fillMaxSize(),
+    modifier = modifier
+      .fillMaxSize()
+      .verticalScroll(
+        state = rememberScrollState()
+      ),
     horizontalAlignment = Alignment.CenterHorizontally
   ) {
     Spacer(modifier = Modifier.weight(1f))
 
     Text(
-      text = forecast.currentWeather.date.formattedFullDate(),
+      text = forecast.currentWeather.date.toCalendar().formattedFullDate(),
       style = MaterialTheme.typography.titleLarge,
+      color = MaterialTheme.colorScheme.onBackground
     )
 
     HorizontalDivider(
-      modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)
+      modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
+      color = MaterialTheme.colorScheme.onBackground
     )
     Text(
       text = forecast.currentWeather.descriptionWeather,
       style = MaterialTheme.typography.titleLarge,
-      fontWeight = FontWeight.W500
+      fontWeight = FontWeight.W500,
+      color = MaterialTheme.colorScheme.onBackground
     )
     Row(
       horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -202,6 +227,7 @@ private fun ForecastLoaded(
         style = MaterialTheme.typography.headlineLarge.copy(
           fontSize = 70.sp
         ),
+        color = MaterialTheme.colorScheme.onBackground
       )
       GlideImage(
         modifier = Modifier
@@ -211,6 +237,15 @@ private fun ForecastLoaded(
         contentDescription = stringResource(R.string.details_content_text_description_weather_condition)
       )
     }
+    WeatherCharts(
+      modifier = Modifier
+        .fillMaxWidth()
+        .height(200.dp)
+        .padding(vertical = 4.dp, horizontal = 10.dp)
+        .background(gradient.secondaryGradient)
+        .border(width = 1.dp, color = gradient.shadowColor),
+      listWeather = forecast.upcomingHours.map { it.toWeatherScreen() }
+    )
     DetailsCurrentWeather(forecast = forecast)
     Spacer(modifier = Modifier.weight(1f))
     UpcomingHourlyWeather(upcoming = forecast.upcomingHours)
@@ -219,6 +254,7 @@ private fun ForecastLoaded(
     Spacer(modifier = Modifier.weight(0.5f))
   }
 }
+
 @Composable
 private fun DetailsCurrentWeather(
   modifier: Modifier = Modifier,
@@ -232,7 +268,9 @@ private fun DetailsCurrentWeather(
       verticalAlignment = Alignment.CenterVertically
     ) {
       Icon(
+        modifier = Modifier.size(18.dp),
         painter = painterResource(id = R.drawable.air_humidity),
+        tint = MaterialTheme.colorScheme.onBackground,
         contentDescription = null
       )
       Spacer(modifier = Modifier.padding(4.dp))
@@ -242,13 +280,16 @@ private fun DetailsCurrentWeather(
           forecast.currentWeather.humidity
         ),
         style = MaterialTheme.typography.titleSmall,
+        color = MaterialTheme.colorScheme.onBackground
       )
     }
     Row(
       verticalAlignment = Alignment.CenterVertically
     ) {
       Icon(
+        modifier = Modifier.size(18.dp),
         painter = painterResource(id = R.drawable.wind_speed),
+        tint = MaterialTheme.colorScheme.onBackground,
         contentDescription = null
       )
       Spacer(modifier = Modifier.padding(4.dp))
@@ -258,13 +299,16 @@ private fun DetailsCurrentWeather(
           forecast.currentWeather.windSpeed
         ),
         style = MaterialTheme.typography.titleSmall,
+        color = MaterialTheme.colorScheme.onBackground
       )
     }
     Row(
       verticalAlignment = Alignment.CenterVertically
     ) {
       Icon(
+        modifier = Modifier.size(18.dp),
         painter = painterResource(id = R.drawable.atmospheric_pressure),
+        tint = MaterialTheme.colorScheme.onBackground,
         contentDescription = null
       )
       Spacer(modifier = Modifier.padding(4.dp))
@@ -274,28 +318,18 @@ private fun DetailsCurrentWeather(
           forecast.currentWeather.airPressure
         ),
         style = MaterialTheme.typography.titleSmall,
+        color = MaterialTheme.colorScheme.onBackground
       )
     }
   }
 }
+
 @Composable
 private fun UpcomingHourlyWeather(
-  modifier: Modifier = Modifier,
   upcoming: List<Weather>
 ) {
   val currentDate = Calendar.getInstance()
-  val nextHours = upcoming.filter { it.date > currentDate }
-  Card(
-    modifier = modifier
-      .fillMaxWidth()
-      .padding(horizontal = 14.dp, vertical = 6.dp),
-    shape = MaterialTheme.shapes.extraLarge,
-    colors = CardDefaults.cardColors(
-      containerColor = MaterialTheme.colorScheme.background.copy(
-        alpha = 0.30f
-      )
-    )
-  ) {
+  val nextHours = upcoming.filter { it.date.toCalendar() > currentDate }
     Column(
       modifier = Modifier.padding(vertical = 4.dp, horizontal = 12.dp)
     ) {
@@ -303,7 +337,8 @@ private fun UpcomingHourlyWeather(
         modifier = Modifier
           .align(Alignment.CenterHorizontally),
         text = stringResource(R.string.details_content_title_block_upcoming_hourly_weather),
-        textStyle = MaterialTheme.typography.headlineMedium
+        textStyle = MaterialTheme.typography.headlineSmall,
+        color = MaterialTheme.colorScheme.onBackground
       )
       LazyRow(
         modifier = Modifier.fillMaxWidth(),
@@ -317,8 +352,8 @@ private fun UpcomingHourlyWeather(
         }
       }
     }
-  }
 }
+
 @Composable
 private fun UpcomingDailyWeather(
   modifier: Modifier = Modifier,
@@ -342,7 +377,8 @@ private fun UpcomingDailyWeather(
         modifier = Modifier
           .align(Alignment.CenterHorizontally),
         text = stringResource(R.string.details_content_title_block_upcoming_weather),
-        textStyle = MaterialTheme.typography.headlineMedium
+        textStyle = MaterialTheme.typography.headlineSmall,
+        color = MaterialTheme.colorScheme.onBackground
       )
       Row(
         modifier = Modifier.fillMaxWidth(),
@@ -364,7 +400,7 @@ private fun RowScope.WeatherDayItem(
 ) {
   Card(
     modifier = modifier
-      .sizeIn(minWidth = 100.dp, maxWidth = 150.dp, minHeight = 130.dp, maxHeight = 200.dp)
+      .sizeIn(minWidth = 60.dp, maxWidth = 80.dp, minHeight = 100.dp, maxHeight = 160.dp)
       .weight(1f),
     colors = CardDefaults.cardColors(
       containerColor = MaterialTheme.colorScheme.background
@@ -391,7 +427,7 @@ private fun RowScope.WeatherDayItem(
         contentDescription = stringResource(R.string.content_icon_description_weather_icon)
       )
       Text(
-        text = weather.date.formattedShortDayOfWeek(),
+        text = weather.date.toCalendar().formattedShortDayOfWeek(),
         style = MaterialTheme.typography.bodyLarge
       )
     }
@@ -407,13 +443,13 @@ private fun WeatherHourItem(
   Card(
     modifier = modifier
       .sizeIn(
-        minWidth = 60.dp,
-        maxWidth = 80.dp,
-        minHeight = 70.dp,
-        maxHeight = 124.dp
+        minWidth = 40.dp,
+        maxWidth = 60.dp,
+        minHeight = 50.dp,
+        maxHeight = 110.dp
       ),
     colors = CardDefaults.cardColors(
-      containerColor = MaterialTheme.colorScheme.background
+      containerColor = MaterialTheme.colorScheme.background.copy(alpha = 0.8f)
     )
   ) {
     Column(
@@ -424,8 +460,9 @@ private fun WeatherHourItem(
       verticalArrangement = Arrangement.SpaceBetween
     ) {
       Text(
-        text = weather.date.formattedHourAtDay(),
-        style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.W500)
+        text = weather.date.toCalendar().formattedHourAtDay(),
+        style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.W500),
+        color = MaterialTheme.colorScheme.onBackground
       )
       HorizontalDivider(
         modifier = Modifier.padding(horizontal = 10.dp, vertical = 2.dp)
@@ -437,11 +474,13 @@ private fun WeatherHourItem(
       )
       Text(
         text = weather.temperature.toCelsius(),
-        style = MaterialTheme.typography.bodySmall
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onBackground
       )
       Text(
         text = "${weather.humidity}%",
-        style = MaterialTheme.typography.bodySmall
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onBackground
       )
     }
   }
