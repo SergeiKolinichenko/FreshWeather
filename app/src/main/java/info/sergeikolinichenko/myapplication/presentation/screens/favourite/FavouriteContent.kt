@@ -64,8 +64,9 @@ fun FavouriteContent(component: FavouriteComponent) {
       modifier = Modifier.align(Alignment.TopCenter),
       state = state,
       onClickSearch = { component.onSearchClicked() },
-      onClickToCity = { component.onItemClicked(
-        city = it) }
+      onClickToCity = { city, numberGradient ->
+        component.onItemClicked(city = city, numberGradient = numberGradient)
+      }
     )
     AddFavouriteFloatingActionButton(
       modifier = Modifier.align(Alignment.BottomCenter),
@@ -80,7 +81,7 @@ private fun FavoriteVerticalGrid(
   modifier: Modifier = Modifier,
   state: State<FavouriteStore.State>,
   onClickSearch: () -> Unit,
-  onClickToCity: (city: CityScreen) -> Unit
+  onClickToCity: (CityScreen, Int) -> Unit
 ) {
   LazyVerticalGrid(
     modifier = modifier.fillMaxSize(),
@@ -102,10 +103,11 @@ private fun FavoriteVerticalGrid(
       items = state.value.cityItems,
       key = { _, item -> item.city.id }
     ) { index, item ->
+      val numberGradient = index % 5
       CityCard(
         item = item,
-        index = index,
-        onClickToCity = { onClickToCity(item.city) }
+        numberGradient = numberGradient,
+        onClickToCity = { onClickToCity(item.city, numberGradient) }
       )
     }
   }
@@ -116,11 +118,11 @@ private fun FavoriteVerticalGrid(
 private fun CityCard(
   modifier: Modifier = Modifier,
   item: FavouriteStore.State.CityItem,
-  index: Int = 0,
+  numberGradient: Int = 0,
   onClickToCity: () -> Unit
 ) {
 
-  val gradient = getGradient(index)
+  val gradient = getGradient(numberGradient)
 
   Card(
     modifier = modifier
@@ -211,12 +213,11 @@ private fun CityCard(
 }
 
 @Composable
-private fun getGradient(index: Int): Gradient {
+private fun getGradient(numberGradient: Int): Gradient {
   val gradients = if (isSystemInDarkTheme()) CardDarkGradients.gradients
     else CardLightGradients.gradients
 
-  val number = index % gradients.size
-  return gradients[number]
+  return gradients[numberGradient]
 }
 
 @Composable

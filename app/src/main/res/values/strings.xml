@@ -14,4 +14,7 @@
   <string name="deatails_content_atmospheric_pressure_mbar">Atm. pressure %1$s mbar</string>
   <string name="details_content_humidity">Humidity %1$s %%</string>
   <string name="details_content_title_block_upcoming_hourly_weather">Hourly weather forecast</string>
+  <string name="weather_charts_title_pressure">Pressure</string>
+  <string name="weather_charts_title_temperature">Temperature</string>
+  <string name="weather_charts_title_humidity">Humidity</string>
 </resources>

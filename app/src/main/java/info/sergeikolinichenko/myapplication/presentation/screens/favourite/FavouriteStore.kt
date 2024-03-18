@@ -23,7 +23,10 @@ interface FavouriteStore : Store<Intent, State, Label> {
   sealed interface Intent {
     data object SearchClicked : Intent
     data object ButtonClicked : Intent
-    data class ItemClicked(val city: CityScreen) : Intent
+    data class ItemClicked(
+      val city: CityScreen,
+      val numberGradient: Int
+    ) : Intent
   }
 
   data class State(
@@ -49,7 +52,10 @@ interface FavouriteStore : Store<Intent, State, Label> {
   sealed interface Label {
     data object ClickSearch : Label
     data object ClickToButton : Label
-    data class OnClickCity(val city: CityScreen) : Label
+    data class OnClickCity(
+      val city: CityScreen,
+      val numberGradient: Int
+    ) : Label
   }
 }
 
@@ -99,7 +105,7 @@ class FavouriteStoreFactory @Inject constructor(
       when (intent) {
         is Intent.SearchClicked -> publish(Label.ClickSearch)
         is Intent.ButtonClicked -> publish(Label.ClickToButton)
-        is Intent.ItemClicked -> publish(Label.OnClickCity(intent.city) )
+        is Intent.ItemClicked -> publish(Label.OnClickCity(intent.city, intent.numberGradient))
       }
     }
 

@@ -22,6 +22,7 @@ fun CityScreen.toCity() = City(
   country = country,
   url = url
 )
+fun List<Weather>.toListWeatherScreen() = map { it.toWeatherScreen() }
 fun Weather.toWeatherScreen() = WeatherScreen(
   temperature = temperature,
   maxTemp = maxTemp,

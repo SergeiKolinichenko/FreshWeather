@@ -17,6 +17,7 @@ import info.sergeikolinichenko.myapplication.presentation.screens.favourite.Defa
 import info.sergeikolinichenko.myapplication.presentation.screens.search.DefaultSearchComponent
 import info.sergeikolinichenko.myapplication.presentation.screens.search.OpeningOptions
 import kotlinx.parcelize.Parcelize
+import kotlin.random.Random
 
 class DefaultRootComponent @AssistedInject constructor(
     private val detailsComponentFactory: DefaultDetailsComponent.Factory,
@@ -43,7 +44,9 @@ class DefaultRootComponent @AssistedInject constructor(
                 componentContext = componentContext,
                 onClickSearch = { navigation.push(Config.Search(OpeningOptions.ORDINARY_SEARCH)) },
                 onClickButton = { navigation.push(Config.Search(OpeningOptions.ADD_TO_FAVORITES)) },
-                onClickCity = { navigation.push(Config.Details(it))}
+                onClickCity = { city, numberGradient ->
+                    navigation.push(Config.Details(city = city, numberGradient = numberGradient))
+                }
             )
             RootComponent.Child.Favourite(component)
         }
@@ -51,6 +54,7 @@ class DefaultRootComponent @AssistedInject constructor(
             val component = detailsComponentFactory.create(
                 componentContext = componentContext,
                 city = config.city,
+                gradient = config.numberGradient,
                 onClickBack = { navigation.pop() }
             )
             RootComponent.Child.Details(component)
@@ -60,7 +64,10 @@ class DefaultRootComponent @AssistedInject constructor(
                 componentContext = componentContext,
                 openingOptions = config.options,
                 onClickBack = { navigation.pop() },
-                onClickItem = { navigation.push(Config.Details(it)) },
+                onClickItem = { navigation.push(Config.Details(
+                    city = it,
+                    numberGradient = Random.nextInt(0, 5)
+                )) },
                 savedToFavourite = { navigation.pop() }
             )
             RootComponent.Child.Search(component)
@@ -71,7 +78,7 @@ class DefaultRootComponent @AssistedInject constructor(
         @Parcelize
         data object Favourite : Config
         @Parcelize
-        data class Details(val city: CityScreen) : Config
+        data class Details(val city: CityScreen, val numberGradient: Int) : Config
         @Parcelize
         data class Search(val options: OpeningOptions) : Config
     }

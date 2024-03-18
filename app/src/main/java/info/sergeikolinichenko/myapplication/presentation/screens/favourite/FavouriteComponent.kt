@@ -10,5 +10,8 @@ interface FavouriteComponent {
   val model: StateFlow<FavouriteStore.State>
   fun onSearchClicked()
   fun onButtonClicked()
-  fun onItemClicked(city: CityScreen)
+  fun onItemClicked(
+    city: CityScreen,
+    numberGradient: Int
+  )
 }

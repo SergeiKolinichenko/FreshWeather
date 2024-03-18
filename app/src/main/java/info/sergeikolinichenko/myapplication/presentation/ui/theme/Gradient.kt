@@ -4,7 +4,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 
 /** Created by Sergei Kolinichenko on 26.02.2024 at 16:30 (GMT+3) **/
-
 data class Gradient(
   val primaryGradient: Brush,
   val secondaryGradient: Brush,

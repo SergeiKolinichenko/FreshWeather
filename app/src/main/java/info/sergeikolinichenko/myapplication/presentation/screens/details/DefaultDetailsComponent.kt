@@ -16,11 +16,12 @@ import kotlinx.coroutines.launch
 class DefaultDetailsComponent @AssistedInject constructor(
   @Assisted("onClickBack") private val onClickBack: () -> Unit,
   @Assisted("city") private val city: CityScreen,
+  @Assisted("numberGradient") private val numberGradient: Int = 0,
   @Assisted("componentContext") private val componentContext: ComponentContext,
   private val storeFactory: DetailsStoreFactory
 ) : DetailsComponent, ComponentContext by componentContext {
 
-  private val store = instanceKeeper.getStore { storeFactory.create(city) }
+  private val store = instanceKeeper.getStore { storeFactory.create(city, numberGradient) }
   private val scope = componentScope()
 
   init {
@@ -43,6 +44,7 @@ class DefaultDetailsComponent @AssistedInject constructor(
     fun create(
       @Assisted("onClickBack") onClickBack: () -> Unit,
       @Assisted("city") city: CityScreen,
+      @Assisted("numberGradient") gradient: Int,
       @Assisted("componentContext") componentContext: ComponentContext
     ): DefaultDetailsComponent
   }

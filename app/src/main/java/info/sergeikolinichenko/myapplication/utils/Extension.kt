@@ -17,6 +17,7 @@ fun ComponentContext.componentScope() =
     lifecycle.doOnDestroy { cancel() }
   }
 fun Float.toCelsius(): String = "${this.roundToInt()}°C"
+fun Int.toHumidity(): String = "$this%"
 fun Float.toPressure(): String = "${this.roundToInt()}"
 fun Long.toCalendar(): Calendar {
   val calendar = Calendar.getInstance()
@@ -36,7 +37,7 @@ fun Calendar.formattedHourAtDay(): String {
   return format.format(time)
 }
 fun Calendar.formattedOnlyHour(): String {
-  val format = SimpleDateFormat("HH", Locale.getDefault())
+  val format = SimpleDateFormat("HH:m", Locale.getDefault())
   return format.format(time)
 }
 fun Calendar.formattedOnlyDay(): String {

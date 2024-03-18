@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 class DefaultFavouriteComponent @AssistedInject constructor(
   @Assisted("onClickSearch") private val onClickSearch: () -> Unit,
   @Assisted("onClickButton") private val onClickButton: () -> Unit,
-  @Assisted("onClickCity") private val onClickCity: (CityScreen) -> Unit,
+  @Assisted("onClickCity") private val onClickCity: (CityScreen, Int) -> Unit,
   @Assisted("componentContext") private val componentContext: ComponentContext,
   private val storeFactory: FavouriteStoreFactory
 ) : FavouriteComponent, ComponentContext by componentContext {
@@ -30,7 +30,7 @@ class DefaultFavouriteComponent @AssistedInject constructor(
         when (label) {
           FavouriteStore.Label.ClickSearch -> onClickSearch()
           FavouriteStore.Label.ClickToButton -> onClickButton()
-          is FavouriteStore.Label.OnClickCity -> onClickCity(label.city)
+          is FavouriteStore.Label.OnClickCity -> onClickCity(label.city, label.numberGradient)
         }
       }
     }
@@ -47,15 +47,15 @@ class DefaultFavouriteComponent @AssistedInject constructor(
     store.accept(FavouriteStore.Intent.ButtonClicked)
   }
 
-  override fun onItemClicked(city: CityScreen) {
-    store.accept(FavouriteStore.Intent.ItemClicked(city))
+  override fun onItemClicked(city: CityScreen, numberGradient: Int) {
+    store.accept(FavouriteStore.Intent.ItemClicked(city, numberGradient ))
   }
   @AssistedFactory
   interface Factory {
     fun create(
       @Assisted("onClickSearch") onClickSearch: () -> Unit,
       @Assisted("onClickButton") onClickButton: () -> Unit,
-      @Assisted("onClickCity") onClickCity: (CityScreen) -> Unit,
+      @Assisted("onClickCity") onClickCity: (CityScreen, Int) -> Unit,
       @Assisted("componentContext") componentContext: ComponentContext
     ): DefaultFavouriteComponent
   }

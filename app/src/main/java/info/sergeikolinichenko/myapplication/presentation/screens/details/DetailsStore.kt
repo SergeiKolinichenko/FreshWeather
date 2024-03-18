@@ -28,6 +28,7 @@ interface DetailsStore : Store<Intent, State, Label> {
 
   data class State(
     val city: CityScreen,
+    val numberGradient: Int = 0,
     val isFavourite: Boolean,
     val forecastState: ForecastState
   ) {
@@ -51,11 +52,12 @@ class DetailsStoreFactory @Inject constructor(
   private val observeFavouriteState: ObserveFavouriteStateUseCase
 ) {
 
-  fun create(city: CityScreen): DetailsStore =
+  fun create(city: CityScreen, numberGradient: Int): DetailsStore =
     object : DetailsStore, Store<Intent, State, Label> by storeFactory.create(
       name = "DetailsStore",
       initialState = State(
         city = city,
+        numberGradient = numberGradient,
         isFavourite = false,
         forecastState = State.ForecastState.Initial
       ),

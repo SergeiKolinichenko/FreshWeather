@@ -15,4 +15,7 @@
   <string name="deatails_content_atmospheric_pressure_mbar">Атм. давление %1$s мбар</string>
   <string name="details_content_humidity">Влажность %1$s %%</string>
   <string name="details_content_title_block_upcoming_hourly_weather">Почасовой прогноз погоды</string>
+  <string name="weather_charts_title_pressure">Давление</string>
+  <string name="weather_charts_title_temperature">Температура</string>
+  <string name="weather_charts_title_humidity">Влажность</string>
 </resources>
