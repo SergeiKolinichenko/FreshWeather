@@ -16,9 +16,12 @@ fun ComponentContext.componentScope() =
   CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate).apply {
     lifecycle.doOnDestroy { cancel() }
   }
-fun Float.toCelsius(): String = "${this.roundToInt()}°C"
+fun Float.toRoundToIntString(): String = "${this.roundToInt()}"
+fun Float.toCelsiusString(): String = "${this.roundToInt()}°C"
 fun Int.toHumidity(): String = "$this%"
 fun Float.toPressure(): String = "${this.roundToInt()}"
+fun Float.toPrecipitation(): String = "${this.roundToInt()} mm"
+fun Int.toCloudyCover(): String = "$this%"
 fun Long.toCalendar(): Calendar {
   val calendar = Calendar.getInstance()
   calendar.timeInMillis = this * 1000

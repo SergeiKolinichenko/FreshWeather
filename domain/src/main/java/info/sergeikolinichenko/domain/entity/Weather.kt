@@ -4,12 +4,17 @@ package info.sergeikolinichenko.domain.entity
 
 data class Weather(
     val temperature: Float,
-    val maxTemp: Float?,
-    val minTemp: Float?,
+    val maxTempC: Float?,
+    val minTempC: Float?,
+    val feelsLikeC: Float,
     val descriptionWeather: String,
     val conditionUrl: String,
     val windSpeed: Float,
+    val windDirection: String,
     val airPressure: Float,
     val humidity: Int,
+    val precipiceMm: Float,
+    val cloudCover: Int,
+    val uvIndex: Float,
     val date: Long
     )

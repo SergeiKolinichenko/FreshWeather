@@ -12,6 +12,7 @@ data class WeatherScreen(
   val descriptionWeather: String,
   val conditionUrl: String,
   val windSpeed: Float,
+  val windDirection: String,
   val airPressure: Float,
   val humidity: Int,
   val date: Long

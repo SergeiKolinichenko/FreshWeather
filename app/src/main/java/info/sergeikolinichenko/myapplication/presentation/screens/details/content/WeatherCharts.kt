@@ -44,7 +44,7 @@ import info.sergeikolinichenko.myapplication.presentation.ui.theme.Gradient
 import info.sergeikolinichenko.myapplication.utils.formattedOnlyDay
 import info.sergeikolinichenko.myapplication.utils.formattedOnlyHour
 import info.sergeikolinichenko.myapplication.utils.toCalendar
-import info.sergeikolinichenko.myapplication.utils.toCelsius
+import info.sergeikolinichenko.myapplication.utils.toRoundToIntString
 import info.sergeikolinichenko.myapplication.utils.toHumidity
 import info.sergeikolinichenko.myapplication.utils.toPressure
 import kotlinx.parcelize.Parcelize
@@ -57,7 +57,7 @@ private val PAD_CANVAS_END = 4.dp
 private val PAD_CANVAS_TOP = 4.dp
 private val PAD_CANVAS_BOTTOM = 36.dp
 @Composable
-fun WeatherCharts(
+internal fun WeatherCharts(
   modifier: Modifier = Modifier,
   listWeather: List<WeatherScreen>,
   gradient: Gradient
@@ -482,7 +482,7 @@ private fun DrawScope.drawLevels(
   )
   drawCaptionTemp(
     textMeasurer = textMeasurer,
-    caption = maxTemperature.toCelsius(),
+    caption = maxTemperature.toRoundToIntString(),
     offsetX = drawCaptionOffsetX,
     offsetY = maxOffsetY,
   )
@@ -509,7 +509,7 @@ private fun DrawScope.drawLevels(
   )
   drawCaptionTemp(
     textMeasurer = textMeasurer,
-    caption = minTemperature.toCelsius(),
+    caption = minTemperature.toRoundToIntString(),
     offsetX = drawCaptionOffsetX,
     offsetY = minPressureOffsetY,
     isTop = true

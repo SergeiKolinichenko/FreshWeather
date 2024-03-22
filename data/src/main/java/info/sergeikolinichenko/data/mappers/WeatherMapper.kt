@@ -15,8 +15,13 @@ fun WeatherForecastDto.toForecast() = Forecast(
     val weatherDto = dayDto.dayWeather
     Weather(
       temperature = weatherDto.avgTemperatureC,
-      maxTemp = weatherDto.maxTemperatureC,
-      minTemp = weatherDto.minTemperatureC,
+      maxTempC = weatherDto.maxTemperatureC,
+      minTempC = weatherDto.minTemperatureC,
+      feelsLikeC = current.feelsLikeC,
+      cloudCover = current.cloudCover,
+      precipiceMm = current.precipiceMm,
+      windDirection = current.windDirection,
+      uvIndex = current.uvIndex,
       descriptionWeather = weatherDto.conditionDto.condition,
       conditionUrl = weatherDto.conditionDto.conditionUrl.correctUrl(),
       windSpeed = current.windSpeed,
@@ -30,8 +35,13 @@ fun WeatherForecastDto.toForecast() = Forecast(
     day.hourWeatherArray.map { hour ->
       Weather(
         temperature = hour.hourTemp,
-        maxTemp = null,
-        minTemp = null,
+        maxTempC = null,
+        minTempC = null,
+        feelsLikeC = current.feelsLikeC,
+        cloudCover = current.cloudCover,
+        precipiceMm = current.precipiceMm,
+        windDirection = current.windDirection,
+        uvIndex = current.uvIndex,
         descriptionWeather = hour.hourCond.description,
         conditionUrl = hour.hourCond.icon.correctUrl(),
         windSpeed = hour.hourWindKph,
@@ -46,14 +56,19 @@ fun WeatherForecastDto.toForecast() = Forecast(
 fun WeatherDto.toWeather(): Weather {
   return Weather(
     temperature = temperatureC,
-    maxTemp = null,
-    minTemp = null,
+    maxTempC = null,
+    minTempC = null,
     descriptionWeather = condition.condition,
     conditionUrl = condition.conditionUrl.correctUrl(),
     windSpeed = windSpeed,
     airPressure = airPressure,
     humidity = humidity,
-    date = date
+    date = date,
+    feelsLikeC = feelsLikeC,
+    windDirection = windDirection,
+    precipiceMm = precipiceMm,
+    cloudCover = cloudCover,
+    uvIndex = uvIndex
   )
 }
 

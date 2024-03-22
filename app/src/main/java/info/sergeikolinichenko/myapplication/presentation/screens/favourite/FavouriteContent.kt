@@ -46,7 +46,7 @@ import info.sergeikolinichenko.myapplication.presentation.ui.theme.CardDarkGradi
 import info.sergeikolinichenko.myapplication.presentation.ui.theme.CardLightGradients
 import info.sergeikolinichenko.myapplication.presentation.ui.theme.Gradient
 import info.sergeikolinichenko.myapplication.utils.ResponsiveText
-import info.sergeikolinichenko.myapplication.utils.toCelsius
+import info.sergeikolinichenko.myapplication.utils.toRoundToIntString
 import kotlin.random.Random
 
 /** Created by Sergei Kolinichenko on 21.02.2024 at 16:06 (GMT+3) **/
@@ -166,7 +166,7 @@ private fun CityCard(
               contentAlignment = Alignment.Center
             ) {
               Text(
-                text = stringResource(R.string.favourtite_content_error_weather_for_city),
+                text = stringResource(R.string.favourite_content_error_weather_for_city),
                 style = MaterialTheme.typography.bodyLarge
               )
             }
@@ -184,7 +184,7 @@ private fun CityCard(
             Text(
               modifier = Modifier.align(Alignment.Start),
               style = MaterialTheme.typography.bodyLarge.copy(fontSize = 40.sp),
-              text = weatherState.temperature.toCelsius()
+              text = weatherState.temperature.toRoundToIntString()
             )
           }
 
