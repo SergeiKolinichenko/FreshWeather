@@ -35,4 +35,8 @@
   <string name="details_content_precipitation_mm">Валежи: %1$s</string>
   <string name="details_content_cloudy">Облачност: %1$s</string>
   <string name="draw_compas_title_wind_direction">посока на\nвятъра</string>
+  <string name="search_content_title_town">"Град: "</string>
+  <string name="search_content_title_region">"Регион: "</string>
+  <string name="search_content_title_country">"Държава: "</string>
+  <string name="favourite_content_efab_title_add_favourite">Добавяне на Фаворит</string>
 </resources>

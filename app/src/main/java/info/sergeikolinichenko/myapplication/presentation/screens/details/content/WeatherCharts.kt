@@ -44,7 +44,7 @@ import info.sergeikolinichenko.myapplication.presentation.ui.theme.Gradient
 import info.sergeikolinichenko.myapplication.utils.formattedOnlyDay
 import info.sergeikolinichenko.myapplication.utils.formattedOnlyHour
 import info.sergeikolinichenko.myapplication.utils.toCalendar
-import info.sergeikolinichenko.myapplication.utils.toRoundToIntString
+import info.sergeikolinichenko.myapplication.utils.toCelsiusString
 import info.sergeikolinichenko.myapplication.utils.toHumidity
 import info.sergeikolinichenko.myapplication.utils.toPressure
 import kotlinx.parcelize.Parcelize
@@ -482,7 +482,7 @@ private fun DrawScope.drawLevels(
   )
   drawCaptionTemp(
     textMeasurer = textMeasurer,
-    caption = maxTemperature.toRoundToIntString(),
+    caption = maxTemperature.toCelsiusString(),
     offsetX = drawCaptionOffsetX,
     offsetY = maxOffsetY,
   )
@@ -509,7 +509,7 @@ private fun DrawScope.drawLevels(
   )
   drawCaptionTemp(
     textMeasurer = textMeasurer,
-    caption = minTemperature.toRoundToIntString(),
+    caption = minTemperature.toCelsiusString(),
     offsetX = drawCaptionOffsetX,
     offsetY = minPressureOffsetY,
     isTop = true

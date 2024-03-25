@@ -34,4 +34,8 @@
   <string name="details_content_precipitation_mm">Precipitation: %1$s</string>
   <string name="details_content_cloudy">Cloudy: %1$s</string>
   <string name="draw_compas_title_wind_direction">Wind\ndirection</string>
+  <string name="search_content_title_town">"City: "</string>
+  <string name="search_content_title_region">"Region: "</string>
+  <string name="search_content_title_country">"Country: "</string>
+  <string name="favourite_content_efab_title_add_favourite">Add Favourite</string>
 </resources>

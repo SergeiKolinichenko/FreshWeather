@@ -3,7 +3,7 @@ package info.sergeikolinichenko.myapplication.presentation.root
 import androidx.compose.runtime.Composable
 import com.arkivanov.decompose.extensions.compose.jetpack.stack.Children
 import info.sergeikolinichenko.myapplication.presentation.screens.details.content.DetailsContent
-import info.sergeikolinichenko.myapplication.presentation.screens.favourite.FavouriteContent
+import info.sergeikolinichenko.myapplication.presentation.screens.favourite.content.FavouriteContent
 import info.sergeikolinichenko.myapplication.presentation.screens.search.SearchContent
 import info.sergeikolinichenko.myapplication.presentation.ui.theme.FreshWeatherTheme
 
