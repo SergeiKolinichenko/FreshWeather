@@ -1,5 +1,14 @@
 package info.sergeikolinichenko.myapplication.presentation.screens.favourite.content
 
+import android.annotation.SuppressLint
+import androidx.compose.animation.core.Easing
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.FiniteAnimationSpec
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -12,10 +21,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyGridScope
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
@@ -27,11 +39,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -74,44 +89,68 @@ fun FavouriteContent(component: FavouriteComponent) {
 
   }
 }
-
 @Composable
 private fun FavoriteVerticalGrid(
   modifier: Modifier = Modifier,
   state: State<FavouriteStore.State>,
+  columns: Int = 2,
+  lazyListState: LazyListState = rememberLazyListState(),
   onClickSearch: () -> Unit,
   onClickToCity: (CityScreen, Int) -> Unit
 ) {
   LazyVerticalGrid(
     modifier = modifier.fillMaxSize(),
-    columns = GridCells.Fixed(2),
+    columns = GridCells.Fixed(columns),
     contentPadding = PaddingValues(16.dp),
     verticalArrangement = Arrangement.spacedBy(16.dp),
-    horizontalArrangement = Arrangement.spacedBy(16.dp)
-  ) {
-    item(
-      span = { GridItemSpan(2) }
-    ) {
-      SearchCard(
-        onClickSearch = {
-          onClickSearch()
+    horizontalArrangement = Arrangement.spacedBy(16.dp),
+    content = {
+      cityGridContent(
+        state = state,
+        columns = columns,
+        lazyListState = lazyListState,
+        onClickSearch = { onClickSearch() },
+        onClickToCity = { city, gradient ->
+          onClickToCity(city, gradient)
         }
       )
     }
-    itemsIndexed(
-      items = state.value.cityItems,
-      key = { _, item -> item.city.id }
-    ) { index, item ->
-      val numberGradient = index % 5
-      CityCard(
-        item = item,
-        numberGradient = numberGradient,
-        onClickToCity = { onClickToCity(item.city, numberGradient) }
-      )
-    }
+  )
+}
+private fun LazyGridScope.cityGridContent(
+  state: State<FavouriteStore.State>,
+  columns: Int,
+  lazyListState: LazyListState,
+  onClickSearch: () -> Unit,
+  onClickToCity: (CityScreen, Int) -> Unit
+) {
+
+  item(
+    span = { GridItemSpan(columns) }
+  ) {
+    SearchCard(
+      onClickSearch = {
+        onClickSearch()
+      }
+    )
+  }
+  itemsIndexed(
+    items = state.value.cityItems,
+    key = { _, item -> item.city.id }
+  ) { index, item ->
+    val (delay, easing) = lazyListState.calculateDelayAndEasing(index, columns)
+    val animation = tween<Float>(durationMillis = 500, delayMillis = delay, easing = easing)
+    val args = ScaleAndAlphaArgs(fromScale = 2f, toScale = 1f, fromAlpha = 0f, toAlpha = 1f)
+    val (scale, alpha) = scaleAndAlpha(args = args, animation = animation)
+    val numberGradient = index % 5
+    CityCard(
+      modifier = Modifier.graphicsLayer(alpha = alpha, scaleX = scale, scaleY = scale),
+      item = item,
+      numberGradient = numberGradient,
+      onClickToCity = { onClickToCity(item.city, numberGradient) }
+    )
   }
 }
-
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 private fun CityCard(
@@ -125,7 +164,6 @@ private fun CityCard(
 
   Card(
     modifier = modifier
-      .fillMaxSize()
       .shadow(
         elevation = 16.dp,
         spotColor = gradient.shadowColor,
@@ -135,8 +173,8 @@ private fun CityCard(
   ) {
     Box(
       modifier = modifier
-        .background(gradient.primaryGradient)
         .sizeIn(minHeight = 196.dp, minWidth = 100.dp)
+        .background(gradient.primaryGradient)
         .drawBehind {
           drawCircle(
             brush = gradient.secondaryGradient,
@@ -241,3 +279,56 @@ private fun SearchCard(
     }
   }
 }
+// Block for animation enter CityCard
+@SuppressLint("FrequentlyChangedStateReadInComposition")
+@Composable
+private fun LazyListState.calculateDelayAndEasing(index: Int, columnCount: Int): Pair<Int, Easing> {
+  val row = index / columnCount
+  val column = index % columnCount
+  val firstVisibleRow = firstVisibleItemIndex
+  val visibleRows = layoutInfo.visibleItemsInfo.count()
+  val scrollingToBottom = firstVisibleRow < row
+  val isFirstLoad = visibleRows == 0
+  val rowDelay = 200 * when {
+    isFirstLoad -> row // initial load
+    scrollingToBottom -> visibleRows + firstVisibleRow - row // scrolling to bottom
+    else -> 1 // scrolling to top
+  }
+  val scrollDirectionMultiplier = if (scrollingToBottom || isFirstLoad) 1 else -1
+  val columnDelay = column * 150 * scrollDirectionMultiplier
+  val easing = if (scrollingToBottom || isFirstLoad) LinearOutSlowInEasing else FastOutSlowInEasing
+  return rowDelay + columnDelay to easing
+}
+data class ScaleAndAlphaArgs(
+  val fromScale: Float,
+  val toScale: Float,
+  val fromAlpha: Float,
+  val toAlpha: Float
+)
+
+@Composable
+fun scaleAndAlpha(
+  args: ScaleAndAlphaArgs,
+  animation: FiniteAnimationSpec<Float>
+): Pair<Float, Float> {
+  val transitionState = remember {
+    MutableTransitionState(TransitionState.PLACING).apply {
+      targetState = TransitionState.PLACED
+    }
+  }
+  val transition = updateTransition(transitionState, label = "")
+  val alpha by transition.animateFloat(transitionSpec = { animation }, label = "") { state ->
+    when (state) {
+      TransitionState.PLACING -> args.fromAlpha
+      TransitionState.PLACED -> args.toAlpha
+    }
+  }
+  val scale by transition.animateFloat(transitionSpec = { animation }, label = "") { state ->
+    when (state) {
+      TransitionState.PLACING -> args.fromScale
+      TransitionState.PLACED -> args.toScale
+    }
+  }
+  return alpha to scale
+}
+private enum class TransitionState { PLACING, PLACED }
