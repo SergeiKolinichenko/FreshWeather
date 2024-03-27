@@ -36,8 +36,8 @@ class DefaultRootComponent @AssistedInject constructor(
     )
 
     private fun child(
-        config: Config,
-        componentContext: ComponentContext
+      config: Config,
+      componentContext: ComponentContext
     ): RootComponent.Child = when (config) {
         is Config.Favourite -> {
             val component = favouriteComponentFactory.create(
@@ -48,7 +48,7 @@ class DefaultRootComponent @AssistedInject constructor(
                     navigation.push(Config.Details(city = city, numberGradient = numberGradient))
                 }
             )
-            RootComponent.Child.Favourite(component)
+          RootComponent.Child.Favourite(component)
         }
         is Config.Details -> {
             val component = detailsComponentFactory.create(
@@ -57,20 +57,22 @@ class DefaultRootComponent @AssistedInject constructor(
                 gradient = config.numberGradient,
                 onClickBack = { navigation.pop() }
             )
-            RootComponent.Child.Details(component)
+          RootComponent.Child.Details(component)
         }
         is Config.Search -> {
             val component = searchComponentFactory.create(
                 componentContext = componentContext,
                 openingOptions = config.options,
                 onClickBack = { navigation.pop() },
-                onClickItem = { navigation.push(Config.Details(
+                onClickItem = { navigation.push(
+                  Config.Details(
                     city = it,
                     numberGradient = Random.nextInt(0, 5)
-                )) },
+                  )
+                ) },
                 savedToFavourite = { navigation.pop() }
             )
-            RootComponent.Child.Search(component)
+          RootComponent.Child.Search(component)
         }
     }
 

@@ -1,5 +1,6 @@
 package info.sergeikolinichenko.data.mappers
 
+import info.sergeikolinichenko.data.network.dto.DayWeatherDto
 import info.sergeikolinichenko.data.network.dto.WeatherCurrentDto
 import info.sergeikolinichenko.data.network.dto.WeatherDto
 import info.sergeikolinichenko.data.network.dto.WeatherForecastDto
@@ -10,7 +11,7 @@ import info.sergeikolinichenko.domain.entity.Weather
 
 fun WeatherCurrentDto.toWeather(): Weather = current.toWeather()
 fun WeatherForecastDto.toForecast() = Forecast(
-  currentWeather = current.toWeather(),
+  currentWeather = current.toWeather(forecast.forecastDay.first().dayWeather),
   upcomingDays = forecast.forecastDay.drop(1).map { dayDto ->
     val weatherDto = dayDto.dayWeather
     Weather(
@@ -53,11 +54,13 @@ fun WeatherForecastDto.toForecast() = Forecast(
   }
 )
 
-fun WeatherDto.toWeather(): Weather {
+fun WeatherDto.toWeather(
+  dayWeatherDto: DayWeatherDto? = null
+): Weather {
   return Weather(
     temperature = temperatureC,
-    maxTempC = null,
-    minTempC = null,
+    maxTempC = dayWeatherDto?.maxTemperatureC,
+    minTempC = dayWeatherDto?.minTemperatureC,
     descriptionWeather = condition.condition,
     conditionUrl = condition.conditionUrl.correctUrl(),
     windSpeed = windSpeed,

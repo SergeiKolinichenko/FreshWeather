@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <style name="Theme.FreshWeatherSplash" parent="Theme.SplashScreen">
+
+    <item name="windowSplashScreenAnimatedIcon">@drawable/fresh_weather_splash</item>
+    <item name="postSplashScreenTheme">@style/Theme.FreshWeather</item>
+
+  </style>
+
+</resources>

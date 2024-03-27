@@ -5,6 +5,7 @@ import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideIn
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -35,6 +36,7 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import info.sergeikolinichenko.domain.entity.Weather
 import info.sergeikolinichenko.myapplication.R
+import info.sergeikolinichenko.myapplication.presentation.ui.theme.Gradient
 import info.sergeikolinichenko.myapplication.utils.ResponsiveText
 import info.sergeikolinichenko.myapplication.utils.formattedHourAtDay
 import info.sergeikolinichenko.myapplication.utils.toCalendar
@@ -45,7 +47,8 @@ import java.util.Calendar
 @Composable
 private fun UpcomingHourlyWeather(
   modifier: Modifier = Modifier,
-  upcoming: List<Weather>
+  upcoming: List<Weather>,
+  gradient: Gradient
 ) {
   val currentDate = Calendar.getInstance()
   val nextHours = upcoming.filter { it.date.toCalendar() > currentDate }
@@ -53,15 +56,15 @@ private fun UpcomingHourlyWeather(
     modifier = modifier
       .fillMaxWidth()
       .padding(4.dp),
+    border = BorderStroke(1.dp, gradient.shadowColor),
     shape = MaterialTheme.shapes.extraLarge,
     colors = CardDefaults.cardColors(
-      containerColor = MaterialTheme.colorScheme.background.copy(
-        alpha = 0.30f
-      )
+      containerColor = MaterialTheme.colorScheme.background.copy(alpha = 0.30f)
     )
   ) {
     Column(
-      modifier = Modifier.padding(4.dp)
+      modifier = Modifier
+        .padding(6.dp)
     ) {
       ResponsiveText(
         modifier = Modifier
@@ -84,6 +87,7 @@ private fun UpcomingHourlyWeather(
     }
   }
 }
+
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 private fun WeatherHourItem(
@@ -93,13 +97,13 @@ private fun WeatherHourItem(
   Card(
     modifier = modifier
       .sizeIn(
-        minWidth = 60.dp,
+        minWidth = 40.dp,
         maxWidth = 80.dp,
-        minHeight = 70.dp,
-        maxHeight = 124.dp
+        minHeight = 80.dp,
+        maxHeight = 130.dp
       ),
     colors = CardDefaults.cardColors(
-      containerColor = MaterialTheme.colorScheme.background
+      containerColor = MaterialTheme.colorScheme.background.copy(alpha = 0.80f)
     )
   ) {
     Column(
@@ -114,7 +118,7 @@ private fun WeatherHourItem(
         style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.W500)
       )
       HorizontalDivider(
-        modifier = Modifier.padding(horizontal = 10.dp, vertical = 2.dp)
+        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
       )
       GlideImage(
         modifier = Modifier.size(48.dp),
@@ -123,11 +127,11 @@ private fun WeatherHourItem(
       )
       Row {
         Icon(
-          modifier = Modifier.size(16.dp),
+          modifier = Modifier.size(SIZE_DETAILS_ICONS),
           painter = painterResource(id = R.drawable.thermometer),
           contentDescription = null
         )
-        Spacer(modifier = Modifier.padding(4.dp))
+        Spacer(modifier = Modifier.padding(2.dp))
         Text(
           text = weather.temperature.toCelsiusString(),
           style = MaterialTheme.typography.bodySmall
@@ -136,10 +140,11 @@ private fun WeatherHourItem(
 
       Row {
         Icon(
-          painter = painterResource(id = R.drawable.wind_speed),
+          modifier = Modifier.size(SIZE_DETAILS_ICONS),
+          painter = painterResource(id = R.drawable.wind),
           contentDescription = null
         )
-        Spacer(modifier = Modifier.padding(4.dp))
+        Spacer(modifier = Modifier.padding(2.dp))
         Text(
           text = weather.windSpeed.toString(),
           style = MaterialTheme.typography.bodySmall,
@@ -148,8 +153,12 @@ private fun WeatherHourItem(
     }
   }
 }
+
 @Composable
-fun AnimatedUpcomingHourlyWeather(upcoming: List<Weather>) {
+fun AnimatedUpcomingHourlyWeather(
+  upcoming: List<Weather>,
+  gradient: Gradient
+) {
 
   val state = remember {
     MutableTransitionState(false).apply { targetState = true }
@@ -160,6 +169,9 @@ fun AnimatedUpcomingHourlyWeather(upcoming: List<Weather>) {
         + slideIn(animationSpec = tween(500),
       initialOffset = { IntOffset(it.width, 0) }),
   ) {
-    UpcomingHourlyWeather(upcoming = upcoming)
+    UpcomingHourlyWeather(
+      upcoming = upcoming,
+      gradient = gradient
+    )
   }
 }

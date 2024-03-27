@@ -82,6 +82,8 @@ dependencies {
 
   implementation(libs.icons)
 
+  implementation(libs.splashscreen)
+
   testImplementation(libs.junit)
   androidTestImplementation(libs.androidx.test.ext.junit)
   androidTestImplementation(libs.espresso.core)

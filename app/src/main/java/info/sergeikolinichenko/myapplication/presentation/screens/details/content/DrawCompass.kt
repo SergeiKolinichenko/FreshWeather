@@ -148,7 +148,7 @@ private fun DrawNameDirections(
 ) {
   Icon(
     modifier = modifier.background(Color.Transparent),
-    painter = painterResource(id = R.drawable.wind_speed),
+    painter = painterResource(id = R.drawable.wind),
     contentDescription = null
   )
 }

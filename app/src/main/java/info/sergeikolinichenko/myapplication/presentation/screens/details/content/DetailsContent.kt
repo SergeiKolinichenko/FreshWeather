@@ -25,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import info.sergeikolinichenko.myapplication.R
 import info.sergeikolinichenko.myapplication.presentation.screens.details.DetailsComponent
 import info.sergeikolinichenko.myapplication.presentation.screens.details.DetailsStore
@@ -83,6 +84,7 @@ private fun Error() {
     contentAlignment = Alignment.Center
   ) {
     Text(
+      modifier = Modifier.padding(16.dp),
       text = stringResource(R.string.favourite_content_error_weather_for_city),
       style = MaterialTheme.typography.bodyLarge
     )
