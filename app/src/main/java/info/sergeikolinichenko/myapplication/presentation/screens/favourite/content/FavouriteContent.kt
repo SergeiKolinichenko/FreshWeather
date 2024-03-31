@@ -47,9 +47,10 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import info.sergeikolinichenko.myapplication.R
@@ -89,6 +90,7 @@ fun FavouriteContent(component: FavouriteComponent) {
 
   }
 }
+
 @Composable
 private fun FavoriteVerticalGrid(
   modifier: Modifier = Modifier,
@@ -101,9 +103,9 @@ private fun FavoriteVerticalGrid(
   LazyVerticalGrid(
     modifier = modifier.fillMaxSize(),
     columns = GridCells.Fixed(columns),
-    contentPadding = PaddingValues(16.dp),
-    verticalArrangement = Arrangement.spacedBy(16.dp),
-    horizontalArrangement = Arrangement.spacedBy(16.dp),
+    contentPadding = PaddingValues(10.dp),
+    verticalArrangement = Arrangement.spacedBy(10.dp),
+    horizontalArrangement = Arrangement.spacedBy(10.dp),
     content = {
       cityGridContent(
         state = state,
@@ -117,6 +119,7 @@ private fun FavoriteVerticalGrid(
     }
   )
 }
+
 private fun LazyGridScope.cityGridContent(
   state: State<FavouriteStore.State>,
   columns: Int,
@@ -151,6 +154,7 @@ private fun LazyGridScope.cityGridContent(
     )
   }
 }
+
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 private fun CityCard(
@@ -185,7 +189,7 @@ private fun CityCard(
             radius = size.maxDimension / 2
           )
         }
-        .padding(24.dp)
+        .padding(12.dp)
         .clickable { onClickToCity() }
     ) {
 
@@ -204,25 +208,36 @@ private fun CityCard(
             ) {
               Text(
                 text = stringResource(R.string.favourite_content_error_weather_for_city),
-                style = MaterialTheme.typography.bodyLarge
+                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.W600)
               )
             }
           }
 
           FavouriteStore.State.WeatherState.Initial -> {}
           is FavouriteStore.State.WeatherState.LoadedWeather -> {
+
             GlideImage(
               modifier = Modifier
-                .align(Alignment.End)
-                .size(60.dp),
+                .align(Alignment.CenterHorizontally)
+                .size(100.dp),
               model = weatherState.iconUrl,
               contentDescription = stringResource(R.string.content_icon_description_weather_icon)
             )
-            Text(
+
+            Row(
               modifier = Modifier.align(Alignment.Start),
-              style = MaterialTheme.typography.bodyLarge.copy(fontSize = 40.sp),
-              text = weatherState.temperature.toCelsiusString()
-            )
+              horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+              Icon(
+                modifier = Modifier.size(32.dp),
+                painter = painterResource(id = R.drawable.thermometer),
+                contentDescription = "Temperature"
+              )
+              Text(
+                style = MaterialTheme.typography.displaySmall.copy(fontWeight = FontWeight.W600),
+                text = weatherState.temperature.toCelsiusString()
+              )
+            }
           }
 
           FavouriteStore.State.WeatherState.Loading -> {
@@ -248,6 +263,7 @@ private fun CityCard(
     }
   }
 }
+
 @Composable
 private fun SearchCard(
   modifier: Modifier = Modifier,
@@ -279,6 +295,7 @@ private fun SearchCard(
     }
   }
 }
+
 // Block for animation enter CityCard
 @SuppressLint("FrequentlyChangedStateReadInComposition")
 @Composable
@@ -299,6 +316,7 @@ private fun LazyListState.calculateDelayAndEasing(index: Int, columnCount: Int):
   val easing = if (scrollingToBottom || isFirstLoad) LinearOutSlowInEasing else FastOutSlowInEasing
   return rowDelay + columnDelay to easing
 }
+
 data class ScaleAndAlphaArgs(
   val fromScale: Float,
   val toScale: Float,
@@ -331,4 +349,5 @@ fun scaleAndAlpha(
   }
   return alpha to scale
 }
+
 private enum class TransitionState { PLACING, PLACED }

@@ -21,7 +21,7 @@ fun Float.toCelsiusString(): String = "${this.roundToInt()}°C"
 fun Int.toHumidity(): String = "$this%"
 fun Float.toPressure(): String = "${this.roundToInt()}"
 fun Float.toPrecipitation(): String = "${this.roundToInt()} mm"
-fun Int.toCloudyCover(): String = "$this%"
+fun Int.toPerCent(): String = "$this%"
 fun Long.toCalendar(): Calendar {
   val calendar = Calendar.getInstance()
   calendar.timeInMillis = this * 1000
@@ -44,14 +44,6 @@ fun Calendar.formattedOnlyHour(): String {
   return format.format(time)
 }
 fun Calendar.formattedOnlyDay(): String {
-  val format = SimpleDateFormat("ddMMMMM", Locale.getDefault())
-  return format.format(time)
-}
-fun Calendar.formattedDayFull(): String {
-  val format = SimpleDateFormat("dd MMMM", Locale.getDefault())
-  return format.format(time)
-}
-fun Calendar.formattedDayTime(): String {
-  val format = SimpleDateFormat("dd.MM HH:mm", Locale.getDefault())
+  val format = SimpleDateFormat("d MMMM", Locale.getDefault())
   return format.format(time)
 }

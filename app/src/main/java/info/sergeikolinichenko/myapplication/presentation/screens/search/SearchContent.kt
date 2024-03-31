@@ -54,13 +54,15 @@ fun SearchContent(component: SearchComponent) {
   LaunchedEffect(key1 = null) { focusRequester.requestFocus() }
 
   SearchBar(
-    modifier = Modifier.focusRequester(focusRequester = focusRequester),
+    modifier = Modifier
+      .focusRequester(focusRequester = focusRequester),
     placeholder = {
-      Text(
-        modifier = Modifier.padding(end = 16.dp),
-        text = stringResource(R.string.favourite_content_text_search),
-        color = MaterialTheme.colorScheme.onBackground
-      )
+        Text(
+          modifier = Modifier
+            .padding(end = 16.dp),
+          text = stringResource(R.string.favourite_content_text_search),
+          color = MaterialTheme.colorScheme.onBackground
+        )
     },
     query = state.query,
     onQueryChange = { component.onQueryChanged(it) },

@@ -1,7 +1,7 @@
 package info.sergeikolinichenko.myapplication.utils
 
 import info.sergeikolinichenko.domain.entity.City
-import info.sergeikolinichenko.domain.entity.Weather
+import info.sergeikolinichenko.domain.entity.HourlyWeather
 import info.sergeikolinichenko.myapplication.R
 import info.sergeikolinichenko.myapplication.entity.CityScreen
 import info.sergeikolinichenko.myapplication.entity.WeatherScreen
@@ -24,20 +24,19 @@ fun CityScreen.toCity() = City(
   url = url
 )
 
-fun List<Weather>.toListWeatherScreen() = map { it.toWeatherScreen() }
-fun Weather.toWeatherScreen() = WeatherScreen(
-  temperature = temperature,
+fun List<HourlyWeather>.toListHourlyWeatherScreen() = map { it.toHourlyWeatherScreen() }
+fun HourlyWeather.toHourlyWeatherScreen() = WeatherScreen(
+  temperature = tempC,
   maxTemp = maxTempC,
   minTemp = minTempC,
-  descriptionWeather = descriptionWeather,
-  conditionUrl = conditionUrl,
-  windSpeed = windSpeed,
-  windDirection = windDirection,
-  airPressure = airPressure,
+  descriptionWeather = descriptionText,
+  conditionUrl = condIconUrl,
+  windSpeed = windKph,
+  windDirection = windDir,
+  airPressure = pressureMb,
   humidity = humidity,
   date = date
 )
-
 fun Float.fromKphToStringId() = when {
   this < 0.2 -> R.string.beaufort_scale_calm
   this > 0.2 && this <= 1.5 -> R.string.beaufort_scale_light_air

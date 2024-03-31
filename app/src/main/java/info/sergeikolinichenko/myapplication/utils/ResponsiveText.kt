@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.TextUnit
 fun ResponsiveText(
   modifier: Modifier = Modifier,
   text: String,
-  color: Color = MaterialTheme.colorScheme.onPrimary,
+  color: Color = MaterialTheme.colorScheme.onBackground,
   textAlign: TextAlign = TextAlign.Center,
   textStyle: TextStyle,
   targetTextSizeHeight: TextUnit = textStyle.fontSize,

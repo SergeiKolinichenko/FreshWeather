@@ -34,20 +34,21 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
-import info.sergeikolinichenko.domain.entity.Weather
+import info.sergeikolinichenko.domain.entity.HourlyWeather
 import info.sergeikolinichenko.myapplication.R
 import info.sergeikolinichenko.myapplication.presentation.ui.theme.Gradient
 import info.sergeikolinichenko.myapplication.utils.ResponsiveText
 import info.sergeikolinichenko.myapplication.utils.formattedHourAtDay
 import info.sergeikolinichenko.myapplication.utils.toCalendar
 import info.sergeikolinichenko.myapplication.utils.toCelsiusString
+import info.sergeikolinichenko.myapplication.utils.toPerCent
 import java.util.Calendar
 
 /** Created by Sergei Kolinichenko on 22.03.2024 at 19:16 (GMT+3) **/
 @Composable
 private fun UpcomingHourlyWeather(
   modifier: Modifier = Modifier,
-  upcoming: List<Weather>,
+  upcoming: List<HourlyWeather>,
   gradient: Gradient
 ) {
   val currentDate = Calendar.getInstance()
@@ -92,15 +93,15 @@ private fun UpcomingHourlyWeather(
 @Composable
 private fun WeatherHourItem(
   modifier: Modifier = Modifier,
-  weather: Weather
+  weather: HourlyWeather
 ) {
   Card(
     modifier = modifier
       .sizeIn(
         minWidth = 40.dp,
         maxWidth = 80.dp,
-        minHeight = 80.dp,
-        maxHeight = 130.dp
+        minHeight = 50.dp,
+        maxHeight = 150.dp
       ),
     colors = CardDefaults.cardColors(
       containerColor = MaterialTheme.colorScheme.background.copy(alpha = 0.80f)
@@ -122,7 +123,7 @@ private fun WeatherHourItem(
       )
       GlideImage(
         modifier = Modifier.size(48.dp),
-        model = weather.conditionUrl,
+        model = weather.condIconUrl,
         contentDescription = stringResource(R.string.content_icon_description_weather_icon)
       )
       Row {
@@ -133,7 +134,7 @@ private fun WeatherHourItem(
         )
         Spacer(modifier = Modifier.padding(2.dp))
         Text(
-          text = weather.temperature.toCelsiusString(),
+          text = weather.tempC.toCelsiusString(),
           style = MaterialTheme.typography.bodySmall
         )
       }
@@ -146,9 +147,36 @@ private fun WeatherHourItem(
         )
         Spacer(modifier = Modifier.padding(2.dp))
         Text(
-          text = weather.windSpeed.toString(),
+          text = weather.windKph.toString(),
           style = MaterialTheme.typography.bodySmall,
         )
+      }
+      if (weather.willItRain == 1) {
+        Row {
+          Icon(
+            modifier = Modifier.size(SIZE_DETAILS_ICONS),
+            painter = painterResource(id = R.drawable.rain),
+            contentDescription = null
+          )
+          Spacer(modifier = Modifier.padding(2.dp))
+          Text(
+            text = weather.chanceOfRain.toPerCent(),
+            style = MaterialTheme.typography.bodySmall,
+          )
+        }
+      } else if (weather.willItSnow == 1) {
+        Row {
+          Icon(
+            modifier = Modifier.size(SIZE_DETAILS_ICONS),
+            painter = painterResource(id = R.drawable.snow),
+            contentDescription = null
+          )
+          Spacer(modifier = Modifier.padding(2.dp))
+          Text(
+            text = weather.chanceOfSnow.toPerCent(),
+            style = MaterialTheme.typography.bodySmall,
+          )
+        }
       }
     }
   }
@@ -156,7 +184,7 @@ private fun WeatherHourItem(
 
 @Composable
 fun AnimatedUpcomingHourlyWeather(
-  upcoming: List<Weather>,
+  upcoming: List<HourlyWeather>,
   gradient: Gradient
 ) {
 

@@ -3,7 +3,6 @@ package info.sergeikolinichenko.myapplication.presentation.screens.details.conte
 import android.os.Parcelable
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.TransformableState
 import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
@@ -26,6 +25,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.res.stringResource
@@ -56,6 +56,8 @@ private val PAD_CANVAS_START = 40.dp
 private val PAD_CANVAS_END = 4.dp
 private val PAD_CANVAS_TOP = 4.dp
 private val PAD_CANVAS_BOTTOM = 36.dp
+
+// weather graphs on the details screen
 @Composable
 internal fun WeatherCharts(
   modifier: Modifier = Modifier,
@@ -69,11 +71,6 @@ internal fun WeatherCharts(
   Box(
     modifier = modifier
       .background(brush = gradient.secondaryGradient)
-      .border(
-        width = 1.dp,
-        color = gradient.shadowColor,
-        shape = MaterialTheme.shapes.medium
-      )
   ) {
 
     DrawGraphPressure(
@@ -114,6 +111,7 @@ internal fun WeatherCharts(
     )
   }
 }
+
 @Composable
 private fun DrawGraphHumidity(
   modifier: Modifier = Modifier,
@@ -255,6 +253,7 @@ private fun DrawGraphPressure(
       .clipToBounds(),
   ) {
     var previousBar = state.listWeather.first().airPressure
+
     translate(left = state.scrolledBy) {
       state.listWeather.forEachIndexed { index, value ->
 
@@ -348,10 +347,18 @@ private fun DrawScope.drawDay(
     )
   )
   val heightText = textLayoutResult.size.height
-  drawText(
-    textLayoutResult = textLayoutResult,
-    topLeft = Offset(x = offsetX + 4.dp.toPx(), y = size.height - heightText * 1.5f)
-  )
+  rotate(
+    degrees = -90f,
+    pivot = Offset(x = offsetX - 4.dp.toPx(), y = size.height + heightText * 1.5f)
+  ) {
+    drawText(
+      textLayoutResult = textLayoutResult,
+      topLeft = Offset(
+        x = offsetX + textLayoutResult.size.width / 2,
+        y = size.height + heightText * 1.5f + 1.dp.toPx()
+      )
+    )
+  }
 }
 
 @Composable
@@ -473,11 +480,13 @@ private fun DrawScope.drawLevels(
     end = Offset(size.width, maxOffsetY),
     color = color
   )
+  val sizeOfFont = 10.sp
   drawCaptionPress(
     textMeasurer = textMeasurer,
     caption = maxPressure.toPressure(),
     offsetX = drawCaptionOffsetX,
     offsetY = maxOffsetY,
+    fontSize = sizeOfFont,
     color = color
   )
   drawCaptionTemp(
@@ -485,12 +494,14 @@ private fun DrawScope.drawLevels(
     caption = maxTemperature.toCelsiusString(),
     offsetX = drawCaptionOffsetX,
     offsetY = maxOffsetY,
+    fontSize = sizeOfFont,
   )
   drawCaptionHum(
     textMeasurer = textMeasurer,
     caption = maxHumidity.toHumidity(),
     offsetX = drawCaptionOffsetX,
     offsetY = maxOffsetY,
+    fontSize = sizeOfFont,
   )
   //min
   val minPressureOffsetY = size.height
@@ -646,7 +657,7 @@ private fun DrawSignatureGraphics(
 
     val textStyle = TextStyle(
       color = color,
-      fontSize = 12.sp,
+      fontSize = 10.sp,
       fontWeight = FontWeight.W600
     )
 

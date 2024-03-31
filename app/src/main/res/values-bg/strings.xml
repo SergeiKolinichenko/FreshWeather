@@ -39,4 +39,5 @@
   <string name="search_content_title_region">"Регион: "</string>
   <string name="search_content_title_country">"Държава: "</string>
   <string name="favourite_content_efab_title_add_favourite">Добавяне на Фаворит</string>
+  <string name="details_content_title_feels_like">"Чувства се: "</string>
 </resources>

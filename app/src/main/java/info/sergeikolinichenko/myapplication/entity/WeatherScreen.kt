@@ -7,12 +7,12 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class WeatherScreen(
   val temperature: Float,
-  val maxTemp: Float?,
-  val minTemp: Float?,
+  val maxTemp: Float,
+  val minTemp: Float,
   val descriptionWeather: String,
   val conditionUrl: String,
   val windSpeed: Float,
-  val windDirection: String,
+  val windDirection: String?,
   val airPressure: Float,
   val humidity: Int,
   val date: Long

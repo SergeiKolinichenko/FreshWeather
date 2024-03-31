@@ -11,11 +11,11 @@ import retrofit2.http.Query
 
 interface ApiService {
   @GET("current.json")
-  suspend fun getCurrentWeather(
+  suspend fun getWeather(
     @Query("q") location: String,
   ): Response<WeatherCurrentDto>
   @GET("forecast.json")
-  suspend fun getWeatherForecast(
+  suspend fun getForecast(
     @Query("q") location: String,
     @Query("days") days: Int = 4
   ): Response<WeatherForecastDto>

@@ -27,14 +27,13 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import info.sergeikolinichenko.myapplication.R
-import info.sergeikolinichenko.myapplication.entity.WeatherScreen
 import info.sergeikolinichenko.myapplication.utils.toDegree
 
 /** Created by Sergei Kolinichenko on 19.03.2024 at 18:32 (GMT+3) **/
 @Composable
 internal fun DrawCompass(
   modifier: Modifier = Modifier,
-  currentWeather: WeatherScreen
+  windDirection: String
 ) {
   Box(
     modifier = modifier,
@@ -58,12 +57,11 @@ internal fun DrawCompass(
     DrawCircleTriangles(
       modifier = Modifier.fillMaxSize()
     )
-
     DrawPointerDirections(
       modifier = Modifier
         .fillMaxSize()
         .padding(16.dp),
-      degrees = currentWeather.windDirection.toDegree(),
+      degrees = windDirection.toDegree(),
     )
   }
 }
@@ -79,7 +77,7 @@ private fun DrawPointerDirections(
 
   Canvas(modifier = modifier) {
     rotate(degrees = degrees, center) {
-      val triangleWidth = size.width / 10
+      val triangleWidth = size.width / 15
       drawPath(
         color = color,
         path = Path().apply {
@@ -107,7 +105,7 @@ private fun DrawCircleTriangles(
   Canvas(modifier = modifier) {
 
     var degrees = 0f
-    val triangleWidth = size.width / 34
+    val triangleWidth = size.width / 40
     var offsetY: Float
     var triangleColor: Color
 

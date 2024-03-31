@@ -8,8 +8,8 @@ import com.arkivanov.mvikotlin.core.store.StoreFactory
 import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineBootstrapper
 import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineExecutor
 import info.sergeikolinichenko.domain.entity.City
-import info.sergeikolinichenko.domain.usecases.GetCurrentWeatherUseCase
 import info.sergeikolinichenko.domain.usecases.GetFavouriteCitiesUseCase
+import info.sergeikolinichenko.domain.usecases.GetWeatherUseCase
 import info.sergeikolinichenko.myapplication.entity.CityScreen
 import info.sergeikolinichenko.myapplication.presentation.screens.favourite.FavouriteStore.Intent
 import info.sergeikolinichenko.myapplication.presentation.screens.favourite.FavouriteStore.Label
@@ -19,7 +19,6 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 interface FavouriteStore : Store<Intent, State, Label> {
-
   sealed interface Intent {
     data object SearchClicked : Intent
     data object ButtonClicked : Intent
@@ -62,7 +61,7 @@ interface FavouriteStore : Store<Intent, State, Label> {
 class FavouriteStoreFactory @Inject constructor(
   private val storeFactory: StoreFactory,
   private val getFavouriteCities: GetFavouriteCitiesUseCase,
-  private val getCurrentWeather: GetCurrentWeatherUseCase
+  private val getWeatherUseCase: GetWeatherUseCase
 ) {
 
   fun create(): FavouriteStore =
@@ -122,16 +121,17 @@ class FavouriteStoreFactory @Inject constructor(
         }
       }
     }
+
     private suspend fun loadCityWeather(city: City) {
       dispatch(Message.WeatherLoading(city.id))
 
       try {
-        val weather = getCurrentWeather(city.id)
+        val weather = getWeatherUseCase(city.id) //getCurrentWeather(city.id)
         dispatch(
           Message.WeatherLoaded(
             cityId = city.id,
-            temperature = weather.temperature,
-            iconUrl = weather.conditionUrl
+            temperature = weather.tempC,
+            iconUrl = weather.condIconUrl
           )
         )
       } catch (e: Exception) {
@@ -139,9 +139,10 @@ class FavouriteStoreFactory @Inject constructor(
       }
     }
   }
+
   private object ReducerImpl : Reducer<State, Message> {
     override fun State.reduce(msg: Message): State =
-      when(msg) {
+      when (msg) {
 
         is Message.FavoriteCityLoaded -> {
           copy(

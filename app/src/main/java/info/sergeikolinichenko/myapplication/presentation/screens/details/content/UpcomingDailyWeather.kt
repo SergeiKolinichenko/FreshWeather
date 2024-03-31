@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
-import info.sergeikolinichenko.domain.entity.Weather
+import info.sergeikolinichenko.domain.entity.DailyWeather
 import info.sergeikolinichenko.myapplication.R
 import info.sergeikolinichenko.myapplication.presentation.ui.theme.Gradient
 import info.sergeikolinichenko.myapplication.utils.ResponsiveText
@@ -44,7 +44,7 @@ import info.sergeikolinichenko.myapplication.utils.toCelsiusString
 @Composable
 private fun UpcomingDailyWeather(
   modifier: Modifier = Modifier,
-  upcoming: List<Weather>,
+  upcoming: List<DailyWeather>,
   gradient: Gradient
 ) {
   Card(
@@ -86,7 +86,7 @@ private fun UpcomingDailyWeather(
 @Composable
 private fun RowScope.WeatherDayItem(
   modifier: Modifier = Modifier,
-  weather: Weather
+  weather: DailyWeather
 ) {
   Card(
     modifier = modifier
@@ -99,7 +99,8 @@ private fun RowScope.WeatherDayItem(
       .weight(1f),
     colors = CardDefaults.cardColors(
       containerColor = MaterialTheme.colorScheme.background.copy(
-        alpha = 0.80f)
+        alpha = 0.80f
+      )
     ),
   ) {
     Column(
@@ -116,35 +117,32 @@ private fun RowScope.WeatherDayItem(
         horizontalArrangement = Arrangement.SpaceBetween
       ) {
         Row(
-          horizontalArrangement = Arrangement.spacedBy(4.dp)
+          horizontalArrangement = Arrangement.spacedBy(2.dp)
         ) {
-          weather.minTempC?.toCelsiusString()?.let {
+
             Icon(
-              modifier = Modifier.size(20.dp),
+              modifier = Modifier.size(14.dp),
               painter = painterResource(id = R.drawable.temperature_arrow_down),
               contentDescription = "Temperature min"
             )
             Text(
-              text = it,
-              style = MaterialTheme.typography.bodyMedium
+              text = weather.minTempC.toCelsiusString(),
+              style = MaterialTheme.typography.bodySmall
             )
-          }
         }
 
         Row(
-          horizontalArrangement = Arrangement.spacedBy(4.dp)
+          horizontalArrangement = Arrangement.spacedBy(2.dp)
         ) {
-          weather.maxTempC?.toCelsiusString()?.let {
             Icon(
-              modifier = Modifier.size(20.dp),
+              modifier = Modifier.size(14.dp),
               painter = painterResource(id = R.drawable.temperature_arrow_up),
               contentDescription = "Temperature max"
             )
             Text(
-              text = it,
-              style = MaterialTheme.typography.bodyMedium
+              text = weather.maxTempC.toCelsiusString(),
+              style = MaterialTheme.typography.bodySmall
             )
-          }
         }
       }
 
@@ -156,20 +154,20 @@ private fun RowScope.WeatherDayItem(
         verticalAlignment = Alignment.CenterVertically
       ) {
         Icon(
-          modifier = Modifier.size(20.dp),
+          modifier = Modifier.size(18.dp),
           painter = painterResource(id = R.drawable.wind),
-          contentDescription = "Humidity"
+          contentDescription = "Wind speed"
         )
-        Spacer(modifier = Modifier.size(4.dp))
-        Text(
-          text = stringResource(id = weather.windSpeed.fromKphToStringId()),
-          style = MaterialTheme.typography.bodyMedium
+        Spacer(modifier = Modifier.size(2.dp))
+        ResponsiveText(
+          text = stringResource(id = weather.windKph.fromKphToStringId()),
+          textStyle = MaterialTheme.typography.bodySmall
         )
       }
 
       GlideImage(
-        modifier = Modifier.size(70.dp),
-        model = weather.conditionUrl,
+        modifier = Modifier.size(100.dp),
+        model = weather.condIconUrl,
         contentDescription = stringResource(R.string.content_icon_description_weather_icon)
       )
       Text(
@@ -179,9 +177,10 @@ private fun RowScope.WeatherDayItem(
     }
   }
 }
+
 @Composable
 fun AnimatedUpcomingDailyWeather(
-  upcoming: List<Weather>,
+  upcoming: List<DailyWeather>,
   gradient: Gradient
 ) {
 
