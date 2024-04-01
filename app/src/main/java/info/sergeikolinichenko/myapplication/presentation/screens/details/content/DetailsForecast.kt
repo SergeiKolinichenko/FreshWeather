@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
@@ -39,7 +38,7 @@ import info.sergeikolinichenko.myapplication.utils.toCelsiusString
 import info.sergeikolinichenko.myapplication.utils.toListHourlyWeatherScreen
 import info.sergeikolinichenko.myapplication.utils.toPerCent
 import info.sergeikolinichenko.myapplication.utils.toPrecipitation
-import info.sergeikolinichenko.myapplication.utils.toPressure
+import info.sergeikolinichenko.myapplication.utils.toRoundToInt
 import info.sergeikolinichenko.myapplication.utils.toRoundToIntString
 
 /** Created by Sergei Kolinichenko on 24.03.2024 at 14:52 (GMT+3) **/
@@ -92,29 +91,25 @@ fun DetailsForecast(
 
       Column(
         modifier = Modifier
-          .fillMaxHeight(),
+          .fillMaxHeight()
+          .padding(start = 4.dp),
         verticalArrangement = Arrangement.SpaceEvenly,
         horizontalAlignment = Alignment.Start
       ) {
         // Block with maximum and minimum temperatures for that day
         Row(
-          modifier = Modifier.padding(start = 2.dp, top = 2.dp),
+          modifier = Modifier
+            .padding(start = 2.dp, top = 2.dp),
           horizontalArrangement = Arrangement.spacedBy(10.dp),
-          verticalAlignment = Alignment.CenterVertically
+          verticalAlignment = Alignment.Bottom
         ) {
           Row(
             horizontalArrangement = Arrangement.spacedBy(2.dp),
             verticalAlignment = Alignment.Bottom
           ) {
-//            Text(
-//              text = "min",
-//              style = MaterialTheme.typography.bodySmall.copy(
-//                fontWeight = FontWeight.W400
-//              )
-//            )
             Icon(
               modifier = Modifier.size(16.dp),
-              painter = painterResource(id = R.drawable.temperature_arrow_up),
+              painter = painterResource(id = R.drawable.temperature_arrow_down),
               contentDescription = "max"
             )
             Text(
@@ -128,15 +123,9 @@ fun DetailsForecast(
             horizontalArrangement = Arrangement.spacedBy(2.dp),
             verticalAlignment = Alignment.Bottom
           ) {
-//            Text(
-//              text = "max",
-//              style = MaterialTheme.typography.bodySmall.copy(
-//                fontWeight = FontWeight.W400
-//              )
-//            )
             Icon(
               modifier = Modifier.size(16.dp),
-              painter = painterResource(id = R.drawable.temperature_arrow_down),
+              painter = painterResource(id = R.drawable.temperature_arrow_up),
               contentDescription = "min"
             )
             Text(
@@ -170,22 +159,25 @@ fun DetailsForecast(
             }
           },
         )
-        Text(
-          buildAnnotatedString {
-            withStyle(
-              style = MaterialTheme.typography.bodySmall.toSpanStyle()
-            ) {
-              append(stringResource(R.string.details_content_title_feels_like))
-            }
-            withStyle(
-              style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.W600)
-                .toSpanStyle()
-            ) {
-              append(forecast.currentWeather.feelsLikeC.toCelsiusString())
-            }
-          },
-          modifier = Modifier.wrapContentHeight(unbounded = true)
-        )
+        // Block with "feels like" temperature
+        Row(
+          verticalAlignment = Alignment.CenterVertically
+        ) {
+          Icon(
+            modifier = Modifier.size(SIZE_DETAILS_ICONS),
+            painter = painterResource(id = R.drawable.thermometer),
+            contentDescription = null
+          )
+          Spacer(modifier = Modifier.padding(4.dp))
+          Text(
+            text = stringResource(
+              R.string.details_content_title_feels_like,
+              forecast.currentWeather.feelsLikeC.toCelsiusString()
+            ),
+            style = MaterialTheme.typography.bodySmall,
+          )
+        }
+
       }
       // Icon with current weather icon
       GlideImage(
@@ -247,7 +239,8 @@ private fun DetailsCurrentWeather(
   ) {
 
     Column(
-      modifier = modifier.padding(start = 4.dp, end = 2.dp),
+      modifier = modifier
+        .padding(start = 4.dp, end = 2.dp),
       horizontalAlignment = Alignment.Start
     ) {
 
@@ -304,7 +297,6 @@ private fun DetailsCurrentWeather(
           style = MaterialTheme.typography.bodySmall,
         )
       }
-      forecast.currentWeather.pressureMb?.let {
         Row(
           verticalAlignment = Alignment.CenterVertically
         ) {
@@ -317,13 +309,30 @@ private fun DetailsCurrentWeather(
           Text(
             text = stringResource(
               R.string.details_content_atmospheric_pressure_mbar,
-              it.toPressure()
+              forecast.currentWeather.pressureMb.toRoundToInt()
             ),
             style = MaterialTheme.typography.bodySmall,
           )
         }
+      // Block with UV index
+      Row(
+        verticalAlignment = Alignment.CenterVertically
+      ) {
+        Icon(
+          modifier = Modifier.size(SIZE_DETAILS_ICONS),
+          painter = painterResource(id = R.drawable.uv_index),
+          contentDescription = null
+        )
+        Spacer(modifier = Modifier.padding(4.dp))
+        Text(
+          text = stringResource(
+            R.string.details_content_uv_index,
+            forecast.currentWeather.uv.toRoundToInt()
+          ),
+          style = MaterialTheme.typography.bodySmall
+        )
       }
-
+      // Block with wind speed
       Row(
         verticalAlignment = Alignment.CenterVertically
       ) {
@@ -342,18 +351,12 @@ private fun DetailsCurrentWeather(
         )
       }
     }
-    Column(
-      modifier = modifier.padding(start = 2.dp, end = 4.dp),
-      horizontalAlignment = Alignment.Start
-    ) {
-      //-----------------------------------------------------
-      // Wind direction compass
-      DrawCompass(
-        modifier = Modifier
-          .size(100.dp)
-          .padding(start = 6.dp, end = 6.dp),
-        windDirection = forecast.currentWeather.windDir
-      )
-    }
+    // Wind direction compass
+    DrawCompass(
+      modifier = Modifier
+        .size(100.dp)
+        .padding(horizontal = 6.dp),
+      windDirection = forecast.currentWeather.windDir
+    )
   }
 }

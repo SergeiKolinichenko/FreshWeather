@@ -15,7 +15,7 @@
   <string name="details_content_humidity">Humidity: %1$s %%</string>
   <string name="details_content_title_block_upcoming_hourly_weather">Hourly weather forecast</string>
   <string name="weather_charts_title_pressure">Pressure</string>
-  <string name="weather_charts_title_temperature">Temperature</string>
+  <string name="weather_charts_title_uv_index">UV-Index</string>
   <string name="weather_charts_title_humidity">Humidity</string>
   <string name="beaufort_scale_calm">Calm</string>
   <string name="beaufort_scale_light_air">Light air</string>
@@ -38,5 +38,8 @@
   <string name="search_content_title_region">"Region: "</string>
   <string name="search_content_title_country">"Country: "</string>
   <string name="favourite_content_efab_title_add_favourite">Add Favourite</string>
-  <string name="details_content_title_feels_like">"Feels: "</string>
+  <string name="details_content_title_feels_like">"Feels: %1$s"</string>
+  <string name="details_content_uv_index">UV index: %1$s</string>
+  <string name="details_content_chance_of_rain">Rain: %1$s%2$ss</string>
+  <string name="details_content_chance_of_snow">Snow: %1$s%2$s</string>
 </resources>

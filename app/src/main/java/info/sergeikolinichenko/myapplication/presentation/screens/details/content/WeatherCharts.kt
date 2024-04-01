@@ -21,13 +21,16 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.TextStyle
@@ -44,9 +47,8 @@ import info.sergeikolinichenko.myapplication.presentation.ui.theme.Gradient
 import info.sergeikolinichenko.myapplication.utils.formattedOnlyDay
 import info.sergeikolinichenko.myapplication.utils.formattedOnlyHour
 import info.sergeikolinichenko.myapplication.utils.toCalendar
-import info.sergeikolinichenko.myapplication.utils.toCelsiusString
 import info.sergeikolinichenko.myapplication.utils.toHumidity
-import info.sergeikolinichenko.myapplication.utils.toPressure
+import info.sergeikolinichenko.myapplication.utils.toRoundToInt
 import kotlinx.parcelize.Parcelize
 import kotlin.math.roundToInt
 
@@ -67,6 +69,9 @@ internal fun WeatherCharts(
   var state by rememberAirPressureGraphState(listWeather = listWeather)
   val textMeasurer = rememberTextMeasurer()
   var transformableState: TransformableState? = null
+  val iconUvIndex = painterResource(id = R.drawable.uv_index)
+  val iconPressure = painterResource(id = R.drawable.atm_pressure)
+  val iconHumidity = painterResource(id = R.drawable.humidity)
 
   Box(
     modifier = modifier
@@ -79,13 +84,23 @@ internal fun WeatherCharts(
       onTransformableState = { transformableState = it }
     )
 
-    DrawGraphTemperature(
-      state = state,
+    DrawLineGraph(
+      listItems = state.listWeather.map { it.uv.toInt() },
+      minItem = state.minUv.toInt(),
+      color = Color.Red,
+      pxPerPoint = state.pxPerPointUv,
+      scrolledBy = state.scrolledBy,
+      barWidth = state.barWidth,
       transformableState = transformableState
     )
 
-    DrawGraphHumidity(
-      state = state,
+    DrawLineGraph(
+      listItems = state.listWeather.map { it.humidity },
+      minItem = state.minHumidity,
+      color = Color.Blue,
+      pxPerPoint = state.pxPerPointHum,
+      scrolledBy = state.scrolledBy,
+      barWidth = state.barWidth,
       transformableState = transformableState
     )
 
@@ -107,15 +122,22 @@ internal fun WeatherCharts(
     )
 
     DrawSignatureGraphics(
-      textMeasurer = textMeasurer
+      textMeasurer = textMeasurer,
+      iconPressure = iconPressure,
+      iconUv = iconUvIndex,
+      iconHumidity = iconHumidity
     )
   }
 }
-
 @Composable
-private fun DrawGraphHumidity(
+private fun DrawLineGraph(
   modifier: Modifier = Modifier,
-  state: GraphState,
+  listItems: List<Int>,
+  minItem: Int,
+  color: Color,
+  pxPerPoint: Float,
+  scrolledBy: Float,
+  barWidth: Float,
   transformableState: TransformableState?
 ) {
   Canvas(
@@ -130,27 +152,27 @@ private fun DrawGraphHumidity(
       .transformable(transformableState!!)
       .clipToBounds()
   ) {
-    val firstItem = state.listWeather.first()
-    translate(left = state.scrolledBy) {
+    val firstItem = listItems.first()
+    translate(left = scrolledBy) {
       drawPath(
-        color = Color.Blue,
+        color = color,
         style = Stroke(
-          width = 2.dp.toPx(),
+          width = 4.dp.toPx(),
           pathEffect = PathEffect.cornerPathEffect(20.dp.toPx())
         ),
         path = Path().apply {
           moveTo(
             x = 0f,
             y = size.height -
-                (firstItem.humidity - state.minHumidity) * state.pxPerPointHum
+                (firstItem - minItem) * pxPerPoint
           )
-          state.listWeather.forEachIndexed { index, value ->
+          listItems.forEachIndexed { index, value ->
             if (value != firstItem) {
-              val offsetX = state.barWidth * index - state.barWidth / 2
+              val offsetX = barWidth * index - barWidth / 2
               lineTo(
                 x = offsetX,
                 y = size.height -
-                    (value.humidity - state.minHumidity) * state.pxPerPointHum
+                    (value - minItem) * pxPerPoint
               )
             }
           }
@@ -159,56 +181,6 @@ private fun DrawGraphHumidity(
     }
   }
 }
-
-@Composable
-private fun DrawGraphTemperature(
-  modifier: Modifier = Modifier,
-  state: GraphState,
-  transformableState: TransformableState?
-) {
-  Canvas(
-    modifier = modifier
-      .fillMaxSize()
-      .padding(
-        start = PAD_CANVAS_START,
-        end = PAD_CANVAS_END,
-        top = PAD_CANVAS_TOP,
-        bottom = PAD_CANVAS_BOTTOM
-      )
-      .transformable(transformableState!!)
-      .clipToBounds()
-  ) {
-    val firstItem = state.listWeather.first()
-
-    translate(left = state.scrolledBy) {
-      drawPath(
-        color = Color.Red,
-        style = Stroke(
-          width = 2.dp.toPx(),
-          pathEffect = PathEffect.cornerPathEffect(20.dp.toPx())
-        ),
-        path = Path().apply {
-          moveTo(
-            x = 0f,
-            y = size.height -
-                (firstItem.temperature - state.minTemperature) * state.pxPerPointTemp
-          )
-          state.listWeather.forEachIndexed { index, value ->
-            if (value != firstItem) {
-              val offsetX = state.barWidth * index - state.barWidth / 2
-              lineTo(
-                x = offsetX,
-                y = size.height -
-                    (value.temperature - state.minTemperature) * state.pxPerPointTemp
-              )
-            }
-          }
-        }
-      )
-    }
-  }
-}
-
 @Composable
 private fun DrawGraphPressure(
   modifier: Modifier = Modifier,
@@ -463,14 +435,6 @@ private fun DrawScope.drawLevels(
   color: Color = Color.White,
   textMeasurer: TextMeasurer
 ) {
-  val maxPressure = state.maxPressure
-  val minPressure = state.minPressure
-
-  val maxTemperature = state.maxTemperature
-  val minTemperature = state.minTemperature
-
-  val maxHumidity = state.maxHumidity
-  val minHumidity = state.minHumidity
 
   val drawCaptionOffsetX = 2.dp.toPx()
   //max
@@ -483,22 +447,22 @@ private fun DrawScope.drawLevels(
   val sizeOfFont = 10.sp
   drawCaptionPress(
     textMeasurer = textMeasurer,
-    caption = maxPressure.toPressure(),
+    caption = state.maxPressure.toRoundToInt(),
     offsetX = drawCaptionOffsetX,
     offsetY = maxOffsetY,
     fontSize = sizeOfFont,
     color = color
   )
-  drawCaptionTemp(
+  drawCaptionUv(
     textMeasurer = textMeasurer,
-    caption = maxTemperature.toCelsiusString(),
+    caption = state.maxUv.toRoundToInt(),
     offsetX = drawCaptionOffsetX,
     offsetY = maxOffsetY,
     fontSize = sizeOfFont,
   )
   drawCaptionHum(
     textMeasurer = textMeasurer,
-    caption = maxHumidity.toHumidity(),
+    caption = state.maxHumidity.toHumidity(),
     offsetX = drawCaptionOffsetX,
     offsetY = maxOffsetY,
     fontSize = sizeOfFont,
@@ -512,22 +476,22 @@ private fun DrawScope.drawLevels(
   )
   drawCaptionPress(
     textMeasurer = textMeasurer,
-    caption = minPressure.toPressure(),
+    caption = state.minPressure.toRoundToInt(),
     offsetX = drawCaptionOffsetX,
     offsetY = minPressureOffsetY,
     color = color,
     isTop = true
   )
-  drawCaptionTemp(
+  drawCaptionUv(
     textMeasurer = textMeasurer,
-    caption = minTemperature.toCelsiusString(),
+    caption = state.minUv.toRoundToInt(),
     offsetX = drawCaptionOffsetX,
     offsetY = minPressureOffsetY,
     isTop = true
   )
   drawCaptionHum(
     textMeasurer = textMeasurer,
-    caption = minHumidity.toHumidity(),
+    caption = state.minHumidity.toHumidity(),
     offsetX = drawCaptionOffsetX,
     offsetY = minPressureOffsetY,
     isTop = true
@@ -561,7 +525,7 @@ private fun DrawScope.drawCaptionPress(
   )
 }
 
-private fun DrawScope.drawCaptionTemp(
+private fun DrawScope.drawCaptionUv(
   textMeasurer: TextMeasurer,
   caption: String,
   offsetX: Float,
@@ -579,8 +543,8 @@ private fun DrawScope.drawCaptionTemp(
       fontWeight = fontWeight
     )
   )
-  val cOffsetY = if (isTop) offsetY - (textLayoutResult.size.height * 2)
-  else offsetY + textLayoutResult.size.height
+  val cOffsetY = if (isTop) offsetY - (textLayoutResult.size.height * 3)
+  else offsetY + textLayoutResult.size.height * 2
   drawText(
     textLayoutResult = textLayoutResult,
     topLeft = Offset(offsetX, cOffsetY)
@@ -605,8 +569,8 @@ private fun DrawScope.drawCaptionHum(
       fontWeight = fontWeight
     )
   )
-  val cOffsetY = if (isTop) offsetY - textLayoutResult.size.height * 3
-  else offsetY + textLayoutResult.size.height * 2
+  val cOffsetY = if (isTop) offsetY - textLayoutResult.size.height * 2
+  else offsetY + textLayoutResult.size.height
   drawText(
     textLayoutResult = textLayoutResult,
     topLeft = Offset(offsetX, cOffsetY)
@@ -635,12 +599,15 @@ private fun DrawScope.drawDashedLine(
 @Composable
 private fun DrawSignatureGraphics(
   modifier: Modifier = Modifier,
-  textMeasurer: TextMeasurer
+  textMeasurer: TextMeasurer,
+  iconPressure: Painter,
+  iconUv: Painter,
+  iconHumidity: Painter
 ) {
 
   val color = MaterialTheme.colorScheme.onBackground
   val textPres = stringResource(id = R.string.weather_charts_title_pressure)
-  val textTemp = stringResource(R.string.weather_charts_title_temperature)
+  val textTemp = stringResource(R.string.weather_charts_title_uv_index)
   val textHum = stringResource(R.string.weather_charts_title_humidity)
 
   Canvas(
@@ -676,48 +643,63 @@ private fun DrawSignatureGraphics(
       style = textStyle
     )
 
-    drawRect(
-      color = Color.Green,
-      topLeft = Offset(x = 0f, y = size.height - 12.dp.toPx()),
-      size = Size(width = 12.dp.toPx(), height = 6.dp.toPx())
-    )
-    drawRect(
-      color = Color.Cyan,
-      topLeft = Offset(x = 0f, y = size.height - 6.dp.toPx()),
-      size = Size(width = 12.dp.toPx(), height = 6.dp.toPx())
-    )
+    translate(
+      left = 0f,
+      top = size.height - 16.dp.toPx()
+    ) {
+      with(iconPressure) {
+        draw(
+          size = Size(14.dp.toPx(), 14.dp.toPx()),
+          colorFilter = ColorFilter.tint(Color.Green)
+        )
+      }
+    }
+
     drawText(
       textLayoutResult = textLayoutResultPres,
+      color = Color.Cyan,
       topLeft = Offset(
         x = 18.dp.toPx(),
         y = size.height - 8.dp.toPx() - textLayoutResultPres.size.height / 2
       )
     )
-    drawRect(
-      color = Color.Red,
-      topLeft = Offset(
-        x = 28.dp.toPx() + textLayoutResultPres.size.width,
-        y = size.height - 12.dp.toPx()
-      ),
-      size = Size(width = 12.dp.toPx(), height = 12.dp.toPx())
-    )
+
+    translate(
+      left = 28.dp.toPx() + textLayoutResultPres.size.width,
+      top = size.height - 16.dp.toPx()
+    ) {
+      with(iconUv) {
+        draw(
+          size = Size(14.dp.toPx(), 14.dp.toPx()),
+          colorFilter = ColorFilter.tint(Color.Red)
+        )
+      }
+    }
+
     drawText(
       textLayoutResult = textLayoutResultTemp,
+      color = Color.Red,
       topLeft = Offset(
         x = 44.dp.toPx() + textLayoutResultPres.size.width,
         y = size.height - 8.dp.toPx() - textLayoutResultTemp.size.height / 2
       )
     )
-    drawRect(
-      color = Color.Blue,
-      topLeft = Offset(
-        x = 54.dp.toPx() + textLayoutResultPres.size.width + textLayoutResultTemp.size.width,
-        y = size.height - 12.dp.toPx()
-      ),
-      size = Size(width = 12.dp.toPx(), height = 12.dp.toPx())
-    )
+
+    translate(
+      left = 54.dp.toPx() + textLayoutResultPres.size.width + textLayoutResultTemp.size.width,
+      top = size.height - 16.dp.toPx()
+    ) {
+      with(iconHumidity) {
+        draw(
+          size = Size(14.dp.toPx(), 14.dp.toPx()),
+          colorFilter = ColorFilter.tint(Color.Blue)
+        )
+      }
+    }
+
     drawText(
       textLayoutResult = textLayoutResultHum,
+      color = Color.Blue,
       topLeft = Offset(
         x = 70.dp.toPx() + textLayoutResultPres.size.width + textLayoutResultTemp.size.width,
         y = size.height - 8.dp.toPx() - textLayoutResultHum.size.height / 2
@@ -754,13 +736,7 @@ private data class GraphState(
   val pxPerPointPres: Float
     get() = windowHeight / (maxPressure - minPressure)
 
-  // min and max temperature for visible bars
-  val minTemperature: Float
-    get() = visibleBars.minOf { it.temperature }
-  val maxTemperature: Float
-    get() = visibleBars.maxOf { it.temperature }
-  val pxPerPointTemp: Float
-    get() = windowHeight / (maxTemperature - minTemperature)
+  // min and max humidity for visible bars
   val minHumidity: Int
     get() = visibleBars.minOf { it.humidity }
   val maxHumidity: Int
@@ -768,6 +744,13 @@ private data class GraphState(
   val pxPerPointHum: Float
     get() = windowHeight / (maxHumidity - minHumidity)
 
+  // min and max uv for visible bars
+  val minUv: Float
+    get() = visibleBars.minOf { it.uv }
+  val maxUv: Float
+    get() = visibleBars.maxOf { it.uv }
+  val pxPerPointUv: Float
+    get() = windowHeight / (maxUv - minUv)
 }
 
 @Composable

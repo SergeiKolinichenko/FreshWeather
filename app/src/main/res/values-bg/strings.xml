@@ -16,7 +16,7 @@
   <string name="details_content_humidity">Влажност :%1$s %%</string>
   <string name="details_content_title_block_upcoming_hourly_weather">Почасова прогноза за времето</string>
   <string name="weather_charts_title_pressure">Налягане</string>
-  <string name="weather_charts_title_temperature">Температура</string>
+  <string name="weather_charts_title_uv_index">UV-индекс</string>
   <string name="weather_charts_title_humidity">Влажност</string>
   <string name="beaufort_scale_calm">Щил</string>
   <string name="beaufort_scale_light_air">Тих вятър</string>
@@ -39,5 +39,8 @@
   <string name="search_content_title_region">"Регион: "</string>
   <string name="search_content_title_country">"Държава: "</string>
   <string name="favourite_content_efab_title_add_favourite">Добавяне на Фаворит</string>
-  <string name="details_content_title_feels_like">"Чувства се: "</string>
+  <string name="details_content_title_feels_like">Чувства се: %1$s</string>
+  <string name="details_content_uv_index">UV Index: %1$s</string>
+  <string name="details_content_chance_of_rain">Дъжд: %1$s%2$ss</string>
+  <string name="details_content_chance_of_snow">Сняг: %1$s%2$ss</string>
 </resources>

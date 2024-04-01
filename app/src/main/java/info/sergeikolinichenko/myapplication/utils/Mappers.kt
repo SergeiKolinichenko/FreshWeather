@@ -26,6 +26,7 @@ fun CityScreen.toCity() = City(
 
 fun List<HourlyWeather>.toListHourlyWeatherScreen() = map { it.toHourlyWeatherScreen() }
 fun HourlyWeather.toHourlyWeatherScreen() = WeatherScreen(
+  date = date,
   temperature = tempC,
   maxTemp = maxTempC,
   minTemp = minTempC,
@@ -35,7 +36,7 @@ fun HourlyWeather.toHourlyWeatherScreen() = WeatherScreen(
   windDirection = windDir,
   airPressure = pressureMb,
   humidity = humidity,
-  date = date
+  uv = uv
 )
 fun Float.fromKphToStringId() = when {
   this < 0.2 -> R.string.beaufort_scale_calm

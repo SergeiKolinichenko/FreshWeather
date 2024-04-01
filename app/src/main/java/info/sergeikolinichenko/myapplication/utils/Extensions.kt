@@ -19,7 +19,7 @@ fun ComponentContext.componentScope() =
 fun Float.toRoundToIntString(): String = "${this.roundToInt()}"
 fun Float.toCelsiusString(): String = "${this.roundToInt()}°C"
 fun Int.toHumidity(): String = "$this%"
-fun Float.toPressure(): String = "${this.roundToInt()}"
+fun Float.toRoundToInt(): String = "${this.roundToInt()}"
 fun Float.toPrecipitation(): String = "${this.roundToInt()} mm"
 fun Int.toPerCent(): String = "$this%"
 fun Long.toCalendar(): Calendar {

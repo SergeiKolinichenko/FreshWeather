@@ -13,6 +13,7 @@ data class HourlyWeather(
   val windDir: String,
   val pressureMb: Float,
   val humidity: Int,
+  val uv: Float,
   val willItRain: Int,
   val chanceOfRain: Int,
   val willItSnow: Int,

@@ -5,9 +5,6 @@ import com.google.gson.annotations.SerializedName
 /** Created by Sergei Kolinichenko on 21.02.2024 at 20:13 (GMT+3) **/
 
 data class ForcastDailyDto(
-  @SerializedName("time_epoch")
-  val timeEpoch: Long,
-
   @SerializedName("maxtemp_c")
   val maxTempC: Float,
 
@@ -16,6 +13,8 @@ data class ForcastDailyDto(
 
   @SerializedName("maxwind_kph")
   val maxWindKph: Float,
+
+  val uv: Float,
 
   @SerializedName("daily_will_it_rain")
   val dailyWillTtRain: Int,

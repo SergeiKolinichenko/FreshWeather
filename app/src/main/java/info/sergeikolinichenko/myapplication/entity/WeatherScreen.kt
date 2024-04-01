@@ -6,6 +6,7 @@ import kotlinx.parcelize.Parcelize
 /** Created by Sergei Kolinichenko on 11.03.2024 at 15:30 (GMT+3) **/
 @Parcelize
 data class WeatherScreen(
+  val date: Long,
   val temperature: Float,
   val maxTemp: Float,
   val minTemp: Float,
@@ -15,5 +16,5 @@ data class WeatherScreen(
   val windDirection: String?,
   val airPressure: Float,
   val humidity: Int,
-  val date: Long
+  val uv: Float,
 ): Parcelable

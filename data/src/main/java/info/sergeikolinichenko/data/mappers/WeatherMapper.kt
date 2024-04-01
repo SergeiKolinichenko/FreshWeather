@@ -51,11 +51,16 @@ private fun WeatherForecastDto.toCurrentWeather(): CurrentWeather {
 private fun ForecastDto.toDailyWeather() = forecastDay.drop(1).map { dayDto ->
     val weatherDto = dayDto.dailyWeather
     DailyWeather(
+      date = dayDto.dateEpoch,
       maxTempC = weatherDto.maxTempC,
       minTempC = weatherDto.minTempC,
       condIconUrl = weatherDto.conditionDto.icon.correctUrl(),
       windKph = weatherDto.maxWindKph,
-      date = weatherDto.timeEpoch
+      uv = weatherDto.uv,
+      dailyWillTtRain = weatherDto.dailyWillTtRain,
+      dailyChanceOfRain = weatherDto.dailyChanceOfRain,
+      dailyWillItSnow = weatherDto.dailyWillItSnow,
+      dailyChanceOfSnow = weatherDto.dailyChanceOfSnow
     )
   }
 
@@ -73,6 +78,7 @@ private fun ForecastDto.toHourlyWeather() = forecastDay.flatMap { day ->
       windDir = hour.windDir,
       pressureMb = hour.pressureMb,
       humidity = hour.humidity,
+      uv = hour.uv,
       willItRain = hour.willItRain,
       chanceOfRain = hour.chanceOfRain,
       willItSnow = hour.willItSnow,

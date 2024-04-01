@@ -99,9 +99,7 @@ private fun WeatherHourItem(
     modifier = modifier
       .sizeIn(
         minWidth = 40.dp,
-        maxWidth = 80.dp,
         minHeight = 50.dp,
-        maxHeight = 150.dp
       ),
     colors = CardDefaults.cardColors(
       containerColor = MaterialTheme.colorScheme.background.copy(alpha = 0.80f)
@@ -151,6 +149,7 @@ private fun WeatherHourItem(
           style = MaterialTheme.typography.bodySmall,
         )
       }
+
       if (weather.willItRain == 1) {
         Row {
           Icon(
