@@ -11,20 +11,18 @@ fun CityDbModel.toCity(): City {
     name = name,
     country = country,
     region = region,
-    url = url
+    idTimeZone = idTimeZone
   )
 }
-
 fun City.toCityDbModel(): CityDbModel {
   return CityDbModel(
     id = id,
     name = name,
     country = country,
     region = region,
-    url = url
+    idTimeZone = idTimeZone
   )
 }
-
-fun List<CityDbModel>.toListCities(): List<City> {
+fun List<CityDbModel>.toListFavouriteCities(): List<City> {
   return map { it.toCity() }
 }

@@ -1,6 +1,7 @@
 package info.sergeikolinichenko.data.network.api
 
-import info.sergeikolinichenko.data.network.dto.CityDto
+import info.sergeikolinichenko.data.network.dto.CityIdDto
+import info.sergeikolinichenko.data.network.dto.LocationInfo
 import info.sergeikolinichenko.data.network.dto.WeatherCurrentDto
 import info.sergeikolinichenko.data.network.dto.WeatherForecastDto
 import retrofit2.Response
@@ -14,13 +15,22 @@ interface ApiService {
   suspend fun getWeather(
     @Query("q") location: String,
   ): Response<WeatherCurrentDto>
+
   @GET("forecast.json")
   suspend fun getForecast(
     @Query("q") location: String,
-    @Query("days") days: Int = 4
+    @Query("days") days: Int = MAX_DAYS_FORECAST
   ): Response<WeatherForecastDto>
+
   @GET("search.json")
   suspend fun searchCities(
     @Query("q") query: String,
-  ): Response<List<CityDto>>
+  ): Response<List<CityIdDto>>
+  @GET("timezone.json")
+  suspend fun getCityInfo(
+    @Query("q") query: String,
+  ): Response<LocationInfo>
+  companion object {
+    private const val MAX_DAYS_FORECAST = 7
+  }
 }

@@ -7,16 +7,16 @@
   <string name="details_content_text_description_button_back">Бутон обратно</string>
   <string name="details_content_text_description_button_favourite">Икона Любими</string>
   <string name="details_content_text_description_weather_condition">Състояние на времето</string>
-  <string name="details_content_title_block_upcoming_weather">Времето за следващите 2 дни</string>
+  <string name="details_content_title_block_upcoming_weather">Времето за следващите дни</string>
   <string name="search_content_message_text_nothing_found_on_your_request">Нищо не беше намерено за вашата заявка</string>
-  <string name="search_content_message_text_error_something_gone_wrong">Грешка! Нещо се е объркало.</string>
+  <string name="search_content_message_text_error_something_gone_wrong">Грешка! Устройството може да не е свързано с интернет. Моля, проверете интернет връзката.</string>
   <string name="favourite_content_error_weather_for_city">Грешка! Времето за този град в момента не е налично. Моля, опитайте отново по-късно.</string>
   <string name="details_content_wind_speed">"Вятър: "</string>
   <string name="details_content_atmospheric_pressure_mbar">Налягане: %1$s mb</string>
   <string name="details_content_humidity">Влажност :%1$s %%</string>
   <string name="details_content_title_block_upcoming_hourly_weather">Почасова прогноза за времето</string>
   <string name="weather_charts_title_pressure">Налягане</string>
-  <string name="weather_charts_title_uv_index">UV-индекс</string>
+  <string name="details_content_uv_index">UV-индекс: %1$s</string>
   <string name="weather_charts_title_humidity">Влажност</string>
   <string name="beaufort_scale_calm">Щил</string>
   <string name="beaufort_scale_light_air">Тих вятър</string>
@@ -40,7 +40,8 @@
   <string name="search_content_title_country">"Държава: "</string>
   <string name="favourite_content_efab_title_add_favourite">Добавяне на Фаворит</string>
   <string name="details_content_title_feels_like">Чувства се: %1$s</string>
-  <string name="details_content_uv_index">UV Index: %1$s</string>
+  <string name="details_content_index">Индекс: %1$s</string>
   <string name="details_content_chance_of_rain">Дъжд: %1$s%2$ss</string>
   <string name="details_content_chance_of_snow">Сняг: %1$s%2$ss</string>
+  <string name="weather_charts_title_uv_index">UV-индекс</string>
 </resources>

@@ -6,6 +6,7 @@ import dagger.Module
 import dagger.Provides
 import info.sergeikolinichenko.data.local.db.CitiesDao
 import info.sergeikolinichenko.data.local.db.CitiesDatabase
+import info.sergeikolinichenko.data.local.preferences.FreshWeatherPreferences
 import info.sergeikolinichenko.data.network.api.ApiFactory
 import info.sergeikolinichenko.data.repositories.FavouriteRepositoryImpl
 import info.sergeikolinichenko.data.repositories.SearchRepositoryImpl
@@ -28,8 +29,12 @@ interface DataModule {
     @[ApplicationScope Provides]
     fun provideApiService() = ApiFactory.apiService
     @[ApplicationScope Provides]
-    fun provideCitiesDatabase(context: Context) = CitiesDatabase.getInstance(context)
+    fun provideCitiesDatabase(context: Context)
+    = CitiesDatabase.getInstance(context)
     @[ApplicationScope Provides]
     fun provideCitiesDao(database: CitiesDatabase): CitiesDao = database.citiesDao()
+    @[ApplicationScope Provides]
+    fun provideSharedPreferences(context: Context) =
+      FreshWeatherPreferences.getInstance(context)
   }
 }

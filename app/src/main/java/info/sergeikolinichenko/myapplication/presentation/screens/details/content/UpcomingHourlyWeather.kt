@@ -6,6 +6,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideIn
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,12 +15,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -30,6 +30,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
@@ -38,34 +40,42 @@ import info.sergeikolinichenko.domain.entity.HourlyWeather
 import info.sergeikolinichenko.myapplication.R
 import info.sergeikolinichenko.myapplication.presentation.ui.theme.Gradient
 import info.sergeikolinichenko.myapplication.utils.ResponsiveText
-import info.sergeikolinichenko.myapplication.utils.formattedHourAtDay
+import info.sergeikolinichenko.myapplication.utils.formattedFullHour
+import info.sergeikolinichenko.myapplication.utils.formattedOnlyMonth
 import info.sergeikolinichenko.myapplication.utils.toCalendar
 import info.sergeikolinichenko.myapplication.utils.toCelsiusString
 import info.sergeikolinichenko.myapplication.utils.toPerCent
 import java.util.Calendar
 
 /** Created by Sergei Kolinichenko on 22.03.2024 at 19:16 (GMT+3) **/
+private const val TRUE = 1
 @Composable
 private fun UpcomingHourlyWeather(
   modifier: Modifier = Modifier,
   upcoming: List<HourlyWeather>,
+  timeZone: String,
   gradient: Gradient
 ) {
   val currentDate = Calendar.getInstance()
-  val nextHours = upcoming.filter { it.date.toCalendar() > currentDate }
+  val nextHours = upcoming.filter { it.date.toCalendar(timeZone) > currentDate }
   Card(
     modifier = modifier
       .fillMaxWidth()
-      .padding(4.dp),
+      .padding(vertical = 4.dp),
     border = BorderStroke(1.dp, gradient.shadowColor),
-    shape = MaterialTheme.shapes.extraLarge,
+    shape = RoundedCornerShape(
+      topStart = 0.dp,
+      topEnd = 0.dp,
+      bottomStart = 0.dp,
+      bottomEnd = 0.dp
+    ),
     colors = CardDefaults.cardColors(
       containerColor = MaterialTheme.colorScheme.background.copy(alpha = 0.30f)
     )
   ) {
     Column(
       modifier = Modifier
-        .padding(6.dp)
+        .padding(horizontal = 6.dp)
     ) {
       ResponsiveText(
         modifier = Modifier
@@ -76,13 +86,17 @@ private fun UpcomingHourlyWeather(
       )
       LazyRow(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(10.dp)
+        horizontalArrangement = Arrangement.spacedBy(2.dp)
       ) {
         items(
           items = nextHours,
           key = { it.date }
         ) {
-          WeatherHourItem(weather = it)
+          WeatherHourItem(
+            weather = it,
+            timeZone = timeZone,
+            gradient = gradient
+          )
         }
       }
     }
@@ -93,89 +107,110 @@ private fun UpcomingHourlyWeather(
 @Composable
 private fun WeatherHourItem(
   modifier: Modifier = Modifier,
-  weather: HourlyWeather
+  weather: HourlyWeather,
+  timeZone: String,
+  gradient: Gradient
 ) {
-  Card(
+  Column(
     modifier = modifier
-      .sizeIn(
-        minWidth = 40.dp,
-        minHeight = 50.dp,
+      .fillMaxSize()
+      .padding(start = 4.dp, end = 4.dp, bottom = 6.dp)
+      .border(
+        BorderStroke(1.dp, gradient.tertiaryGradient),
+        shape = RoundedCornerShape(8.dp)
       ),
-    colors = CardDefaults.cardColors(
-      containerColor = MaterialTheme.colorScheme.background.copy(alpha = 0.80f)
-    )
+    horizontalAlignment = Alignment.CenterHorizontally,
+    verticalArrangement = Arrangement.spacedBy(0.dp)
   ) {
-    Column(
+    Card(
       modifier = Modifier
-        .fillMaxSize()
-        .padding(4.dp),
-      horizontalAlignment = Alignment.CenterHorizontally,
-      verticalArrangement = Arrangement.SpaceBetween
+        .fillMaxWidth()
+        .align(Alignment.CenterHorizontally),
+      colors = CardDefaults.cardColors(
+        containerColor = gradient.shadowColor,
+      ),
+      shape = RoundedCornerShape(
+        topStart = 8.dp,
+        topEnd = 8.dp,
+        bottomStart = 0.dp,
+        bottomEnd = 0.dp
+      )
     ) {
       Text(
-        text = weather.date.toCalendar().formattedHourAtDay(),
-        style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.W500)
+        modifier = Modifier
+          .fillMaxWidth()
+          .padding(top = 2.dp, start = 8.dp, end = 8.dp),
+        text = weather.date.toCalendar(timeZone).formattedOnlyMonth(),
+        style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.W500),
+        textAlign = TextAlign.Center,
+        textDecoration = TextDecoration.Underline
       )
-      HorizontalDivider(
-        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+      Text(
+        modifier = Modifier
+          .fillMaxWidth()
+          .padding(bottom = 2.dp, start = 6.dp, end = 6.dp),
+        text = weather.date.toCalendar(timeZone).formattedFullHour(),
+        style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.W500),
+        textAlign = TextAlign.Center
       )
-      GlideImage(
-        modifier = Modifier.size(48.dp),
-        model = weather.condIconUrl,
-        contentDescription = stringResource(R.string.content_icon_description_weather_icon)
-      )
-      Row {
-        Icon(
-          modifier = Modifier.size(SIZE_DETAILS_ICONS),
-          painter = painterResource(id = R.drawable.thermometer),
-          contentDescription = null
-        )
-        Spacer(modifier = Modifier.padding(2.dp))
-        Text(
-          text = weather.tempC.toCelsiusString(),
-          style = MaterialTheme.typography.bodySmall
-        )
-      }
+    }
 
+    GlideImage(
+      modifier = Modifier.size(48.dp),
+      model = weather.condIconUrl,
+      contentDescription = stringResource(R.string.content_icon_description_weather_icon)
+    )
+    Row {
+      Icon(
+        modifier = Modifier.size(SIZE_DETAILS_ICONS),
+        painter = painterResource(id = R.drawable.thermometer),
+        contentDescription = null
+      )
+      Spacer(modifier = Modifier.padding(2.dp))
+      Text(
+        text = weather.tempC.toCelsiusString(),
+        style = MaterialTheme.typography.bodySmall
+      )
+    }
+
+    Row {
+      Icon(
+        modifier = Modifier.size(SIZE_DETAILS_ICONS),
+        painter = painterResource(id = R.drawable.wind),
+        contentDescription = null
+      )
+      Spacer(modifier = Modifier.padding(2.dp))
+      Text(
+        text = weather.windKph.toString(),
+        style = MaterialTheme.typography.bodySmall,
+      )
+    }
+
+    if (weather.willItRain == TRUE) {
       Row {
         Icon(
           modifier = Modifier.size(SIZE_DETAILS_ICONS),
-          painter = painterResource(id = R.drawable.wind),
+          painter = painterResource(id = R.drawable.rain),
           contentDescription = null
         )
         Spacer(modifier = Modifier.padding(2.dp))
         Text(
-          text = weather.windKph.toString(),
+          text = weather.chanceOfRain.toPerCent(),
           style = MaterialTheme.typography.bodySmall,
         )
       }
-
-      if (weather.willItRain == 1) {
-        Row {
-          Icon(
-            modifier = Modifier.size(SIZE_DETAILS_ICONS),
-            painter = painterResource(id = R.drawable.rain),
-            contentDescription = null
-          )
-          Spacer(modifier = Modifier.padding(2.dp))
-          Text(
-            text = weather.chanceOfRain.toPerCent(),
-            style = MaterialTheme.typography.bodySmall,
-          )
-        }
-      } else if (weather.willItSnow == 1) {
-        Row {
-          Icon(
-            modifier = Modifier.size(SIZE_DETAILS_ICONS),
-            painter = painterResource(id = R.drawable.snow),
-            contentDescription = null
-          )
-          Spacer(modifier = Modifier.padding(2.dp))
-          Text(
-            text = weather.chanceOfSnow.toPerCent(),
-            style = MaterialTheme.typography.bodySmall,
-          )
-        }
+    } else if (weather.willItSnow == TRUE) {
+      Row {
+        Icon(
+          modifier = Modifier.size(SIZE_DETAILS_ICONS),
+          painter = painterResource(id = R.drawable.snow),
+          contentDescription = null
+        )
+        Spacer(modifier = Modifier.padding(2.dp))
+        Text(
+          text = weather.chanceOfSnow.toPerCent(),
+          style = MaterialTheme.typography.bodySmall,
+        )
       }
     }
   }
@@ -184,6 +219,7 @@ private fun WeatherHourItem(
 @Composable
 fun AnimatedUpcomingHourlyWeather(
   upcoming: List<HourlyWeather>,
+  timeZone: String,
   gradient: Gradient
 ) {
 
@@ -198,6 +234,7 @@ fun AnimatedUpcomingHourlyWeather(
   ) {
     UpcomingHourlyWeather(
       upcoming = upcoming,
+      timeZone = timeZone,
       gradient = gradient
     )
   }

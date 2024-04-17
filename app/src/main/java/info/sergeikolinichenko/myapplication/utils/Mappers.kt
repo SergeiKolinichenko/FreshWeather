@@ -13,7 +13,7 @@ fun City.toCityScreen() = CityScreen(
   name = name,
   region = region,
   country = country,
-  url = url
+  idTimeZone = idTimeZone
 )
 
 fun CityScreen.toCity() = City(
@@ -21,7 +21,7 @@ fun CityScreen.toCity() = City(
   name = name,
   region = region,
   country = country,
-  url = url
+  idTimeZone = idTimeZone
 )
 
 fun List<HourlyWeather>.toListHourlyWeatherScreen() = map { it.toHourlyWeatherScreen() }

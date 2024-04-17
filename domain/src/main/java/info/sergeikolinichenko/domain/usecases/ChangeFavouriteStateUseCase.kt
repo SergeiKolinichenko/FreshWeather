@@ -6,6 +6,7 @@ import javax.inject.Inject
 
 /** Created by Sergei Kolinichenko on 21.02.2024 at 17:07 (GMT+3) **/
 
+// UseCase for changing favourite state of city
 class ChangeFavouriteStateUseCase @Inject constructor(
   private val repository: FavouriteRepository
 ){

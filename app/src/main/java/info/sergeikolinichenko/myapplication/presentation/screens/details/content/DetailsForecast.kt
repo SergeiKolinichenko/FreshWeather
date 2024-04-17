@@ -31,6 +31,7 @@ import com.bumptech.glide.integration.compose.GlideImage
 import info.sergeikolinichenko.domain.entity.Forecast
 import info.sergeikolinichenko.myapplication.R
 import info.sergeikolinichenko.myapplication.presentation.ui.theme.Gradient
+import info.sergeikolinichenko.myapplication.utils.ResponsiveText
 import info.sergeikolinichenko.myapplication.utils.formattedFullDate
 import info.sergeikolinichenko.myapplication.utils.fromKphToStringId
 import info.sergeikolinichenko.myapplication.utils.toCalendar
@@ -49,6 +50,7 @@ val SIZE_DETAILS_ICONS = 16.dp
 fun DetailsForecast(
   modifier: Modifier = Modifier,
   forecast: Forecast,
+  timeZone: String,
   gradient: Gradient
 ) {
   Column(
@@ -59,9 +61,10 @@ fun DetailsForecast(
     horizontalAlignment = Alignment.CenterHorizontally
   ) {
 
-    Text(
-      text = forecast.currentWeather.date.toCalendar().formattedFullDate(),
-      style = MaterialTheme.typography.titleLarge,
+    ResponsiveText(
+      modifier = Modifier.padding(horizontal = 10.dp),
+      text = forecast.currentWeather.date.toCalendar(timeZone).formattedFullDate(),
+      textStyle = MaterialTheme.typography.titleLarge
     )
 
     HorizontalDivider(
@@ -208,17 +211,20 @@ fun DetailsForecast(
         .size(150.dp)
         .padding(vertical = 4.dp, horizontal = 8.dp),
       listWeather = forecast.upcomingHours.toListHourlyWeatherScreen(),
+      timeZone = timeZone,
       gradient = gradient
     )
 
     // Block with upcoming weather for the next hours
     AnimatedUpcomingHourlyWeather(
       upcoming = forecast.upcomingHours,
+      timeZone = timeZone,
       gradient = gradient
     )
     // Block with upcoming weather for the next days
     AnimatedUpcomingDailyWeather(
       upcoming = forecast.upcomingDays,
+      timeZone = timeZone,
       gradient = gradient
     )
     Spacer(modifier = Modifier.weight(0.5f))
@@ -297,23 +303,23 @@ private fun DetailsCurrentWeather(
           style = MaterialTheme.typography.bodySmall,
         )
       }
-        Row(
-          verticalAlignment = Alignment.CenterVertically
-        ) {
-          Icon(
-            modifier = Modifier.size(SIZE_DETAILS_ICONS),
-            painter = painterResource(id = R.drawable.atm_pressure),
-            contentDescription = null
-          )
-          Spacer(modifier = Modifier.padding(4.dp))
-          Text(
-            text = stringResource(
-              R.string.details_content_atmospheric_pressure_mbar,
-              forecast.currentWeather.pressureMb.toRoundToInt()
-            ),
-            style = MaterialTheme.typography.bodySmall,
-          )
-        }
+      Row(
+        verticalAlignment = Alignment.CenterVertically
+      ) {
+        Icon(
+          modifier = Modifier.size(SIZE_DETAILS_ICONS),
+          painter = painterResource(id = R.drawable.atm_pressure),
+          contentDescription = null
+        )
+        Spacer(modifier = Modifier.padding(4.dp))
+        Text(
+          text = stringResource(
+            R.string.details_content_atmospheric_pressure_mbar,
+            forecast.currentWeather.pressureMb.toRoundToInt()
+          ),
+          style = MaterialTheme.typography.bodySmall,
+        )
+      }
       // Block with UV index
       Row(
         verticalAlignment = Alignment.CenterVertically

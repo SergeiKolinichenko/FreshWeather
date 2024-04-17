@@ -16,4 +16,8 @@ dependencies {
   ksp(libs.dagger.compiler)
 
   implementation(libs.kotlinx.coroutines.android)
+
+  testImplementation(libs.junit4)
+  testImplementation(libs.mockito.core)
+  testImplementation(libs.mockito.kotlin)
 }

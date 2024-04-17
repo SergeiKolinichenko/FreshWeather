@@ -8,5 +8,6 @@ data class WeatherDto(
   @SerializedName("temp_c")
   val tempC: Float,
 
+  @SerializedName("condition")
   val condition: ConditionDto
 )

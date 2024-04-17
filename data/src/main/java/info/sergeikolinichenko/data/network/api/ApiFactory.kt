@@ -25,7 +25,6 @@ object ApiFactory {
   private val okHttpClient = OkHttpClient.Builder()
     .addInterceptor(logging)
     .addInterceptor{ chain ->
-      // Add API key to every request
       val originalRequest = chain.request()
       val originalHttpUrl = originalRequest.url
       val url = originalHttpUrl.newBuilder()

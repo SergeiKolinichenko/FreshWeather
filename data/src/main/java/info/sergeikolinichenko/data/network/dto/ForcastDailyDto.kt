@@ -14,6 +14,7 @@ data class ForcastDailyDto(
   @SerializedName("maxwind_kph")
   val maxWindKph: Float,
 
+  @SerializedName("uv")
   val uv: Float,
 
   @SerializedName("daily_will_it_rain")

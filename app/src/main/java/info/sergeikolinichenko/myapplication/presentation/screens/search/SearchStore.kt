@@ -9,12 +9,14 @@ import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineBootstrapper
 import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineExecutor
 import info.sergeikolinichenko.domain.entity.City
 import info.sergeikolinichenko.domain.usecases.ChangeFavouriteStateUseCase
-import info.sergeikolinichenko.domain.usecases.SearchCityUseCase
+import info.sergeikolinichenko.domain.usecases.GetCityInfoUseCase
+import info.sergeikolinichenko.domain.usecases.SearchCitiesUseCase
 import info.sergeikolinichenko.myapplication.entity.CityScreen
 import info.sergeikolinichenko.myapplication.presentation.screens.search.SearchStore.Intent
 import info.sergeikolinichenko.myapplication.presentation.screens.search.SearchStore.Label
 import info.sergeikolinichenko.myapplication.presentation.screens.search.SearchStore.State
 import info.sergeikolinichenko.myapplication.utils.toCity
+import info.sergeikolinichenko.myapplication.utils.toCityScreen
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -50,7 +52,8 @@ interface SearchStore : Store<Intent, State, Label> {
 
 class SearchStoreFactory @Inject constructor(
   private val storeFactory: StoreFactory,
-  private val searchCity: SearchCityUseCase,
+  private val searchCity: SearchCitiesUseCase,
+  private val getCityInfoUseCase: GetCityInfoUseCase,
   private val changeFavouriteState: ChangeFavouriteStateUseCase
 ) {
 
@@ -89,12 +92,16 @@ class SearchStoreFactory @Inject constructor(
         is Intent.SearchQueryChanged -> dispatch(Message.SearchQuery(intent.query))
         is Intent.ClickBack -> publish(Label.ClickBack)
         is Intent.ClickSearch -> {
+
           job?.cancel()
           job = scope.launch {
             dispatch(Message.SearchResultLoading)
             try {
+
               val query = getState().query
+
               val cities = searchCity(query)
+
               dispatch(Message.SearchResultLoaded(cities))
             } catch (e: Exception) {
               dispatch(Message.SearchResultError)
@@ -103,16 +110,22 @@ class SearchStoreFactory @Inject constructor(
         }
 
         is Intent.CityClicked -> {
-          when (openingOptions) {
-            OpeningOptions.ADD_TO_FAVORITES -> {
-              scope.launch {
-                changeFavouriteState.addToFavourite(intent.city.toCity())
-                publish(Label.SavedToFavorite)
+
+          scope.launch {
+            val city = getCityInfoUseCase(intent.city.toCity())
+
+            when (openingOptions) {
+              OpeningOptions.ADD_TO_FAVORITES -> {
+                scope.launch {
+                  changeFavouriteState.addToFavourite(city)
+                  publish(Label.SavedToFavorite)
+                }
               }
+
+              OpeningOptions.ORDINARY_SEARCH ->
+                publish(Label.OpenCityForecast(city.toCityScreen()))
             }
 
-            OpeningOptions.ORDINARY_SEARCH ->
-              publish(Label.OpenCityForecast(intent.city))
           }
         }
       }

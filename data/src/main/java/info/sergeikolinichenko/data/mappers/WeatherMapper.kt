@@ -26,9 +26,7 @@ fun WeatherForecastDto.toForecast() = Forecast(
 
 // current weather for the details screen
 private fun WeatherForecastDto.toCurrentWeather(): CurrentWeather {
-
   val todayWeather = forecast.forecastDay.first().dailyWeather
-
   return CurrentWeather(
     date = current.lastUpdatedEpoch,
     tempC = current.tempC,

@@ -7,7 +7,10 @@ import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineBootstrapper
 import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineExecutor
+import info.sergeikolinichenko.data.mappers.NON_TIME_ZONE_INFO
 import info.sergeikolinichenko.domain.entity.City
+import info.sergeikolinichenko.domain.usecases.ChangeFavouriteStateUseCase
+import info.sergeikolinichenko.domain.usecases.GetCityInfoUseCase
 import info.sergeikolinichenko.domain.usecases.GetFavouriteCitiesUseCase
 import info.sergeikolinichenko.domain.usecases.GetWeatherUseCase
 import info.sergeikolinichenko.myapplication.entity.CityScreen
@@ -61,6 +64,10 @@ interface FavouriteStore : Store<Intent, State, Label> {
 class FavouriteStoreFactory @Inject constructor(
   private val storeFactory: StoreFactory,
   private val getFavouriteCities: GetFavouriteCitiesUseCase,
+  // migrating the database from version 1 to version 2
+  private val changeFavouriteStateUseCase: ChangeFavouriteStateUseCase,
+  private val getCityInfoUseCase: GetCityInfoUseCase,
+  // migrating the database from version 1 to version 2
   private val getWeatherUseCase: GetWeatherUseCase
 ) {
 
@@ -92,8 +99,18 @@ class FavouriteStoreFactory @Inject constructor(
   private inner class BootstrapperImpl : CoroutineBootstrapper<Action>() {
     override fun invoke() {
       scope.launch {
-        getFavouriteCities().collect {
-          dispatch(Action.FavoriteCityLoaded(it))
+        getFavouriteCities().collect { listCities ->
+
+          /** start migrating the database from version 1 to version 2 **/
+          listCities.forEach {  city ->
+            if (city.idTimeZone == "" || city.idTimeZone == NON_TIME_ZONE_INFO) {
+              val cityTz = getCityInfoUseCase.invoke(city)
+              changeFavouriteStateUseCase.addToFavourite(cityTz)
+            }
+          }
+          /** end migrating the database from version 1 to version 2 **/
+
+          dispatch(Action.FavoriteCityLoaded(listCities))
         }
       }
     }
@@ -126,7 +143,7 @@ class FavouriteStoreFactory @Inject constructor(
       dispatch(Message.WeatherLoading(city.id))
 
       try {
-        val weather = getWeatherUseCase(city.id) //getCurrentWeather(city.id)
+        val weather = getWeatherUseCase(city.id)
         dispatch(
           Message.WeatherLoaded(
             cityId = city.id,

@@ -4,6 +4,7 @@ plugins {
   alias(libs.plugins.kotlinAndroid)
   alias(libs.plugins.ksp)
   alias(libs.plugins.parcelize)
+  alias(libs.plugins.androidx.room)
 }
 
 android {
@@ -17,11 +18,14 @@ android {
     consumerProguardFiles("consumer-rules.pro")
     val key = property("apikey")?.toString() ?: error("Set apikey property in local.properties")
     buildConfigField("String", "API_KEY", key)
+    room {
+      schemaDirectory("$projectDir/schemas")
+    }
   }
 
   buildTypes {
     release {
-      isMinifyEnabled = false
+      isMinifyEnabled = true
       proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
     }
   }
@@ -50,7 +54,7 @@ dependencies {
   implementation(libs.retrofit.gsonConverter)
   implementation(libs.retrofit.logging.interceptor)
 
-  testImplementation(libs.junit)
+  testImplementation(libs.junit4)
   androidTestImplementation(libs.androidx.test.ext.junit)
   androidTestImplementation(libs.espresso.core)
 }

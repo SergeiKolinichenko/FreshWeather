@@ -49,20 +49,22 @@ import info.sergeikolinichenko.myapplication.utils.toCityScreen
 fun SearchContent(component: SearchComponent) {
 
   val state by component.model.collectAsState()
-  val focusRequester = remember { FocusRequester() }
 
+  val focusRequester = remember { FocusRequester() }
   LaunchedEffect(key1 = null) { focusRequester.requestFocus() }
 
   SearchBar(
     modifier = Modifier
+      .fillMaxWidth()
+      .padding(16.dp)
       .focusRequester(focusRequester = focusRequester),
     placeholder = {
-        Text(
-          modifier = Modifier
-            .padding(end = 16.dp),
-          text = stringResource(R.string.favourite_content_text_search),
-          color = MaterialTheme.colorScheme.onBackground
-        )
+      Text(
+        modifier = Modifier
+          .padding(end = 16.dp),
+        text = stringResource(R.string.favourite_content_text_search),
+        color = MaterialTheme.colorScheme.onBackground
+      )
     },
     query = state.query,
     onQueryChange = { component.onQueryChanged(it) },
@@ -78,7 +80,9 @@ fun SearchContent(component: SearchComponent) {
         Icon(imageVector = Icons.Default.Search, contentDescription = null)
       }
     },
-    onActiveChange = {}
+    onActiveChange = {
+      if (!it) component.onBackClicked()
+    }
   ) {
     when (val weatherState = state.state) {
       SearchStore.State.SearchState.Empty -> {

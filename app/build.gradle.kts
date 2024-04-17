@@ -14,8 +14,8 @@ android {
     applicationId = "info.sergeikolinichenko.myapplication"
     minSdk = 26
     targetSdk = 34
-    versionCode = 1
-    versionName = "1.0"
+    versionCode = 6
+    versionName = "1.7"
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     vectorDrawables {
@@ -25,7 +25,7 @@ android {
 
   buildTypes {
     release {
-      isMinifyEnabled = false
+      isMinifyEnabled = true
       proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
     }
   }
@@ -40,7 +40,7 @@ android {
     compose = true
   }
   composeOptions {
-    kotlinCompilerExtensionVersion = "1.5.9"
+    kotlinCompilerExtensionVersion = "1.5.11"
   }
   packaging {
     resources {
@@ -84,11 +84,20 @@ dependencies {
 
   implementation(libs.splashscreen)
 
-  testImplementation(libs.junit)
+  testImplementation(libs.junit4)
   androidTestImplementation(libs.androidx.test.ext.junit)
   androidTestImplementation(libs.espresso.core)
   androidTestImplementation(platform(libs.compose.bom))
   androidTestImplementation(libs.ui.test.junit4)
   debugImplementation(libs.ui.tooling)
   debugImplementation(libs.ui.test.manifest)
+
+  testImplementation(libs.mockito.core)
+  testImplementation(libs.mockito.kotlin)
+
+  testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.1")
+
+  testImplementation("org.mockito:mockito-junit-jupiter:5.11.0")
+
+  implementation(libs.retrofit.gsonConverter)
 }

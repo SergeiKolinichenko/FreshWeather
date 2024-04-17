@@ -6,15 +6,16 @@
   <string name="details_content_text_description_button_back">Button Back</string>
   <string name="details_content_text_description_button_favourite">Icon Favourite</string>
   <string name="details_content_text_description_weather_condition">Weather condition</string>
-  <string name="details_content_title_block_upcoming_weather">Weather for the next 2 days</string>
+  <string name="details_content_title_block_upcoming_weather">Weather for the next days</string>
   <string name="search_content_message_text_nothing_found_on_your_request">Nothing found on your request</string>
-  <string name="search_content_message_text_error_something_gone_wrong">Error! Something\'s gone wrong.</string>
+  <string name="search_content_message_text_error_something_gone_wrong">Error! The device may not be connected to the Internet. Please check the Internet connection.</string>
   <string name="favourite_content_error_weather_for_city">Error! The weather for this city is currently unavailable. Please try again later.</string>
   <string name="details_content_wind_speed">"Wind: "</string>
   <string name="details_content_atmospheric_pressure_mbar">Pressure: %1$s mb</string>
   <string name="details_content_humidity">Humidity: %1$s %%</string>
   <string name="details_content_title_block_upcoming_hourly_weather">Hourly weather forecast</string>
   <string name="weather_charts_title_pressure">Pressure</string>
+  <string name="details_content_uv_index">UV-Index: %1$s</string>
   <string name="weather_charts_title_uv_index">UV-Index</string>
   <string name="weather_charts_title_humidity">Humidity</string>
   <string name="beaufort_scale_calm">Calm</string>
@@ -39,7 +40,7 @@
   <string name="search_content_title_country">"Country: "</string>
   <string name="favourite_content_efab_title_add_favourite">Add Favourite</string>
   <string name="details_content_title_feels_like">"Feels: %1$s"</string>
-  <string name="details_content_uv_index">UV index: %1$s</string>
+  <string name="details_content_index">Index: %1$s</string>
   <string name="details_content_chance_of_rain">Rain: %1$s%2$ss</string>
   <string name="details_content_chance_of_snow">Snow: %1$s%2$s</string>
 </resources>

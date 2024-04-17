@@ -7,5 +7,5 @@ data class City(
   val name: String,
   val region: String,
   val country: String,
-  val url: String,
+  val idTimeZone: String,
 )

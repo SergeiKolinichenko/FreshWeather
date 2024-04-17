@@ -44,8 +44,8 @@ import androidx.compose.ui.unit.sp
 import info.sergeikolinichenko.myapplication.R
 import info.sergeikolinichenko.myapplication.entity.WeatherScreen
 import info.sergeikolinichenko.myapplication.presentation.ui.theme.Gradient
-import info.sergeikolinichenko.myapplication.utils.formattedOnlyDay
-import info.sergeikolinichenko.myapplication.utils.formattedOnlyHour
+import info.sergeikolinichenko.myapplication.utils.formattedDayAndNameOfTheMonth
+import info.sergeikolinichenko.myapplication.utils.formattedShortHour
 import info.sergeikolinichenko.myapplication.utils.toCalendar
 import info.sergeikolinichenko.myapplication.utils.toHumidity
 import info.sergeikolinichenko.myapplication.utils.toRoundToInt
@@ -64,6 +64,7 @@ private val PAD_CANVAS_BOTTOM = 36.dp
 internal fun WeatherCharts(
   modifier: Modifier = Modifier,
   listWeather: List<WeatherScreen>,
+  timeZone: String,
   gradient: Gradient
 ) {
   var state by rememberAirPressureGraphState(listWeather = listWeather)
@@ -106,6 +107,7 @@ internal fun WeatherCharts(
 
     DrawVerticalDelimiters(
       state = state,
+      timeZone = timeZone,
       textMeasurer = textMeasurer,
       transformableState = transformableState
     )
@@ -113,6 +115,7 @@ internal fun WeatherCharts(
     DrawDays(
       state = state,
       textMeasurer = textMeasurer,
+      timeZone = timeZone,
       transformableState = transformableState
     )
 
@@ -129,6 +132,7 @@ internal fun WeatherCharts(
     )
   }
 }
+
 @Composable
 private fun DrawLineGraph(
   modifier: Modifier = Modifier,
@@ -181,6 +185,7 @@ private fun DrawLineGraph(
     }
   }
 }
+
 @Composable
 private fun DrawGraphPressure(
   modifier: Modifier = Modifier,
@@ -248,6 +253,7 @@ private fun DrawGraphPressure(
 private fun DrawDays(
   modifier: Modifier = Modifier,
   state: GraphState,
+  timeZone: String,
   textMeasurer: TextMeasurer,
   transformableState: TransformableState?
 ) {
@@ -268,7 +274,7 @@ private fun DrawDays(
 
   ) {
     val listDays = state.listWeather.distinctBy {
-      it.date.toCalendar().formattedOnlyDay()
+      it.date.toCalendar(timeZone).formattedDayAndNameOfTheMonth()
     }
 
     translate(left = state.scrolledBy) {
@@ -280,6 +286,7 @@ private fun DrawDays(
               item = weather,
               color = colorOnBackground,
               offsetX = index * state.barWidth,
+              timeZone = timeZone,
               textMeasurer = textMeasurer
             )
           }
@@ -291,6 +298,7 @@ private fun DrawDays(
 
 private fun DrawScope.drawDay(
   item: WeatherScreen,
+  timeZone: String,
   color: Color,
   offsetX: Float,
   textMeasurer: TextMeasurer,
@@ -308,7 +316,7 @@ private fun DrawScope.drawDay(
       intervals = floatArrayOf(lineLength.toPx(), gapeLength.toPx())
     )
   )
-  val caption = item.date.toCalendar().formattedOnlyDay()
+  val caption = item.date.toCalendar(timeZone).formattedDayAndNameOfTheMonth()
 
   val textLayoutResult = textMeasurer.measure(
     text = caption,
@@ -337,6 +345,7 @@ private fun DrawScope.drawDay(
 private fun DrawVerticalDelimiters(
   modifier: Modifier = Modifier,
   state: GraphState,
+  timeZone: String,
   textMeasurer: TextMeasurer,
   transformableState: TransformableState?
 ) {
@@ -365,6 +374,7 @@ private fun DrawVerticalDelimiters(
             item = weather,
             color = colorOnBackground,
             offsetX = offsetX,
+            timeZone = timeZone,
             textMeasurer = textMeasurer
           )
         }
@@ -376,6 +386,7 @@ private fun DrawVerticalDelimiters(
 
 private fun DrawScope.drawTimeDelimiter(
   item: WeatherScreen,
+  timeZone: String,
   color: Color,
   offsetX: Float,
   textMeasurer: TextMeasurer,
@@ -388,7 +399,7 @@ private fun DrawScope.drawTimeDelimiter(
     end = Offset(x = offsetX, y = size.height + 5.dp.toPx()),
     strokeWidth = 1.dp.toPx()
   )
-  val caption = item.date.toCalendar().formattedOnlyHour()
+  val caption = item.date.toCalendar(timeZone).formattedShortHour()
   val textLayoutResult = textMeasurer.measure(
     text = caption,
     style = TextStyle(

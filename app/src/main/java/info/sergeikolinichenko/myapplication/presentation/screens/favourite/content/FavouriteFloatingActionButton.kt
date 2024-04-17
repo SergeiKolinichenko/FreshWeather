@@ -6,6 +6,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
@@ -95,12 +96,11 @@ private fun ArrowUp(
     modifier = modifier
       .size(40.dp)
       .alpha(alpha)
+      .clickable { isChange() }
       .draggable(
         orientation = Orientation.Vertical,
         state = rememberDraggableState {
-//          if (it <= ZERO && state.offsetY > TRIGGER_HEIGHT) {
           dragAmount(it)
-//          }
           if (it >= TRIGGER_HEIGHT) isChange()
         }
       ),

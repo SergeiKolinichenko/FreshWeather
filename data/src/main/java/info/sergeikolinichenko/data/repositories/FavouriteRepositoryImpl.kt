@@ -2,7 +2,7 @@ package info.sergeikolinichenko.data.repositories
 
 import info.sergeikolinichenko.data.local.db.CitiesDao
 import info.sergeikolinichenko.data.mappers.toCityDbModel
-import info.sergeikolinichenko.data.mappers.toListCities
+import info.sergeikolinichenko.data.mappers.toListFavouriteCities
 import info.sergeikolinichenko.domain.entity.City
 import info.sergeikolinichenko.domain.repositories.FavouriteRepository
 import kotlinx.coroutines.flow.Flow
@@ -13,7 +13,7 @@ class FavouriteRepositoryImpl @Inject constructor(
   private val citiesDao: CitiesDao
 ): FavouriteRepository {
   override val favouriteCities: Flow<List<City>>
-    get() = citiesDao.getAllCities().map { it.toListCities() }
+    get() = citiesDao.getAllCities().map { it.toListFavouriteCities() }
 
   override fun observeIsFavourite(id: Int): Flow<Boolean> =
     citiesDao.observeIsFavourite(id)

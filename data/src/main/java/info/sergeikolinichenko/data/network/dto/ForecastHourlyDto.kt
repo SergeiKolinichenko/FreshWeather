@@ -17,6 +17,7 @@ data class ForecastHourlyDto(
   @SerializedName("pressure_mb")
   val pressureMb: Float,
 
+  @SerializedName("humidity")
   val humidity: Int,
 
   @SerializedName("wind_dir")
@@ -34,7 +35,9 @@ data class ForecastHourlyDto(
   @SerializedName("chance_of_snow")
   val chanceOfSnow: Int,
 
+  @SerializedName("uv")
   val uv: Float,
 
+  @SerializedName("condition")
   val condition: ConditionDto
 )

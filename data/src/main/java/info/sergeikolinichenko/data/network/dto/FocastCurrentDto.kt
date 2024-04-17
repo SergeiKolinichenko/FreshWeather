@@ -26,11 +26,15 @@ data class FocastCurrentDto(
   @SerializedName("precip_mm")
   val precipMm: Float,
 
+  @SerializedName("cloud")
   val cloud: Int,
 
+  @SerializedName("uv")
   val uv: Float,
 
+  @SerializedName("humidity")
   val humidity: Int,
 
+  @SerializedName("condition")
   val condition: ConditionDto
 )

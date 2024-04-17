@@ -25,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import info.sergeikolinichenko.myapplication.R
 import info.sergeikolinichenko.myapplication.presentation.screens.details.DetailsComponent
@@ -63,6 +64,7 @@ fun DetailsContent(component: DetailsComponent) {
 
         is DetailsStore.State.ForecastState.Loaded -> DetailsForecast(
           forecast = forecast.forecast,
+          timeZone = state.city.idTimeZone,
           gradient = gradient
         )
 
@@ -100,7 +102,11 @@ private fun TopBar(
   onChangeFavouriteStatus: () -> Unit,
 ) {
   CenterAlignedTopAppBar(
-    title = { Text(text = cityName) },
+    title = {
+      Text(
+        text = cityName,
+        fontWeight = FontWeight.W600
+      ) },
     colors = TopAppBarDefaults.topAppBarColors(
       containerColor = Color.Transparent,
       titleContentColor = MaterialTheme.colorScheme.onBackground,

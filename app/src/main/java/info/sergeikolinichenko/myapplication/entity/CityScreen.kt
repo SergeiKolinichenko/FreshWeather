@@ -10,5 +10,5 @@ data class CityScreen(
   val name: String,
   val region: String,
   val country: String,
-  val url: String,
+  val idTimeZone: String,
 ): Parcelable

@@ -214,6 +214,7 @@ private fun CityCard(
           }
 
           FavouriteStore.State.WeatherState.Initial -> {}
+
           is FavouriteStore.State.WeatherState.LoadedWeather -> {
 
             GlideImage(
@@ -246,6 +247,7 @@ private fun CityCard(
                 .align(Alignment.CenterHorizontally)
             )
           }
+
         }
         ResponsiveText(
           text = item.city.name,
