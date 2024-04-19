@@ -10,8 +10,7 @@ fun CityDbModel.toCity(): City {
     id = id,
     name = name,
     country = country,
-    region = region,
-    idTimeZone = idTimeZone
+    region = region
   )
 }
 fun City.toCityDbModel(): CityDbModel {
@@ -19,8 +18,7 @@ fun City.toCityDbModel(): CityDbModel {
     id = id,
     name = name,
     country = country,
-    region = region,
-    idTimeZone = idTimeZone
+    region = region
   )
 }
 fun List<CityDbModel>.toListFavouriteCities(): List<City> {

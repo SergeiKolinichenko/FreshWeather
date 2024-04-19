@@ -1,7 +1,7 @@
 package info.sergeikolinichenko.myapplication.utils
 
 import info.sergeikolinichenko.domain.entity.City
-import info.sergeikolinichenko.domain.entity.HourlyWeather
+import info.sergeikolinichenko.domain.entity.ForecastHourly
 import info.sergeikolinichenko.myapplication.R
 import info.sergeikolinichenko.myapplication.entity.CityScreen
 import info.sergeikolinichenko.myapplication.entity.WeatherScreen
@@ -12,20 +12,18 @@ fun City.toCityScreen() = CityScreen(
   id = id,
   name = name,
   region = region,
-  country = country,
-  idTimeZone = idTimeZone
+  country = country
 )
 
 fun CityScreen.toCity() = City(
   id = id,
   name = name,
   region = region,
-  country = country,
-  idTimeZone = idTimeZone
+  country = country
 )
 
-fun List<HourlyWeather>.toListHourlyWeatherScreen() = map { it.toHourlyWeatherScreen() }
-fun HourlyWeather.toHourlyWeatherScreen() = WeatherScreen(
+fun List<ForecastHourly>.toListHourlyWeatherScreen() = map { it.toHourlyWeatherScreen() }
+fun ForecastHourly.toHourlyWeatherScreen() = WeatherScreen(
   date = date,
   temperature = tempC,
   maxTemp = maxTempC,

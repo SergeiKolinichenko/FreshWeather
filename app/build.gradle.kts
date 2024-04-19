@@ -14,8 +14,8 @@ android {
     applicationId = "info.sergeikolinichenko.myapplication"
     minSdk = 26
     targetSdk = 34
-    versionCode = 6
-    versionName = "1.7"
+    versionCode = 7
+    versionName = "1.8"
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     vectorDrawables {
@@ -94,10 +94,6 @@ dependencies {
 
   testImplementation(libs.mockito.core)
   testImplementation(libs.mockito.kotlin)
-
-  testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.1")
-
-  testImplementation("org.mockito:mockito-junit-jupiter:5.11.0")
 
   implementation(libs.retrofit.gsonConverter)
 }

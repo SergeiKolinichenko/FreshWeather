@@ -2,7 +2,7 @@ package info.sergeikolinichenko.domain.entity
 
 /** Created by Sergei Kolinichenko on 30.03.2024 at 22:27 (GMT+3) **/
 
-data class HourlyWeather(
+data class ForecastHourly(
   val date: Long,
   val tempC: Float,
   val maxTempC: Float,

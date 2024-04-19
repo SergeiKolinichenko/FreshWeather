@@ -2,7 +2,7 @@ package info.sergeikolinichenko.domain.entity
 
 /** Created by Sergei Kolinichenko on 30.03.2024 at 22:18 (GMT+3) **/
 
-data class DailyWeather(
+data class ForecastDaily(
   val date: Long,
   val maxTempC: Float,
   val minTempC: Float,

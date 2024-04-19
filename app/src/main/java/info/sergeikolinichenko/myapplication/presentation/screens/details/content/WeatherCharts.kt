@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import info.sergeikolinichenko.domain.entity.Forecast
 import info.sergeikolinichenko.myapplication.R
 import info.sergeikolinichenko.myapplication.entity.WeatherScreen
 import info.sergeikolinichenko.myapplication.presentation.ui.theme.Gradient
@@ -48,6 +49,7 @@ import info.sergeikolinichenko.myapplication.utils.formattedDayAndNameOfTheMonth
 import info.sergeikolinichenko.myapplication.utils.formattedShortHour
 import info.sergeikolinichenko.myapplication.utils.toCalendar
 import info.sergeikolinichenko.myapplication.utils.toHumidity
+import info.sergeikolinichenko.myapplication.utils.toListHourlyWeatherScreen
 import info.sergeikolinichenko.myapplication.utils.toRoundToInt
 import kotlinx.parcelize.Parcelize
 import kotlin.math.roundToInt
@@ -63,11 +65,12 @@ private val PAD_CANVAS_BOTTOM = 36.dp
 @Composable
 internal fun WeatherCharts(
   modifier: Modifier = Modifier,
-  listWeather: List<WeatherScreen>,
-  timeZone: String,
+  forecast: Forecast,
   gradient: Gradient
 ) {
-  var state by rememberAirPressureGraphState(listWeather = listWeather)
+  var state by rememberAirPressureGraphState(
+    forecast.upcomingHours.toListHourlyWeatherScreen()
+  )
   val textMeasurer = rememberTextMeasurer()
   var transformableState: TransformableState? = null
   val iconUvIndex = painterResource(id = R.drawable.uv_index)
@@ -107,7 +110,7 @@ internal fun WeatherCharts(
 
     DrawVerticalDelimiters(
       state = state,
-      timeZone = timeZone,
+      timeZone = forecast.forecastLocation.tzId,
       textMeasurer = textMeasurer,
       transformableState = transformableState
     )
@@ -115,7 +118,7 @@ internal fun WeatherCharts(
     DrawDays(
       state = state,
       textMeasurer = textMeasurer,
-      timeZone = timeZone,
+      timeZone = forecast.forecastLocation.tzId,
       transformableState = transformableState
     )
 

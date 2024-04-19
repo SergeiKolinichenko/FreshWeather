@@ -36,21 +36,19 @@ import info.sergeikolinichenko.myapplication.utils.formattedFullDate
 import info.sergeikolinichenko.myapplication.utils.fromKphToStringId
 import info.sergeikolinichenko.myapplication.utils.toCalendar
 import info.sergeikolinichenko.myapplication.utils.toCelsiusString
-import info.sergeikolinichenko.myapplication.utils.toListHourlyWeatherScreen
 import info.sergeikolinichenko.myapplication.utils.toPerCent
 import info.sergeikolinichenko.myapplication.utils.toPrecipitation
 import info.sergeikolinichenko.myapplication.utils.toRoundToInt
 import info.sergeikolinichenko.myapplication.utils.toRoundToIntString
 
 /** Created by Sergei Kolinichenko on 24.03.2024 at 14:52 (GMT+3) **/
-val SIZE_DETAILS_ICONS = 16.dp
+private val SIZE_DETAILS_ICONS = 18.dp
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun DetailsForecast(
   modifier: Modifier = Modifier,
   forecast: Forecast,
-  timeZone: String,
   gradient: Gradient
 ) {
   Column(
@@ -63,7 +61,8 @@ fun DetailsForecast(
 
     ResponsiveText(
       modifier = Modifier.padding(horizontal = 10.dp),
-      text = forecast.currentWeather.date.toCalendar(timeZone).formattedFullDate(),
+      text = forecast.forecastCurrent.date.toCalendar(forecast.forecastLocation.tzId)
+        .formattedFullDate(),
       textStyle = MaterialTheme.typography.titleLarge
     )
 
@@ -78,7 +77,7 @@ fun DetailsForecast(
     )
 
     Text(
-      text = forecast.currentWeather.descriptionText,
+      text = forecast.forecastCurrent.descriptionText,
       style = MaterialTheme.typography.titleLarge,
       fontWeight = FontWeight.W500
     )
@@ -111,12 +110,12 @@ fun DetailsForecast(
             verticalAlignment = Alignment.Bottom
           ) {
             Icon(
-              modifier = Modifier.size(16.dp),
-              painter = painterResource(id = R.drawable.temperature_arrow_down),
-              contentDescription = "max"
+              modifier = Modifier.size(SIZE_DETAILS_ICONS),
+              painter = painterResource(id = R.drawable.temperature_min),
+              contentDescription = "icon temperature min"
             )
             Text(
-              text = forecast.currentWeather.minTempC.toCelsiusString(),
+              text = forecast.forecastCurrent.minTempC.toCelsiusString(),
               style = MaterialTheme.typography.bodySmall.copy(
                 fontWeight = FontWeight.W600
               )
@@ -127,12 +126,12 @@ fun DetailsForecast(
             verticalAlignment = Alignment.Bottom
           ) {
             Icon(
-              modifier = Modifier.size(16.dp),
-              painter = painterResource(id = R.drawable.temperature_arrow_up),
-              contentDescription = "min"
+              modifier = Modifier.size(SIZE_DETAILS_ICONS),
+              painter = painterResource(id = R.drawable.temperature_max),
+              contentDescription = "icon temperature max"
             )
             Text(
-              text = forecast.currentWeather.maxTempC.toCelsiusString(),
+              text = forecast.forecastCurrent.maxTempC.toCelsiusString(),
               style = MaterialTheme.typography.bodySmall.copy(
                 fontWeight = FontWeight.W600
               )
@@ -150,7 +149,7 @@ fun DetailsForecast(
                 fontWeight = FontWeight.W600
               )
             ) {
-              append(forecast.currentWeather.tempC.toRoundToIntString())
+              append(forecast.forecastCurrent.tempC.toRoundToIntString())
             }
             withStyle(
               SpanStyle(
@@ -175,7 +174,7 @@ fun DetailsForecast(
           Text(
             text = stringResource(
               R.string.details_content_title_feels_like,
-              forecast.currentWeather.feelsLikeC.toCelsiusString()
+              forecast.forecastCurrent.feelsLikeC.toCelsiusString()
             ),
             style = MaterialTheme.typography.bodySmall,
           )
@@ -186,7 +185,7 @@ fun DetailsForecast(
       GlideImage(
         modifier = Modifier
           .size(160.dp),
-        model = forecast.currentWeather.condIconUrl,
+        model = forecast.forecastCurrent.condIconUrl,
         contentDescription = stringResource(R.string.details_content_text_description_weather_condition)
       )
     }
@@ -210,21 +209,18 @@ fun DetailsForecast(
         .fillMaxWidth()
         .size(150.dp)
         .padding(vertical = 4.dp, horizontal = 8.dp),
-      listWeather = forecast.upcomingHours.toListHourlyWeatherScreen(),
-      timeZone = timeZone,
+      forecast = forecast,
       gradient = gradient
     )
 
     // Block with upcoming weather for the next hours
     AnimatedUpcomingHourlyWeather(
-      upcoming = forecast.upcomingHours,
-      timeZone = timeZone,
+      forecast = forecast,
       gradient = gradient
     )
     // Block with upcoming weather for the next days
     AnimatedUpcomingDailyWeather(
-      upcoming = forecast.upcomingDays,
-      timeZone = timeZone,
+      forecast = forecast,
       gradient = gradient
     )
     Spacer(modifier = Modifier.weight(0.5f))
@@ -262,7 +258,7 @@ private fun DetailsCurrentWeather(
         Text(
           text = stringResource(
             R.string.details_content_precipitation_mm,
-            forecast.currentWeather.precipMm.toPrecipitation()
+            forecast.forecastCurrent.precipMm.toPrecipitation()
           ),
           style = MaterialTheme.typography.bodySmall
         )
@@ -280,7 +276,7 @@ private fun DetailsCurrentWeather(
         Text(
           text = stringResource(
             R.string.details_content_cloudy,
-            forecast.currentWeather.cloud.toPerCent()
+            forecast.forecastCurrent.cloud.toPerCent()
           ),
           style = MaterialTheme.typography.bodySmall,
         )
@@ -298,7 +294,7 @@ private fun DetailsCurrentWeather(
         Text(
           text = stringResource(
             R.string.details_content_humidity,
-            forecast.currentWeather.humidity
+            forecast.forecastCurrent.humidity
           ),
           style = MaterialTheme.typography.bodySmall,
         )
@@ -315,7 +311,7 @@ private fun DetailsCurrentWeather(
         Text(
           text = stringResource(
             R.string.details_content_atmospheric_pressure_mbar,
-            forecast.currentWeather.pressureMb.toRoundToInt()
+            forecast.forecastCurrent.pressureMb.toRoundToInt()
           ),
           style = MaterialTheme.typography.bodySmall,
         )
@@ -333,7 +329,7 @@ private fun DetailsCurrentWeather(
         Text(
           text = stringResource(
             R.string.details_content_uv_index,
-            forecast.currentWeather.uv.toRoundToInt()
+            forecast.forecastCurrent.uv.toRoundToInt()
           ),
           style = MaterialTheme.typography.bodySmall
         )
@@ -352,7 +348,7 @@ private fun DetailsCurrentWeather(
           text = stringResource(
             R.string.details_content_wind_speed
           ) +
-              stringResource(id = forecast.currentWeather.windKph.fromKphToStringId()),
+              stringResource(id = forecast.forecastCurrent.windKph.fromKphToStringId()),
           style = MaterialTheme.typography.bodySmall,
         )
       }
@@ -362,7 +358,7 @@ private fun DetailsCurrentWeather(
       modifier = Modifier
         .size(100.dp)
         .padding(horizontal = 6.dp),
-      windDirection = forecast.currentWeather.windDir
+      windDirection = forecast.forecastCurrent.windDir
     )
   }
 }

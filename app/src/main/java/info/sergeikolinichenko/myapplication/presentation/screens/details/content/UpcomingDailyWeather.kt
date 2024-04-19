@@ -35,7 +35,8 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
-import info.sergeikolinichenko.domain.entity.DailyWeather
+import info.sergeikolinichenko.domain.entity.ForecastDaily
+import info.sergeikolinichenko.domain.entity.Forecast
 import info.sergeikolinichenko.myapplication.R
 import info.sergeikolinichenko.myapplication.presentation.ui.theme.Gradient
 import info.sergeikolinichenko.myapplication.utils.ResponsiveText
@@ -47,12 +48,11 @@ import info.sergeikolinichenko.myapplication.utils.toRoundToInt
 
 /** Created by Sergei Kolinichenko on 22.03.2024 at 19:55 (GMT+3) **/
 private const val TRUE = 1
-
+private val SIZE_DAILY_ICONS = 18.dp
 @Composable
 private fun UpcomingDailyWeather(
   modifier: Modifier = Modifier,
-  upcoming: List<DailyWeather>,
-  timeZone: String,
+  forecast: Forecast,
   gradient: Gradient
 ) {
   Card(
@@ -88,13 +88,13 @@ private fun UpcomingDailyWeather(
         horizontalArrangement = Arrangement.SpaceEvenly
       ) {
         items(
-          items = upcoming,
+          items = forecast.upcomingDays,
           key = { it.date }
         ) {
           WeatherDayItem(
             weather = it,
             gradient = gradient,
-            timeZone = timeZone
+            timeZone = forecast.forecastLocation.tzId
           )
         }
       }
@@ -106,7 +106,7 @@ private fun UpcomingDailyWeather(
 @Composable
 private fun WeatherDayItem(
   modifier: Modifier = Modifier,
-  weather: DailyWeather,
+  weather: ForecastDaily,
   timeZone: String,
   gradient: Gradient
 ) {
@@ -160,8 +160,8 @@ private fun WeatherDayItem(
       ) {
 
         Icon(
-          modifier = Modifier.size(14.dp),
-          painter = painterResource(id = R.drawable.temperature_arrow_down),
+          modifier = Modifier.size(SIZE_DAILY_ICONS),
+          painter = painterResource(id = R.drawable.temperature_min),
           contentDescription = "Temperature min"
         )
         Text(
@@ -176,8 +176,8 @@ private fun WeatherDayItem(
         horizontalArrangement = Arrangement.spacedBy(2.dp)
       ) {
         Icon(
-          modifier = Modifier.size(14.dp),
-          painter = painterResource(id = R.drawable.temperature_arrow_up),
+          modifier = Modifier.size(SIZE_DAILY_ICONS),
+          painter = painterResource(id = R.drawable.temperature_max),
           contentDescription = "Temperature max"
         )
         Text(
@@ -202,7 +202,7 @@ private fun WeatherDayItem(
         verticalAlignment = Alignment.CenterVertically
       ) {
         Icon(
-          modifier = Modifier.size(18.dp),
+          modifier = Modifier.size(SIZE_DAILY_ICONS),
           painter = painterResource(id = R.drawable.rain),
           contentDescription = "Chance of rain"
         )
@@ -224,7 +224,7 @@ private fun WeatherDayItem(
         verticalAlignment = Alignment.CenterVertically
       ) {
         Icon(
-          modifier = Modifier.size(18.dp),
+          modifier = Modifier.size(SIZE_DAILY_ICONS),
           painter = painterResource(id = R.drawable.snow),
           contentDescription = "Chance of snow"
         )
@@ -247,7 +247,7 @@ private fun WeatherDayItem(
       verticalAlignment = Alignment.CenterVertically
     ) {
       Icon(
-        modifier = Modifier.size(18.dp),
+        modifier = Modifier.size(SIZE_DAILY_ICONS),
         painter = painterResource(id = R.drawable.uv_index),
         contentDescription = "Chance of snow"
       )
@@ -263,13 +263,14 @@ private fun WeatherDayItem(
 
     Row(
       modifier = Modifier
+        .align(Alignment.Start)
         .fillMaxWidth()
         .padding(horizontal = 4.dp),
       horizontalArrangement = Arrangement.spacedBy(4.dp),
       verticalAlignment = Alignment.CenterVertically
     ) {
       Icon(
-        modifier = Modifier.size(18.dp),
+        modifier = Modifier.size(SIZE_DAILY_ICONS),
         painter = painterResource(id = R.drawable.wind),
         contentDescription = "Wind speed"
       )
@@ -285,8 +286,7 @@ private fun WeatherDayItem(
 
 @Composable
 fun AnimatedUpcomingDailyWeather(
-  upcoming: List<DailyWeather>,
-  timeZone: String,
+  forecast: Forecast,
   gradient: Gradient
 ) {
 
@@ -300,9 +300,8 @@ fun AnimatedUpcomingDailyWeather(
       initialOffset = { IntOffset(0, it.height) }),
   ) {
     UpcomingDailyWeather(
-      upcoming = upcoming,
+      forecast = forecast,
       gradient = gradient,
-      timeZone = timeZone
     )
   }
 }

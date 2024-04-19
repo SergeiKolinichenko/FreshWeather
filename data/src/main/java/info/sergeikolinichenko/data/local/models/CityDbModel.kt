@@ -1,6 +1,5 @@
 package info.sergeikolinichenko.data.local.models
 
-import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -11,8 +10,5 @@ data class CityDbModel(
   val id: Int,
   val name: String,
   val region: String,
-  val country: String,
-  @ColumnInfo(defaultValue = "")
-  val idTimeZone: String // add this field
-//   val url: String    //  delete this field
+  val country: String
 )

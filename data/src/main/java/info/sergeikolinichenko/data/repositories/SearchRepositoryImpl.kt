@@ -1,7 +1,6 @@
 package info.sergeikolinichenko.data.repositories
 
-import info.sergeikolinichenko.data.mappers.cityTzDtoToCity
-import info.sergeikolinichenko.data.mappers.toListSearchedCities
+import info.sergeikolinichenko.data.mappers.toListCities
 import info.sergeikolinichenko.data.network.api.ApiService
 import info.sergeikolinichenko.domain.entity.City
 import info.sergeikolinichenko.domain.repositories.SearchRepository
@@ -17,18 +16,7 @@ class SearchRepositoryImpl @Inject constructor(
     if (!response.isSuccessful) {
       throw Exception("Error while searching cities")
     } else {
-      return response.body()!!.toListSearchedCities()
-    }
-  }
-  override suspend fun getCityInfo(city: City): City {
-
-    val response = apiService.getCityInfo(city.name)
-
-    if (!response.isSuccessful) {
-      throw Exception("Error while getting city info")
-    } else {
-      val body = response.body()?.locationInfo
-      return  body?.cityTzDtoToCity(city.id) ?: city
+      return response.body()!!.toListCities()
     }
   }
 }

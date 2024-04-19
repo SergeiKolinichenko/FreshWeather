@@ -3,7 +3,7 @@ package info.sergeikolinichenko.data.network.dto
 import com.google.gson.annotations.SerializedName
 
 /** Created by Sergei Kolinichenko on 21.02.2024 at 20:26 (GMT+3) **/
-data class CityIdDto(
+data class CityDto(
   @SerializedName("id")
   val idCity: Int,
 
@@ -14,8 +14,5 @@ data class CityIdDto(
   val regionCity: String,
 
   @SerializedName("country")
-  val countryCity: String,
-
-  @SerializedName("tz_id")
-  val idTimeZone: String
+  val countryCity: String
 )

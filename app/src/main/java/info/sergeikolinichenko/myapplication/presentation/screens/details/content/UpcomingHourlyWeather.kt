@@ -36,7 +36,8 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
-import info.sergeikolinichenko.domain.entity.HourlyWeather
+import info.sergeikolinichenko.domain.entity.Forecast
+import info.sergeikolinichenko.domain.entity.ForecastHourly
 import info.sergeikolinichenko.myapplication.R
 import info.sergeikolinichenko.myapplication.presentation.ui.theme.Gradient
 import info.sergeikolinichenko.myapplication.utils.ResponsiveText
@@ -49,15 +50,17 @@ import java.util.Calendar
 
 /** Created by Sergei Kolinichenko on 22.03.2024 at 19:16 (GMT+3) **/
 private const val TRUE = 1
+private val SIZE_HOURLY_ICONS = 18.dp
 @Composable
 private fun UpcomingHourlyWeather(
   modifier: Modifier = Modifier,
-  upcoming: List<HourlyWeather>,
-  timeZone: String,
+  forecast: Forecast,
   gradient: Gradient
 ) {
   val currentDate = Calendar.getInstance()
-  val nextHours = upcoming.filter { it.date.toCalendar(timeZone) > currentDate }
+  val nextHours = forecast.upcomingHours.filter {
+    it.date.toCalendar(forecast.forecastLocation.tzId) > currentDate
+  }
   Card(
     modifier = modifier
       .fillMaxWidth()
@@ -94,7 +97,7 @@ private fun UpcomingHourlyWeather(
         ) {
           WeatherHourItem(
             weather = it,
-            timeZone = timeZone,
+            timeZone = forecast.forecastLocation.tzId,
             gradient = gradient
           )
         }
@@ -107,7 +110,7 @@ private fun UpcomingHourlyWeather(
 @Composable
 private fun WeatherHourItem(
   modifier: Modifier = Modifier,
-  weather: HourlyWeather,
+  weather: ForecastHourly,
   timeZone: String,
   gradient: Gradient
 ) {
@@ -162,7 +165,7 @@ private fun WeatherHourItem(
     )
     Row {
       Icon(
-        modifier = Modifier.size(SIZE_DETAILS_ICONS),
+        modifier = Modifier.size(SIZE_HOURLY_ICONS),
         painter = painterResource(id = R.drawable.thermometer),
         contentDescription = null
       )
@@ -175,7 +178,7 @@ private fun WeatherHourItem(
 
     Row {
       Icon(
-        modifier = Modifier.size(SIZE_DETAILS_ICONS),
+        modifier = Modifier.size(SIZE_HOURLY_ICONS),
         painter = painterResource(id = R.drawable.wind),
         contentDescription = null
       )
@@ -189,7 +192,7 @@ private fun WeatherHourItem(
     if (weather.willItRain == TRUE) {
       Row {
         Icon(
-          modifier = Modifier.size(SIZE_DETAILS_ICONS),
+          modifier = Modifier.size(SIZE_HOURLY_ICONS),
           painter = painterResource(id = R.drawable.rain),
           contentDescription = null
         )
@@ -202,7 +205,7 @@ private fun WeatherHourItem(
     } else if (weather.willItSnow == TRUE) {
       Row {
         Icon(
-          modifier = Modifier.size(SIZE_DETAILS_ICONS),
+          modifier = Modifier.size(SIZE_HOURLY_ICONS),
           painter = painterResource(id = R.drawable.snow),
           contentDescription = null
         )
@@ -218,8 +221,7 @@ private fun WeatherHourItem(
 
 @Composable
 fun AnimatedUpcomingHourlyWeather(
-  upcoming: List<HourlyWeather>,
-  timeZone: String,
+  forecast: Forecast,
   gradient: Gradient
 ) {
 
@@ -233,8 +235,7 @@ fun AnimatedUpcomingHourlyWeather(
       initialOffset = { IntOffset(it.width, 0) }),
   ) {
     UpcomingHourlyWeather(
-      upcoming = upcoming,
-      timeZone = timeZone,
+      forecast = forecast,
       gradient = gradient
     )
   }

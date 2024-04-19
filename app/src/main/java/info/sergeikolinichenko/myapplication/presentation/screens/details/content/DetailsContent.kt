@@ -64,7 +64,6 @@ fun DetailsContent(component: DetailsComponent) {
 
         is DetailsStore.State.ForecastState.Loaded -> DetailsForecast(
           forecast = forecast.forecast,
-          timeZone = state.city.idTimeZone,
           gradient = gradient
         )
 

@@ -6,5 +6,4 @@ import info.sergeikolinichenko.domain.entity.City
 
 interface SearchRepository {
   suspend fun searchCities(query: String): List<City>
-  suspend fun getCityInfo(city: City): City
 }
