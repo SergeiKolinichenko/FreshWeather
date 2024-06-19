@@ -18,6 +18,7 @@ dependencies {
   implementation(libs.kotlinx.coroutines.android)
 
   testImplementation(libs.junit4)
-  testImplementation(libs.mockito.core)
+  testImplementation(libs.mockito.inline)
   testImplementation(libs.mockito.kotlin)
+  testImplementation(libs.coroutines.test)
 }

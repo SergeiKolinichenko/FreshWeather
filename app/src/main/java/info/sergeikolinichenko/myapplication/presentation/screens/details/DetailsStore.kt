@@ -9,7 +9,7 @@ import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineBootstrapper
 import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineExecutor
 import info.sergeikolinichenko.domain.entity.Forecast
 import info.sergeikolinichenko.domain.usecases.ChangeFavouriteStateUseCase
-import info.sergeikolinichenko.domain.usecases.GerForecastUseCase
+import info.sergeikolinichenko.domain.usecases.GetForecastUseCase
 import info.sergeikolinichenko.domain.usecases.ObserveFavouriteStateUseCase
 import info.sergeikolinichenko.myapplication.entity.CityScreen
 import info.sergeikolinichenko.myapplication.presentation.screens.details.DetailsStore.Intent
@@ -47,7 +47,7 @@ interface DetailsStore : Store<Intent, State, Label> {
 
 class DetailsStoreFactory @Inject constructor(
   private val storeFactory: StoreFactory,
-  private val getForecast: GerForecastUseCase,
+  private val getForecast: GetForecastUseCase,
   private val changeFavouriteState: ChangeFavouriteStateUseCase,
   private val observeFavouriteState: ObserveFavouriteStateUseCase
 ) {

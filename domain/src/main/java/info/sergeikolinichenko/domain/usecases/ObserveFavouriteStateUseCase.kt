@@ -9,5 +9,5 @@ import javax.inject.Inject
 class ObserveFavouriteStateUseCase @Inject constructor(
   private val repository: FavouriteRepository
 ){
-  operator fun invoke(centerId: Int) = repository.observeIsFavourite(centerId)
+  operator fun invoke(id: Int) = repository.observeIsFavourite(id)
 }

@@ -84,16 +84,20 @@ dependencies {
 
   implementation(libs.splashscreen)
 
-  testImplementation(libs.junit4)
-  androidTestImplementation(libs.androidx.test.ext.junit)
-  androidTestImplementation(libs.espresso.core)
-  androidTestImplementation(platform(libs.compose.bom))
-  androidTestImplementation(libs.ui.test.junit4)
+  implementation(libs.retrofit.gsonConverter)
+
   debugImplementation(libs.ui.tooling)
   debugImplementation(libs.ui.test.manifest)
 
-  testImplementation(libs.mockito.core)
-  testImplementation(libs.mockito.kotlin)
+  testImplementation(libs.junit4)
+  androidTestImplementation(libs.androidx.test.ext.junit)
+  androidTestImplementation(libs.androidx.runner)
 
-  implementation(libs.retrofit.gsonConverter)
+  androidTestImplementation(platform(libs.compose.bom))
+  androidTestImplementation(libs.ui.test.junit4)
+
+  testImplementation(libs.mockito.inline)
+  testImplementation(libs.mockito.kotlin)
+  testImplementation(libs.coroutines.test)
+  testImplementation(libs.androidx.core)
 }

@@ -45,6 +45,7 @@ dependencies {
   implementation(project(":domain"))
 
   implementation(libs.dagger.core)
+  implementation(libs.androidx.junit.ktx)
   ksp(libs.dagger.compiler)
 
   implementation(libs.room.core)
@@ -56,5 +57,10 @@ dependencies {
 
   testImplementation(libs.junit4)
   androidTestImplementation(libs.androidx.test.ext.junit)
-  androidTestImplementation(libs.espresso.core)
+  androidTestImplementation(libs.androidx.runner)
+
+  testImplementation(libs.mockito.inline)
+  testImplementation(libs.mockito.kotlin)
+  testImplementation(libs.coroutines.test)
+  testImplementation(libs.androidx.core)
 }
