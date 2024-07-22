@@ -5,10 +5,10 @@ import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import info.sergeikolinichenko.domain.repositories.FavouriteRepository
-import info.sergeikolinichenko.domain.usecases.ObserveFavouriteStateUseCase
+import info.sergeikolinichenko.domain.usecases.favourite.ObserveFavouriteStateUseCase
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert
 import org.junit.Test
 
@@ -19,6 +19,7 @@ class ObserveFavouriteStateUseCaseShould {
   private val repository = mock<FavouriteRepository>()
   private val id = 1
   private val SUT = ObserveFavouriteStateUseCase(repository)
+
   // endregion  constants
   @Test
   fun `get favourite state`() {
@@ -27,8 +28,9 @@ class ObserveFavouriteStateUseCaseShould {
     // Assert
     verify(repository, times(1)).observeIsFavourite(id)
   }
+
   @Test
-  fun `return favourite state is true`() = runBlocking {
+  fun `return favourite state is true`() = runTest {
     // Arrange
     whenever(repository.observeIsFavourite(id)).thenReturn(flowOf(true))
     // Act
@@ -36,8 +38,9 @@ class ObserveFavouriteStateUseCaseShould {
     // Assert
     Assert.assertTrue(actual.first())
   }
+
   @Test
-  fun `return favourite state is false`(): Unit = runBlocking {
+  fun `return favourite state is false`(): Unit = runTest {
     // Arrange
     whenever(repository.observeIsFavourite(id)).thenReturn(flowOf(false))
     //

@@ -2,9 +2,9 @@
 <resources>
   <string name="app_name">Свежая Погода</string>
   <string name="ext_floating_action_button_title">Добавить в Избранное</string>
-  <string name="content_icon_description_weather_icon">Значок погоды</string>
-  <string name="favourite_content_text_search">Поиск</string>
-  <string name="details_content_text_description_button_back">Кнопка назад</string>
+  <string name="favourite_content_description_weather_icon">Значок погоды</string>
+  <string name="favourite_content_text_in_search">Избранное</string>
+  <string name="content_description_text_back_button">Кнопка назад</string>
   <string name="details_content_text_description_button_favourite">Икона Любимое</string>
   <string name="details_content_text_description_weather_condition">Состояние погоды</string>
   <string name="details_content_title_block_upcoming_weather">Погода на следующие дни</string>
@@ -44,4 +44,29 @@
   <string name="details_content_chance_of_rain">Дождь: %1$s%2$s</string>
   <string name="details_content_chance_of_snow">Снег: %1$s%2$s</string>
   <string name="weather_charts_title_uv_index">УФ-индекс</string>
+  <string name="favourite_content_initial_picture">Картинка с большим домом</string>
+  <string name="upcoming_daily_weather_content_description_weather_icon">Значок погоды</string>
+  <string name="favourite_content_text_favourites_are_empty">В избранном пусто</string>
+  <string name="favourite_content_add_cities_here">Добавляйте сюда города, чтобы отслеживать прогноз погоды</string>
+  <string name="favourite_content_description_menu_icon">Показать меню</string>
+  <string name="content_description_dropdown_menu_item_icon_settings">Найстройки приложения</string>
+  <string name="content_description_text_search_button">Кнопка поиск</string>
+  <string name="settings_content_title_settings">Настройки</string>
+  <string name="settings_content_button_done">Готово</string>
+  <string name="settings_content_unit_title_temperature">Температура</string>
+  <string name="settings_content_unit_title_temperature_celsius">Градусы Цельсия (°C)</string>
+  <string name="settings_content_unit_title_temperature_fahrenheit">Градусы Фаренгейта (°F)</string>
+  <string name="dropdown_menu_title_screen_settings">Настройки приложения</string>
+  <string name="settings_content_unit_title_precipitation">Осадки</string>
+  <string name="settings_content_unit_title_precipitation_inches">Дюймы (дюйм)</string>
+  <string name="settings_content_unit_title_precipitation_millimeters">Миллиметры (мм)</string>
+  <string name="settings_content_unit_titile_pressure">Давление</string>
+  <string name="settings_content_unit_title_pressure_mmhg">Миллиметры ртутного столба (mmHg)</string>
+  <string name="settings_content_unit_title_pressure_hpa">Гектопаскали (hPa)</string>
+  <string name="settings_content_unit_evaluate_the_application">Оценить приложение</string>
+  <string name="settings_content_unit_write_to_the_developers">Написать разработчикам</string>
+  <string name="favourite_content_description_search_button">Кнопка поиска</string>
+  <string name="search_content_text_into_placeholder">Введите не менее трех символов, чтобы начать поиск</string>
+  <string name="settings_store_feedback_for_freshweather_app">Отзывы о приложении FreshWeather</string>
+  <string name="settings_store_dear_developers_i_have_the_following_feedback">Уважаемые разработчики,\n\n Хочу оставить следующий отзыв:\n\n</string>
 </resources>

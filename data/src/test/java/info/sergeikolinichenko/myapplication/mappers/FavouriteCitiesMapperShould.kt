@@ -2,7 +2,8 @@ package info.sergeikolinichenko.myapplication.mappers
 
 import info.sergeikolinichenko.domain.entity.City
 import info.sergeikolinichenko.myapplication.local.models.CityDbModel
-import info.sergeikolinichenko.myapplication.utils.cityDbModel
+import info.sergeikolinichenko.myapplication.utils.testCityDbModel
+
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -13,17 +14,17 @@ class FavouriteCitiesMapperShould {
   fun `map CityDbModel to City`() {
     // Arrange
     // Act
-    val city = cityDbModel.toCity()
+    val city = testCityDbModel.toCity()
     // Assert
-    assertEquals(cityDbModel.id, city.id)
-    assertEquals(cityDbModel.name, city.name)
-    assertEquals(cityDbModel.region, city.region)
-    assertEquals(cityDbModel.country, city.country)
+    assertEquals(testCityDbModel.id, city.id)
+    assertEquals(testCityDbModel.name, city.name)
+    assertEquals(testCityDbModel.region, city.region)
+    assertEquals(testCityDbModel.country, city.country)
   }
   @Test
   fun `map City to CityDbModel`() {
     // Arrange
-    val city = cityDbModel.toCityTest()
+    val city = testCityDbModel.toCityTest()
     // Act
     val cityDbModel = city.toCityDbModel()
     // Assert
@@ -35,7 +36,7 @@ class FavouriteCitiesMapperShould {
   @Test
   fun `map List of CityDbModel to List of Favourite Cities`() {
     // Arrange
-    val cityDbModelList = listOf(cityDbModel)
+    val cityDbModelList = listOf(testCityDbModel)
     // Act
     val favouriteCities = cityDbModelList.toListFavouriteCities()
     // Assert

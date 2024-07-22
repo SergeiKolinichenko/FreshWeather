@@ -13,7 +13,9 @@ import info.sergeikolinichenko.myapplication.repositories.SearchRepositoryImpl
 import info.sergeikolinichenko.myapplication.repositories.WeatherRepositoryImpl
 import info.sergeikolinichenko.domain.repositories.FavouriteRepository
 import info.sergeikolinichenko.domain.repositories.SearchRepository
+import info.sergeikolinichenko.domain.repositories.SettingsRepository
 import info.sergeikolinichenko.domain.repositories.WeatherRepository
+import info.sergeikolinichenko.myapplication.repositories.SettingsRepositoryImpl
 
 /** Created by Sergei Kolinichenko on 23.02.2024 at 22:47 (GMT+3) **/
 @Module
@@ -24,6 +26,10 @@ interface DataModule {
   fun bindWeatherRepository(impl: WeatherRepositoryImpl): WeatherRepository
   @[ApplicationScope Binds]
   fun bindSearchRepository(impl: SearchRepositoryImpl): SearchRepository
+  @[ApplicationScope Binds]
+  fun bindSettingsRepository(impl: SettingsRepositoryImpl): SettingsRepository
+  @[ApplicationScope Binds]
+  fun bindSharedPreferences(preferences: FreshWeatherPreferences): FreshWeatherPreferences
 
   companion object {
     @[ApplicationScope Provides]

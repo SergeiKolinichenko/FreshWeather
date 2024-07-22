@@ -1,5 +1,6 @@
 package info.sergeikolinichenko.myapplication.repositories
 
+import android.content.SharedPreferences
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
@@ -8,10 +9,11 @@ import info.sergeikolinichenko.domain.entity.City
 import info.sergeikolinichenko.myapplication.local.db.CitiesDao
 import info.sergeikolinichenko.myapplication.local.models.CityDbModel
 import info.sergeikolinichenko.myapplication.utils.BaseUnitTestsRules
-import info.sergeikolinichenko.myapplication.utils.cityDbModel
+import info.sergeikolinichenko.myapplication.utils.testCityDbModel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 
 /** Created by Sergei Kolinichenko on 19.06.2024 at 15:41 (GMT+3) **/
@@ -19,10 +21,12 @@ import org.junit.Test
 class FavouriteRepositoryImplShould : BaseUnitTestsRules() {
   // region constants
   private val dao = mock<CitiesDao>()
+  private val preferences = mock<SharedPreferences>()
+  private val exceptionMessage = "no_cities_list"
   private val id = 1
   // endregion constants
 
-  private val SUT = FavouriteRepositoryImpl(dao)
+  private val SUT = FavouriteRepositoryImpl(dao, preferences)
 
   @Test
   fun `get favourite cities from Db`(): Unit = runBlocking {
@@ -31,28 +35,32 @@ class FavouriteRepositoryImplShould : BaseUnitTestsRules() {
     // Assert
     verify(dao, times(1)).getAllCities()
   }
+
   @Test
-  fun `load list of favourite cities from Db with map`(): Unit = runBlocking {
+  fun `get list of favourite cities from Db with map`(): Unit = runTest {
     // Arrange
-    whenever(dao.getAllCities()).thenReturn(
-      flow {
-        emit(listOf(cityDbModel))
-      }
-    )
-    val sample = cityDbModel.toCityInTest()
+    whenever(dao.getAllCities()).thenReturn( flow { emit(listOf(testCityDbModel)) })
+    val sample = testCityDbModel.toCityInTest()
     // Act
-    val result = SUT.getFavouriteCities.first().first()
+    val result = SUT.getFavouriteCities.first().getOrNull()?.first()
     // Assert
     assert(result == sample)
   }
+
+  @Test
+  fun `get exception from Db when error`(): Unit = runTest {
+    // Arrange
+    whenever(dao.getAllCities()).thenReturn ( flow { emit(emptyList() ) } )
+    // Act
+    val result = SUT.getFavouriteCities.first().exceptionOrNull()?.message
+    // Assert
+    assert(result == exceptionMessage)
+  }
+
   @Test
   fun `load true state of observe if city is exist in favorite`(): Unit = runBlocking {
     // Arrange
-    whenever(dao.observeIsFavourite(id)).thenReturn(
-      flow {
-        emit(true)
-      }
-    )
+    whenever(dao.observeIsFavourite(id)).thenReturn(flow { emit(true) })
     // Act
     val result = SUT.observeIsFavourite(id).first()
     // Assert
@@ -61,11 +69,7 @@ class FavouriteRepositoryImplShould : BaseUnitTestsRules() {
   @Test
   fun `load false state of observe if city is not exist in favorite`(): Unit = runBlocking {
     // Arrange
-    whenever(dao.observeIsFavourite(id)).thenReturn(
-      flow {
-        emit(false)
-      }
-    )
+    whenever(dao.observeIsFavourite(id)).thenReturn(flow { emit(false) })
     // Act
     val result = SUT.observeIsFavourite(id).first()
     // Assert
@@ -74,11 +78,11 @@ class FavouriteRepositoryImplShould : BaseUnitTestsRules() {
   @Test
   fun `save city to favorite`(): Unit = runBlocking {
     // Arrange
-    val city = cityDbModel.toCityInTest()
+    val city = testCityDbModel.toCityInTest()
     // Act
     SUT.setToFavourite(city)
     // Assert
-    verify(dao, times(1)).addCity(cityDbModel)
+    verify(dao, times(1)).addCity(testCityDbModel)
   }
   @Test
   fun `remove city from favorite`(): Unit = runBlocking {

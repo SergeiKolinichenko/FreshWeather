@@ -55,6 +55,8 @@ dependencies {
   implementation(libs.retrofit.gsonConverter)
   implementation(libs.retrofit.logging.interceptor)
 
+  implementation(libs.google.gson)
+
   testImplementation(libs.junit4)
   androidTestImplementation(libs.androidx.test.ext.junit)
   androidTestImplementation(libs.androidx.runner)
@@ -63,4 +65,6 @@ dependencies {
   testImplementation(libs.mockito.kotlin)
   testImplementation(libs.coroutines.test)
   testImplementation(libs.androidx.core)
+
+  testImplementation(libs.robolectric)
 }

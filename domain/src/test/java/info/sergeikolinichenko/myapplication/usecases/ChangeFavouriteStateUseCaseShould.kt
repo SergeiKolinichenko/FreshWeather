@@ -3,8 +3,9 @@ package info.sergeikolinichenko.myapplication.usecases
 import com.nhaarman.mockitokotlin2.verify
 import info.sergeikolinichenko.domain.entity.City
 import info.sergeikolinichenko.domain.repositories.FavouriteRepository
-import info.sergeikolinichenko.domain.usecases.ChangeFavouriteStateUseCase
+import info.sergeikolinichenko.domain.usecases.favourite.ChangeFavouriteStateUseCase
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.mockito.Mockito
 import org.mockito.Mockito.mock
@@ -16,10 +17,10 @@ class ChangeFavouriteStateUseCaseShould {
   // region constants
   private val repository = mock<FavouriteRepository>()
   private val city = mock<City>()
-  private val SUT = ChangeFavouriteStateUseCase(repository)
   private val id = 1
   // endregion constants
 
+  private val SUT = ChangeFavouriteStateUseCase(repository)
   @Test
   fun `add favourite city to db`() = runBlocking {
     // Act
@@ -28,7 +29,7 @@ class ChangeFavouriteStateUseCaseShould {
     verify(repository, Mockito.times(1)).setToFavourite(city)
   }
   @Test
-  fun `remove favourite city from db`() = runBlocking {
+  fun `remove favourite city from db`() = runTest {
     // Act
     SUT.removeFromFavourite(id)
     // Assert

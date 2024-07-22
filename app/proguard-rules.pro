@@ -40,3 +40,4 @@
 # was to add the following rule to the proguard configuration file:
 -dontwarn java.lang.invoke.StringConcatFactory
 -keep class * { @com.google.gson.annotations.SerializedName <fields>; }
+-keep class com.google.android.play.core.** { *; }

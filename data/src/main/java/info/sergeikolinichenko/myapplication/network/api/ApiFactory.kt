@@ -15,6 +15,8 @@ object ApiFactory {
   private const val BASE_URL = "https://api.weatherapi.com/v1/"
   private const val PARAM_KEY = "key"
   private const val PARAM_LANG = "lang"
+  // for UI test so created at Mockoon
+  private const val TEST_BASE_URL = "http://10.0.2.2:3000/"
 
   private val logging = HttpLoggingInterceptor()
   init {
@@ -39,6 +41,7 @@ object ApiFactory {
     .build()
 
   private val retrofit = Retrofit.Builder()
+//    .baseUrl(TEST_BASE_URL)
     .baseUrl(BASE_URL)
     .addConverterFactory(GsonConverterFactory.create())
     .client(okHttpClient)

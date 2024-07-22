@@ -4,6 +4,7 @@ plugins {
   alias(libs.plugins.kotlinAndroid)
   alias(libs.plugins.ksp)
   alias(libs.plugins.parcelize)
+  alias(libs.plugins.compose.compiler)
 }
 
 android {
@@ -39,14 +40,24 @@ android {
   buildFeatures {
     compose = true
   }
-  composeOptions {
-    kotlinCompilerExtensionVersion = "1.5.11"
-  }
+//  composeOptions {
+//    kotlinCompilerExtensionVersion = "1.5.11"
+//  }
   packaging {
     resources {
       excludes += "/META-INF/{AL2.0,LGPL2.1}"
     }
   }
+  @Suppress("UnstableApiUsage")
+  testOptions {
+    unitTests.isReturnDefaultValues = true
+  }
+}
+composeCompiler {
+  enableStrongSkippingMode = true
+
+  reportsDestination = layout.buildDirectory.dir("compose_compiler")
+//  stabilityConfigurationFile = rootProject.layout.projectDirectory.file("stability_config.conf")
 }
 
 dependencies {
@@ -73,6 +84,8 @@ dependencies {
 
   // Dagger 2
   implementation(libs.dagger.core)
+  implementation(libs.core)
+  implementation(libs.androidx.junit.ktx)
   ksp(libs.dagger.compiler)
 
   implementation(libs.room.core)
@@ -86,18 +99,19 @@ dependencies {
 
   implementation(libs.retrofit.gsonConverter)
 
-  debugImplementation(libs.ui.tooling)
-  debugImplementation(libs.ui.test.manifest)
-
   testImplementation(libs.junit4)
   androidTestImplementation(libs.androidx.test.ext.junit)
   androidTestImplementation(libs.androidx.runner)
-
-  androidTestImplementation(platform(libs.compose.bom))
-  androidTestImplementation(libs.ui.test.junit4)
 
   testImplementation(libs.mockito.inline)
   testImplementation(libs.mockito.kotlin)
   testImplementation(libs.coroutines.test)
   testImplementation(libs.androidx.core)
+
+  testImplementation(libs.robolectric)
+
+  androidTestImplementation(platform(libs.compose.bom))
+  androidTestImplementation(libs.ui.test.junit4)
+  debugImplementation(libs.ui.tooling)
+  debugImplementation(libs.ui.test.manifest)
 }

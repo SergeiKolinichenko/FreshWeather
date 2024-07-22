@@ -13,7 +13,7 @@ data class ForecastDto(
   val current: ForecastCurrentDto,
 
   @SerializedName("forecast")
-  val forecast: ForecastDayDto
+  val forecast: ForecastDaysDto
 )
 
 data class ForecastLocationDto(
@@ -56,7 +56,7 @@ data class ForecastCurrentDto(
   val condition: ConditionDto
 )
 
-data class ForecastDayDto(
+data class ForecastDaysDto(
   @SerializedName("forecastday")
   val forecastDay: List<ForecastDailyDto>,
 )
@@ -66,13 +66,13 @@ data class ForecastDailyDto(
   val dateEpoch: Long,
 
   @SerializedName("day")
-  val dailyWeather: DayDto,
+  val dailyWeather: ForecastDayDto,
 
   @SerializedName("hour")
-  val hourDtoArray: List<HourDto>
+  val forecastHourDtoArray: List<ForecastHourDto>
 )
 
-data class DayDto(
+data class ForecastDayDto(
   @SerializedName("maxtemp_c")
   val maxTempC: Float,
 
@@ -101,7 +101,7 @@ data class DayDto(
   val conditionDto: ConditionDto
 )
 
-data class HourDto(
+data class ForecastHourDto(
   @SerializedName("time_epoch")
   val timeEpoch: Long,
 

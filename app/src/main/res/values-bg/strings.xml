@@ -2,9 +2,9 @@
 <resources>
   <string name="app_name">Свежо Време</string>
   <string name="ext_floating_action_button_title">Добавяне към Любими</string>
-  <string name="content_icon_description_weather_icon">Икона за времето</string>
-  <string name="favourite_content_text_search">Търсене</string>
-  <string name="details_content_text_description_button_back">Бутон обратно</string>
+  <string name="favourite_content_description_weather_icon">Икона за времето</string>
+  <string name="favourite_content_text_in_search">Любими</string>
+  <string name="content_description_text_back_button">Бутон обратно</string>
   <string name="details_content_text_description_button_favourite">Икона Любими</string>
   <string name="details_content_text_description_weather_condition">Състояние на времето</string>
   <string name="details_content_title_block_upcoming_weather">Времето за следващите дни</string>
@@ -44,4 +44,29 @@
   <string name="details_content_chance_of_rain">Дъжд: %1$s%2$ss</string>
   <string name="details_content_chance_of_snow">Сняг: %1$s%2$ss</string>
   <string name="weather_charts_title_uv_index">UV-индекс</string>
+  <string name="favourite_content_initial_picture">Изображение на голяма къща</string>
+  <string name="upcoming_daily_weather_content_description_weather_icon">Икона за времето</string>
+  <string name="favourite_content_text_favourites_are_empty">Любимите ми са празни</string>
+  <string name="favourite_content_add_cities_here">Добавете градове тук, за да следите прогнозите за времето</string>
+  <string name="favourite_content_description_menu_icon">Показване на менюто</string>
+  <string name="content_description_dropdown_menu_item_icon_settings">Настройки на приложението</string>
+  <string name="content_description_text_search_button">Бутон за търсене</string>
+  <string name="settings_content_title_settings">Настройки</string>
+  <string name="settings_content_button_done">Готово</string>
+  <string name="settings_content_unit_title_temperature">Температура</string>
+  <string name="settings_content_unit_title_temperature_celsius">Градуси по Целзий (°C)</string>
+  <string name="settings_content_unit_title_temperature_fahrenheit">Градуси по Фаренхайт (°F)</string>
+  <string name="dropdown_menu_title_screen_settings">Настройки на приложение</string>
+  <string name="settings_content_unit_title_precipitation">Валежи</string>
+  <string name="settings_content_unit_title_precipitation_inches">Инчове (inch)</string>
+  <string name="settings_content_unit_title_precipitation_millimeters">Милиметри (mm)</string>
+  <string name="settings_content_unit_titile_pressure">Налягане</string>
+  <string name="settings_content_unit_title_pressure_mmhg">Милиметри живачен стълб (mmHg)</string>
+  <string name="settings_content_unit_title_pressure_hpa">Хектопаскали (hPa)</string>
+  <string name="settings_content_unit_evaluate_the_application">Оценка на приложението</string>
+  <string name="settings_content_unit_write_to_the_developers">Пишете на разработчиците</string>
+  <string name="favourite_content_description_search_button">Бутон за търсене</string>
+  <string name="search_content_text_into_placeholder">Въведете поне три символа, за да започнете търсенето</string>
+  <string name="settings_store_feedback_for_freshweather_app">Обратна връзка за приложението FreshWeather</string>
+  <string name="settings_store_dear_developers_i_have_the_following_feedback">Уважаеми разработчици, \n\nАз бих искал да оставя следната обратна връзка:\n\n</string>
 </resources>

@@ -6,10 +6,10 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import info.sergeikolinichenko.domain.entity.City
 import info.sergeikolinichenko.domain.repositories.FavouriteRepository
-import info.sergeikolinichenko.domain.usecases.GetFavouriteCitiesUseCase
+import info.sergeikolinichenko.domain.usecases.favourite.GetFavouriteCitiesUseCase
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -20,29 +20,43 @@ class GetFavouriteCitiesUseCaseShould {
   // region constants
   private val repository = mock<FavouriteRepository>()
   private val listCities = mock<List<City>>()
-  private val SUT = GetFavouriteCitiesUseCase(repository)
+  private val exception = RuntimeException("Something went wrong")
   // endregion  constants
+
+  private val SUT = GetFavouriteCitiesUseCase(repository)
+
   @Test
-  fun `get list of favourite cities from repository`(): Unit = runBlocking {
+  fun `get list of favourite cities from repository`(): Unit = runTest {
     // Act
     SUT.invoke()
     // Assert
     verify(repository, times(1)).getFavouriteCities
   }
   @Test
-  fun `return list of favourite cities from repository`() = runBlocking {
+  fun `return list of favourite cities from repository successfully`() = runTest {
     // Arrange
-    mockGetListCities()
+    mockGetSuccessfullyListOfCities()
     // Act
     val result = SUT.invoke().first()
     // Assert
-    assertEquals(listCities, result)
+    assertEquals(listCities, result.getOrNull())
   }
-  // region helper functions
-  private fun mockGetListCities() {
+  @Test
+  fun `returns an error from the repository`() = runTest {
+    // Arrange
     whenever(repository.getFavouriteCities).thenReturn(
       flow {
-        emit(listCities)
+        emit(Result.failure(exception))
+      })
+    val result = SUT.invoke().first()
+    // Assert
+    assertEquals(exception, result.exceptionOrNull())
+  }
+  // region helper functions
+  private fun mockGetSuccessfullyListOfCities() {
+    whenever(repository.getFavouriteCities).thenReturn(
+      flow {
+        emit(Result.success(listCities))
       }
     )
   }
