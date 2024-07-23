@@ -10,8 +10,6 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 abstract class BaseUiTest {
-
   @get:Rule
   val composeTestRule = createAndroidComposeRule<MainActivity>()
-
 }

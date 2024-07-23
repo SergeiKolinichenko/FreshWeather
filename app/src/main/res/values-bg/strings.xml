@@ -35,9 +35,6 @@
   <string name="details_content_precipitation_mm">Валежи: %1$s</string>
   <string name="details_content_cloudy">Облачност: %1$s</string>
   <string name="draw_compas_title_wind_direction">посока на\nвятъра</string>
-  <string name="search_content_title_town">"Град: "</string>
-  <string name="search_content_title_region">"Регион: "</string>
-  <string name="search_content_title_country">"Държава: "</string>
   <string name="favourite_content_efab_title_add_favourite">Добавяне на Фаворит</string>
   <string name="details_content_title_feels_like">Чувства се: %1$s</string>
   <string name="details_content_index">Индекс: %1$s</string>
@@ -50,7 +47,7 @@
   <string name="favourite_content_add_cities_here">Добавете градове тук, за да следите прогнозите за времето</string>
   <string name="favourite_content_description_menu_icon">Показване на менюто</string>
   <string name="content_description_dropdown_menu_item_icon_settings">Настройки на приложението</string>
-  <string name="content_description_text_search_button">Бутон за търсене</string>
+  <string name="content_description_text_clear_line">Изчистена линия</string>
   <string name="settings_content_title_settings">Настройки</string>
   <string name="settings_content_button_done">Готово</string>
   <string name="settings_content_unit_title_temperature">Температура</string>
@@ -66,7 +63,8 @@
   <string name="settings_content_unit_evaluate_the_application">Оценка на приложението</string>
   <string name="settings_content_unit_write_to_the_developers">Пишете на разработчиците</string>
   <string name="favourite_content_description_search_button">Бутон за търсене</string>
-  <string name="search_content_text_into_placeholder">Въведете поне три символа, за да започнете търсенето</string>
+  <string name="search_content_text_into_placeholder">Въведете името на местоположението</string>
   <string name="settings_store_feedback_for_freshweather_app">Обратна връзка за приложението FreshWeather</string>
   <string name="settings_store_dear_developers_i_have_the_following_feedback">Уважаеми разработчици, \n\nАз бих искал да оставя следната обратна връзка:\n\n</string>
+  <string name="search_content_message_enter_more_than_3_letters_to_start_the_search">За да започне търсенето, трябва да има повече от 3 букви.</string>
 </resources>

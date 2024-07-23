@@ -11,7 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
@@ -89,7 +89,7 @@ internal fun SearchCard(
           modifier = Modifier
             .size(24.dp)
             .clickable { onClickActionMenu() },
-          imageVector = Icons.Default.MoreVert,
+          imageVector = Icons.Default.Menu,
           contentDescription = stringResource(R.string.favourite_content_description_menu_icon)
         )
       }

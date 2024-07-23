@@ -36,9 +36,6 @@
   <string name="details_content_precipitation_mm">Precipitation: %1$s</string>
   <string name="details_content_cloudy">Cloudy: %1$s</string>
   <string name="draw_compas_title_wind_direction">Wind\ndirection</string>
-  <string name="search_content_title_town">"City: "</string>
-  <string name="search_content_title_region">"Region: "</string>
-  <string name="search_content_title_country">"Country: "</string>
   <string name="favourite_content_efab_title_add_favourite">Add Favourite</string>
   <string name="details_content_title_feels_like">"Feels: %1$s"</string>
   <string name="details_content_index">Index: %1$s</string>
@@ -49,7 +46,7 @@
   <string name="favourite_content_add_cities_here">Add cities here, to keep track of the weather forecast</string>
   <string name="favourite_content_description_menu_icon">Show menu</string>
   <string name="content_description_dropdown_menu_item_icon_settings">Application settings</string>
-  <string name="content_description_text_search_button">Search button</string>
+  <string name="content_description_text_clear_line">Clear line</string>
   <string name="settings_content_title_settings">Settings</string>
   <string name="settings_content_button_done">Done</string>
   <string name="settings_content_unit_title_temperature">Temperature</string>
@@ -65,7 +62,8 @@
   <string name="settings_content_unit_evaluate_the_application">Evaluate the application</string>
   <string name="settings_content_unit_write_to_the_developers">Write to the developers</string>
   <string name="favourite_content_description_search_button">Search button</string>
-  <string name="search_content_text_into_placeholder">Type at least three characters to start the search</string>
+  <string name="search_content_text_into_placeholder">Enter a location name</string>
   <string name="settings_store_feedback_for_freshweather_app">Feedback for FreshWeather App</string>
   <string name="settings_store_dear_developers_i_have_the_following_feedback">Dear Developers,\n\nI have the following feedback:\n\n</string>
+  <string name="search_content_message_enter_more_than_3_letters_to_start_the_search">There must be more than 3 letters for the search to begin.</string>
 </resources>

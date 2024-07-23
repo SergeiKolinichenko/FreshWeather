@@ -16,7 +16,7 @@ import org.junit.Test
 
 /** Created by Sergei Kolinichenko on 19.07.2024 at 19:55 (GMT+3) **/
 
-class SettingsContentShould : BaseUiTest() {
+class SettingsContentFeature : BaseUiTest() {
 
   @Test
   fun openDropDownMenu() {

@@ -35,9 +35,6 @@
   <string name="details_content_precipitation_mm">Осадки: %1$s</string>
   <string name="details_content_cloudy">Облачность: %1$s</string>
   <string name="draw_compas_title_wind_direction">Направление\nветра</string>
-  <string name="search_content_title_town">"Город: "</string>
-  <string name="search_content_title_region">"Регион: "</string>
-  <string name="search_content_title_country">"Страна: "</string>
   <string name="favourite_content_efab_title_add_favourite">Добавить в Избранное</string>
   <string name="details_content_title_feels_like">Ощущается: %1$s</string>
   <string name="details_content_index">Индекс: %1$s</string>
@@ -50,7 +47,7 @@
   <string name="favourite_content_add_cities_here">Добавляйте сюда города, чтобы отслеживать прогноз погоды</string>
   <string name="favourite_content_description_menu_icon">Показать меню</string>
   <string name="content_description_dropdown_menu_item_icon_settings">Найстройки приложения</string>
-  <string name="content_description_text_search_button">Кнопка поиск</string>
+  <string name="content_description_text_clear_line">Очистить строку</string>
   <string name="settings_content_title_settings">Настройки</string>
   <string name="settings_content_button_done">Готово</string>
   <string name="settings_content_unit_title_temperature">Температура</string>
@@ -66,7 +63,8 @@
   <string name="settings_content_unit_evaluate_the_application">Оценить приложение</string>
   <string name="settings_content_unit_write_to_the_developers">Написать разработчикам</string>
   <string name="favourite_content_description_search_button">Кнопка поиска</string>
-  <string name="search_content_text_into_placeholder">Введите не менее трех символов, чтобы начать поиск</string>
+  <string name="search_content_text_into_placeholder">Введите название местоположения</string>
   <string name="settings_store_feedback_for_freshweather_app">Отзывы о приложении FreshWeather</string>
   <string name="settings_store_dear_developers_i_have_the_following_feedback">Уважаемые разработчики,\n\n Хочу оставить следующий отзыв:\n\n</string>
+  <string name="search_content_message_enter_more_than_3_letters_to_start_the_search">Должно быть более 3 букв, чтобы поиск начался.</string>
 </resources>

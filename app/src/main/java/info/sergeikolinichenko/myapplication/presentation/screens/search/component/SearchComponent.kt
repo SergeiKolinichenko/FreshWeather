@@ -10,7 +10,7 @@ interface SearchComponent {
 
   val model: StateFlow<SearchStore.State>
 
-  fun onSearchClicked()
+  fun onClickedClearLine()
 
   fun onBackClicked()
 

@@ -14,7 +14,7 @@ import info.sergeikolinichenko.myapplication.utils.BaseUiTest
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 
-class FavouriteContentShould : BaseUiTest() {
+class FavouriteContentFeature : BaseUiTest() {
 
   @Test
   fun checksIfTheSearchStringExistOnFavouriteScreen() {

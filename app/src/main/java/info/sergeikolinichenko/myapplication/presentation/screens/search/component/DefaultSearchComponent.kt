@@ -30,7 +30,7 @@ class DefaultSearchComponent @AssistedInject constructor(
     scope.launch {
       store.labels.collect { label ->
         when (label) {
-          SearchStore.Label.ClickBack -> onClickBack()
+          SearchStore.Label.ClickedBack -> onClickBack()
           SearchStore.Label.SavedToFavorite -> savedToFavourite()
           is SearchStore.Label.OpenCityForecast -> onClickItem(label.city)
         }
@@ -41,15 +41,15 @@ class DefaultSearchComponent @AssistedInject constructor(
   @OptIn(ExperimentalCoroutinesApi::class)
   override val model: StateFlow<SearchStore.State> = store.stateFlow
 
-  override fun onSearchClicked() = store.accept(SearchStore.Intent.ClickSearch)
+  override fun onClickedClearLine() = store.accept(SearchStore.Intent.OnClickedClearLine)
 
-  override fun onBackClicked() = store.accept(SearchStore.Intent.ClickBack)
+  override fun onBackClicked() = store.accept(SearchStore.Intent.OnClickedBack)
 
   override fun onQueryChanged(query: String) =
-    store.accept(SearchStore.Intent.SearchQueryChanged(query))
+    store.accept(SearchStore.Intent.OnQueryChanged(query))
 
   override fun onItemClicked(city: CityForScreen) =
-    store.accept(SearchStore.Intent.CityClicked(city))
+    store.accept(SearchStore.Intent.OnClickedCity(city))
 
   @AssistedFactory
   interface Factory {
