@@ -1,14 +1,15 @@
 package info.sergeikolinichenko.myapplication.usecases
 
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.times
-import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.whenever
+import info.sergeikolinichenko.domain.entity.City
 import info.sergeikolinichenko.domain.entity.Weather
 import info.sergeikolinichenko.domain.repositories.WeatherRepository
 import info.sergeikolinichenko.domain.usecases.weather.GetWeatherUseCase
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 
 /** Created by Sergei Kolinichenko on 16.06.2024 at 13:47 (GMT+3) **/
 
@@ -16,7 +17,7 @@ class GetWeatherUseCaseShould {
   // region constants
   private val repository = mock<WeatherRepository>()
   private val weather = mock<Weather>()
-  private val id = 1
+  private val city = mock<City>()
   private val exception = Exception("Something went wrong")
   // endregion  constants
 
@@ -26,17 +27,17 @@ class GetWeatherUseCaseShould {
   @Test
   fun `get weather from repository`(): Unit = runTest {
     // Act
-    SUT.invoke(id)
+    SUT.invoke(city)
     // Assert
-    verify(repository, times(1)).getWeather(id)
+    verify(repository, times(1)).getWeather(city)
   }
 
   @Test
   fun `return weather from repository`(): Unit = runTest {
     // Arrange
-    whenever(repository.getWeather(id)).thenReturn(Result.success(weather))
+    whenever(repository.getWeather(city)).thenReturn(Result.success(weather))
     // Act
-    val result = SUT.invoke(id).getOrNull()
+    val result = SUT.invoke(city).getOrNull()
     // Assert
     assert(result == weather)
   }
@@ -44,9 +45,9 @@ class GetWeatherUseCaseShould {
   @Test
   fun `return error from repository`(): Unit = runTest {
     // Arrange
-    whenever(repository.getWeather(id)).thenReturn(Result.failure(exception))
+    whenever(repository.getWeather(city)).thenReturn(Result.failure(exception))
     // Act
-    val result = SUT.invoke(id).exceptionOrNull()?.message
+    val result = SUT.invoke(city).exceptionOrNull()?.message
     // Assert
     assert(result == exception.message)
   }

@@ -14,5 +14,11 @@ data class CityDto(
   val regionCity: String,
 
   @SerializedName("country")
-  val countryCity: String
+  val countryCity: String,
+
+  @SerializedName("lat")
+  val lat: Double,
+
+  @SerializedName("lon")
+  val lon: Double
 )

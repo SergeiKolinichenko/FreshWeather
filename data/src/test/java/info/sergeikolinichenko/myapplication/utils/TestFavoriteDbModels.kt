@@ -8,5 +8,7 @@ internal val testCityDbModel = CityDbModel(
   id = 10,
   name = "Sofia capital",
   region = "Sofia",
-  country = "Bulgaria"
+  country = "Bulgaria",
+  lat = 10.0,
+  lon = 10.0
 )

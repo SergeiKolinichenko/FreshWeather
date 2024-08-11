@@ -16,8 +16,13 @@ android {
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     consumerProguardFiles("consumer-rules.pro")
-    val key = property("apikey")?.toString() ?: error("Set apikey property in local.properties")
-    buildConfigField("String", "API_KEY", key)
+
+    val apikeyVisualcrossing = property("apikeyVisualcrossing")?.toString() ?: error("Set apikey property in local.properties")
+    buildConfigField("String", "API_KEY_VISUALCROSSING", apikeyVisualcrossing)
+
+    val apikeyWeatherapi = property("apikeyWeatherapi")?.toString() ?: error("Set apikey property in local.properties")
+    buildConfigField("String", "API_KEY_WEATHERAPI", apikeyWeatherapi)
+
     room {
       schemaDirectory("$projectDir/schemas")
     }

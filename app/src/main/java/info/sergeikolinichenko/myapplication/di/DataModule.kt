@@ -4,8 +4,8 @@ import android.content.Context
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
-import info.sergeikolinichenko.myapplication.local.db.CitiesDao
-import info.sergeikolinichenko.myapplication.local.db.CitiesDatabase
+import info.sergeikolinichenko.myapplication.local.db.FreshWeatherDao
+import info.sergeikolinichenko.myapplication.local.db.FreshWeatherDatabase
 import info.sergeikolinichenko.myapplication.local.preferences.FreshWeatherPreferences
 import info.sergeikolinichenko.myapplication.network.api.ApiFactory
 import info.sergeikolinichenko.myapplication.repositories.FavouriteRepositoryImpl
@@ -32,13 +32,14 @@ interface DataModule {
   fun bindSharedPreferences(preferences: FreshWeatherPreferences): FreshWeatherPreferences
 
   companion object {
+
     @[ApplicationScope Provides]
-    fun provideApiService() = ApiFactory.apiService
+    fun provideApiFactory() = ApiFactory()
     @[ApplicationScope Provides]
     fun provideCitiesDatabase(context: Context)
-    = CitiesDatabase.getInstance(context)
+    = FreshWeatherDatabase.getInstance(context)
     @[ApplicationScope Provides]
-    fun provideCitiesDao(database: CitiesDatabase): CitiesDao = database.citiesDao()
+    fun provideCitiesDao(database: FreshWeatherDatabase): FreshWeatherDao = database.citiesDao()
     @[ApplicationScope Provides]
     fun provideSharedPreferences(context: Context) =
       FreshWeatherPreferences.getInstance(context)

@@ -1,12 +1,8 @@
 package info.sergeikolinichenko.myapplication.repositories
 
 import android.content.SharedPreferences
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.times
-import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.whenever
 import info.sergeikolinichenko.domain.entity.City
-import info.sergeikolinichenko.myapplication.local.db.CitiesDao
+import info.sergeikolinichenko.myapplication.local.db.FreshWeatherDao
 import info.sergeikolinichenko.myapplication.local.models.CityDbModel
 import info.sergeikolinichenko.myapplication.utils.BaseUnitTestsRules
 import info.sergeikolinichenko.myapplication.utils.testCityDbModel
@@ -15,12 +11,16 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.times
+import org.mockito.Mockito.verify
+import org.mockito.kotlin.whenever
 
 /** Created by Sergei Kolinichenko on 19.06.2024 at 15:41 (GMT+3) **/
 
 class FavouriteRepositoryImplShould : BaseUnitTestsRules() {
   // region constants
-  private val dao = mock<CitiesDao>()
+  private val dao = mock<FreshWeatherDao>()
   private val preferences = mock<SharedPreferences>()
   private val exceptionMessage = "no_cities_list"
   private val id = 1
@@ -98,7 +98,9 @@ class FavouriteRepositoryImplShould : BaseUnitTestsRules() {
       id = id,
       name = name,
       country = country,
-      region = region
+      region = region,
+      lat = lat,
+      lon = lon
     )
   }
   // endregion helper functions

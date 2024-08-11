@@ -1,126 +1,139 @@
 package info.sergeikolinichenko.myapplication.mappers
 
+import info.sergeikolinichenko.domain.entity.CurrentForecast
+import info.sergeikolinichenko.domain.entity.DayForecast
 import info.sergeikolinichenko.domain.entity.Forecast
-import info.sergeikolinichenko.domain.entity.ForecastCurrent
-import info.sergeikolinichenko.domain.entity.ForecastDaily
-import info.sergeikolinichenko.domain.entity.ForecastHourly
-import info.sergeikolinichenko.domain.entity.ForecastLocation
+import info.sergeikolinichenko.domain.entity.HourForecast
+import info.sergeikolinichenko.domain.entity.PRECIPITATION
+import info.sergeikolinichenko.domain.entity.PRESSURE
 import info.sergeikolinichenko.domain.entity.Settings
 import info.sergeikolinichenko.domain.entity.TEMPERATURE
 import info.sergeikolinichenko.domain.entity.Weather
-import info.sergeikolinichenko.myapplication.network.dto.ForecastDaysDto
+import info.sergeikolinichenko.myapplication.network.dto.CurrentWeatherDto
+import info.sergeikolinichenko.myapplication.network.dto.DayForecastDto
 import info.sergeikolinichenko.myapplication.network.dto.ForecastDto
-import info.sergeikolinichenko.myapplication.network.dto.ForecastLocationDto
-import info.sergeikolinichenko.myapplication.network.dto.WeatherDto
+import info.sergeikolinichenko.myapplication.network.dto.HourForecastDto
+import info.sergeikolinichenko.myapplication.utils.tiInchString
 import info.sergeikolinichenko.myapplication.utils.toCelsiusString
 import info.sergeikolinichenko.myapplication.utils.toFahrenheitString
+import info.sergeikolinichenko.myapplication.utils.toHpaString
+import info.sergeikolinichenko.myapplication.utils.toMmHgString
+import info.sergeikolinichenko.myapplication.utils.toMmsString
+import info.sergeikolinichenko.myapplication.utils.toStringFromStringList
+import info.sergeikolinichenko.myapplication.utils.toStringListFromString
 
-/** Created by Sergei Kolinichenko on 23.02.2024 at 20:18 (GMT+3) **/
+/** Created by Sergei Kolinichenko on 29.07.2024 at 17:36 (GMT+3) **/
 
-// current weather for the favourite screen
-fun WeatherDto.toFavouriteScreenWeather(settings: Settings): Weather {
-
-  var temperature = ""
-  var maxTemperature = ""
-  var minTemperature = ""
-
-  when (settings.temperature) {
-    TEMPERATURE.CELSIUS -> {
-      temperature = current.tempC.toCelsiusString()
-      maxTemperature = weather.forecastDay.first().day.maxTempC.toCelsiusString()
-      minTemperature = weather.forecastDay.first().day.minTempC.toCelsiusString()
-    }
-
-    TEMPERATURE.FAHRENHEIT -> {
-      temperature = current.tempF.toFahrenheitString()
-      maxTemperature = weather.forecastDay.first().day.maxTempF.toFahrenheitString()
-      minTemperature = weather.forecastDay.first().day.minTempF.toFahrenheitString()
-    }
-  }
-
-  return Weather(
-    temp = temperature,
-    maxTemp = maxTemperature,
-    minTemp = minTemperature,
-    condIconUrl = current.condition.icon.correctUrl(),
-    description = current.condition.text
-  )
-}
-
-// extended 3-day weather forecast for the details screen
-fun ForecastDto.toForecast() = Forecast(
-  forecastCurrent = toCurrentWeather(),
-  forecastLocation = this.location.toLocationCity(),
-  upcomingDays = this.forecast.toDailyWeather(),
-  upcomingHours = this.forecast.toHourlyWeather()
+//fun ForecastDto.toForecast()
+internal fun ForecastDto.mapForecastDtoToWeather(settings: Settings) = Weather(
+  temp = when(settings.temperature) {
+    TEMPERATURE.CELSIUS -> this.currentWeatherDto.temp.toCelsiusString()
+    TEMPERATURE.FAHRENHEIT -> this.currentWeatherDto.temp.toFahrenheitString()
+  },
+  maxTemp = when (settings.temperature) {
+    TEMPERATURE.CELSIUS -> this.daysForecast.first().tempMax.toCelsiusString()
+    TEMPERATURE.FAHRENHEIT -> this.daysForecast.first().tempMax.toFahrenheitString()
+  },
+  minTemp = when (settings.temperature) {
+    TEMPERATURE.CELSIUS -> this.daysForecast.first().tempMin.toCelsiusString()
+    TEMPERATURE.FAHRENHEIT -> this.daysForecast.first().tempMin.toFahrenheitString()
+  },
+  description = this.description,
+  condIconUrl = this.daysForecast.first().icon
 )
 
-private fun ForecastLocationDto.toLocationCity() = ForecastLocation(
-  tzId = tzId
+internal fun ForecastDto.mapToForecast(settings: Settings) = Forecast(
+  tzId = this.timeZone,
+  currentForecast = this.mapToForecastCurrent(settings),
+  upcomingDays = this.mapToDaysForecast(settings),
+  upcomingHours = this.daysForecast.flatMap { it.mapToHourlyForecast(settings) }
 )
 
-// current weather for the details screen
-private fun ForecastDto.toCurrentWeather(): ForecastCurrent {
-  val todayWeather = forecast.forecastDay.first().dailyWeather
-  return ForecastCurrent(
-    date = current.lastUpdatedEpoch,
-    tempC = current.tempC,
-    maxTempC = todayWeather.maxTempC,
-    minTempC = todayWeather.minTempC,
-    feelsLikeC = current.feelsLikeC,
-    cloud = current.cloud,
-    precipMm = current.precipMm,
-    windDir = current.windDir,
-    uv = current.uv,
-    descriptionText = current.condition.text,
-    condIconUrl = current.condition.icon.correctUrl(),
-    windKph = current.windKph,
-    pressureMb = current.pressureMb,
-    humidity = current.humidity
-  )
-}
+private fun ForecastDto.mapToForecastCurrent(settings: Settings) = CurrentForecast(
+  date = this.currentWeatherDto.datetimeEpoch,
+  temp = when(settings.temperature) {
+    TEMPERATURE.CELSIUS -> this.currentWeatherDto.temp.toCelsiusString()
+    TEMPERATURE.FAHRENHEIT -> this.currentWeatherDto.temp.toFahrenheitString()
+  },
+  feelsLike = when(settings.temperature) {
+    TEMPERATURE.CELSIUS -> this.currentWeatherDto.feelsLike.toCelsiusString()
+    TEMPERATURE.FAHRENHEIT -> this.currentWeatherDto.feelsLike.toFahrenheitString()
+  },
+  humidity = this.currentWeatherDto.humidity,
+  windSpeed = this.currentWeatherDto.windSpeed,
+  windDir = this.currentWeatherDto.windDir,
+  precipProb = this.currentWeatherDto.precipProb,
+  precip = when (settings.precipitation) {
+    PRECIPITATION.MM -> this.currentWeatherDto.precip.toMmsString()
+    PRECIPITATION.INCHES -> this.currentWeatherDto.precip.tiInchString()
+  },
+  precipType = this.currentWeatherDto.precipType,
+  pressure = when (settings.pressure) {
+    PRESSURE.MMHG -> this.currentWeatherDto.pressure.toMmHgString()
+    PRESSURE.HPA -> this.currentWeatherDto.pressure.toHpaString()
+  },
+  uvIndex = this.currentWeatherDto.uvIndex,
+  cloudCover = this.currentWeatherDto.cloudCover,
+  conditions = this.daysForecast.first().description,
+  icon = this.currentWeatherDto.icon
+)
 
-// daily weather for the details screen
-private fun ForecastDaysDto.toDailyWeather() = forecastDay.drop(1).map { dayDto ->
-  val weatherDto = dayDto.dailyWeather
-  ForecastDaily(
-    date = dayDto.dateEpoch,
-    maxTempC = weatherDto.maxTempC,
-    minTempC = weatherDto.minTempC,
-    condIconUrl = weatherDto.conditionDto.icon.correctUrl(),
-    windKph = weatherDto.maxWindKph,
-    uv = weatherDto.uv,
-    dailyWillTtRain = weatherDto.dailyWillTtRain,
-    dailyChanceOfRain = weatherDto.dailyChanceOfRain,
-    dailyWillItSnow = weatherDto.dailyWillItSnow,
-    dailyChanceOfSnow = weatherDto.dailyChanceOfSnow
-  )
-}
+private fun ForecastDto.mapToDaysForecast(settings: Settings) =
+  this.daysForecast.map { it.mapToForecastDay(settings) }
 
-// hourly weather for the details screen
-private fun ForecastDaysDto.toHourlyWeather() = forecastDay.flatMap { day ->
-  day.forecastHourDtoArray.map { hour ->
-    ForecastHourly(
-      date = hour.timeEpoch,
-      tempC = hour.tempC,
-      maxTempC = hour.tempC,
-      minTempC = hour.tempC,
-      descriptionText = hour.condition.text,
-      condIconUrl = hour.condition.icon.correctUrl(),
-      windKph = hour.windKph,
-      windDir = hour.windDir,
-      pressureMb = hour.pressureMb,
-      humidity = hour.humidity,
-      uv = hour.uv,
-      willItRain = hour.willItRain,
-      chanceOfRain = hour.chanceOfRain,
-      willItSnow = hour.willItSnow,
-      chanceOfSnow = hour.chanceOfSnow
-    )
-  }
-}
+private fun DayForecastDto.mapToForecastDay(settings: Settings) = DayForecast(
+  date = this.datetimeEpoch,
+  temp = when(settings.temperature) {
+    TEMPERATURE.CELSIUS -> this.temp.toCelsiusString()
+    TEMPERATURE.FAHRENHEIT -> this.temp.toFahrenheitString()
+  },
+  tempMax = when (settings.temperature) {
+    TEMPERATURE.CELSIUS -> this.tempMax.toCelsiusString()
+    TEMPERATURE.FAHRENHEIT -> this.tempMax.toFahrenheitString()
+  },
+  tempMin = when (settings.temperature) {
+    TEMPERATURE.CELSIUS -> this.tempMin.toCelsiusString()
+    TEMPERATURE.FAHRENHEIT -> this.tempMin.toFahrenheitString()
+  },
+  humidity = this.humidity,
+  windSpeed = this.windSpeed,
+  windDir = this.windDir,
+  pressure = when (settings.pressure) {
+    PRESSURE.MMHG -> this.pressure.toMmHgString()
+    PRESSURE.HPA -> this.pressure.toHpaString()
+  },
+  uvIndex = this.uvIndex,
+  cloudCover = this.cloudCover,
+  precipProb = this.precipProb,
+  precip = when (settings.precipitation) {
+    PRECIPITATION.MM -> this.precip.toMmsString()
+    PRECIPITATION.INCHES -> this.precip.tiInchString()
+  },
+  precipType = this.precipType,
+  description = this.description,
+  icon = this.icon,
+  sunrise = this.sunrise,
+  sunset = this.sunset,
+  moonrise = this.moonrise,
+  moonset = this.moonset,
+  moonPhase = this.moonPhase
+)
 
-private fun String.correctUrl() = "https:$this".replace(
-  "64x64",
-  "128x128"
+private fun DayForecastDto.mapToHourlyForecast(settings: Settings)
+= this.hoursForecast.map { it.mapToForecastHour(settings) }
+
+private fun HourForecastDto.mapToForecastHour(settings: Settings) = HourForecast(
+  date = this.datetimeEpoch,
+  temp = when(settings.temperature) {
+    TEMPERATURE.CELSIUS -> this.temp.toCelsiusString()
+    TEMPERATURE.FAHRENHEIT -> this.temp.toFahrenheitString()
+  },
+  icon = this.icon,
+  pressure = when (settings.pressure) {
+    PRESSURE.MMHG -> this.pressure.toMmHgString()
+    PRESSURE.HPA -> this.pressure.toHpaString()
+  },
+  humidity = this.humidity,
+  uvIndex = this.uvIndex,
+  precipProb = this.precipProb,
 )

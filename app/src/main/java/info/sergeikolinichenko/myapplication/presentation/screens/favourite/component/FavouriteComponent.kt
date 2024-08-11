@@ -20,8 +20,5 @@ interface FavouriteComponent {
 
   fun onItemMenuSettingsClicked()
 
-  fun onItemClicked(
-    city: CityForScreen,
-    numberGradient: Int
-  )
+  fun onItemClicked(id: Int)
 }

@@ -9,7 +9,9 @@ fun CityDto.toCity(): City {
     id = idCity,
     name = nameCity,
     country = countryCity,
-    region = regionCity
+    region = regionCity,
+    lat = lat,
+    lon = lon
   )
 }
 fun List<CityDto>.toListCities(): List<City> {

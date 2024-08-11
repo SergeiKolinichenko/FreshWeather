@@ -1,10 +1,11 @@
 package info.sergeikolinichenko.myapplication.repositories
 
 import android.content.SharedPreferences
+import android.util.Log
 import com.google.gson.Gson
 import info.sergeikolinichenko.domain.entity.City
 import info.sergeikolinichenko.domain.repositories.FavouriteRepository
-import info.sergeikolinichenko.myapplication.local.db.CitiesDao
+import info.sergeikolinichenko.myapplication.local.db.FreshWeatherDao
 import info.sergeikolinichenko.myapplication.mappers.toCityDbModel
 import info.sergeikolinichenko.myapplication.mappers.toListFavouriteCities
 import kotlinx.coroutines.flow.Flow
@@ -12,12 +13,12 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class FavouriteRepositoryImpl @Inject constructor(
-  private val citiesDao: CitiesDao,
+  private val freshWeatherDao: FreshWeatherDao,
   private val preferences: SharedPreferences
 ) : FavouriteRepository {
 
   override val getFavouriteCities: Flow<Result<List<City>>>
-    get() = citiesDao.getAllCities().map { list ->
+    get() = freshWeatherDao.getAllCities().map { list ->
       if (list.isEmpty()) {
         Result.failure(RuntimeException(ERROR_NO_CITIES_LIST))
       } else {
@@ -29,15 +30,15 @@ class FavouriteRepositoryImpl @Inject constructor(
     }
 
   override fun observeIsFavourite(id: Int): Flow<Boolean> =
-    citiesDao.observeIsFavourite(id)
+    freshWeatherDao.observeIsFavourite(id)
 
   override suspend fun setToFavourite(city: City) {
     val cityDbModel = city.toCityDbModel()
-    citiesDao.addCity(cityDbModel)
+    freshWeatherDao.addCity(cityDbModel)
   }
 
   override suspend fun removeFromFavourite(id: Int) {
-    citiesDao.removeCityById(id)
+    freshWeatherDao.removeCityById(id)
   }
 
   override fun setOrderCitiesViewed(order: List<Int>) {

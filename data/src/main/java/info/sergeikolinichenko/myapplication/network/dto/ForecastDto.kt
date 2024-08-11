@@ -2,139 +2,134 @@ package info.sergeikolinichenko.myapplication.network.dto
 
 import com.google.gson.annotations.SerializedName
 
-/** Created by Sergei Kolinichenko on 21.02.2024 at 20:24 (GMT+3) **/
-// This class is used to parse the JSON response from the server
-// returned by method getWeatherForecast in WeatherApiService
+/** Created by Sergei Kolinichenko on 29.07.2024 at 17:10 (GMT+3) **/
+
 data class ForecastDto(
-  @SerializedName("location")
-  val location: ForecastLocationDto,
 
-  @SerializedName("current")
-  val current: ForecastCurrentDto,
+  @SerializedName("timezone")
+  val timeZone: String,
 
-  @SerializedName("forecast")
-  val forecast: ForecastDaysDto
+  val description: String,
+  @SerializedName("currentConditions")
+
+  val currentWeatherDto: CurrentWeatherDto,
+
+  @SerializedName("days")
+  val daysForecast: List<DayForecastDto>
 )
 
-data class ForecastLocationDto(
-  @SerializedName("tz_id")
-  val tzId: String
+data class CurrentWeatherDto(
+  @SerializedName("datetimeEpoch")
+  val datetimeEpoch: Long,
+
+  val temp: Float,
+
+  @SerializedName("feelslike")
+  val feelsLike: Float,
+
+  val humidity: Float,
+
+  @SerializedName("precipprob")
+  val precipProb: Float,
+
+  val precip: Float,
+
+  @SerializedName("preciptype")
+  val precipType: List<String>?,
+
+  @SerializedName("windspeed")
+  val windSpeed: Float,
+
+  @SerializedName("winddir")
+  val windDir: Float,
+
+  val pressure: Float,
+
+  @SerializedName("uvindex")
+  val uvIndex: Int,
+
+  @SerializedName("cloudcover")
+  val cloudCover: Float,
+
+  val conditions: String,
+
+  val icon: String,
 )
 
-data class ForecastCurrentDto(
-  @SerializedName("last_updated_epoch")
-  val lastUpdatedEpoch: Long,
+data class DayForecastDto(
+  @SerializedName("datetimeEpoch")
+  val datetimeEpoch: Long,
 
-  @SerializedName("temp_c")
-  val tempC: Float,
+  val temp: Float,
 
-  @SerializedName("feelslike_c")
-  val feelsLikeC: Float,
+  @SerializedName("tempmax")
+  val tempMax: Float,
 
-  @SerializedName("wind_kph")
-  val windKph: Float,
+  @SerializedName("tempmin")
+  val tempMin: Float,
 
-  @SerializedName("wind_dir")
-  val windDir: String,
+  val humidity: Float,
 
-  @SerializedName("pressure_mb")
-  val pressureMb: Float,
+  @SerializedName("windspeed")
+  val windSpeed: Float,
 
-  @SerializedName("precip_mm")
-  val precipMm: Float,
+  @SerializedName("winddir")
+  val windDir: Float,
 
-  @SerializedName("cloud")
-  val cloud: Int,
+  val pressure: Float,
 
-  @SerializedName("uv")
-  val uv: Float,
+  @SerializedName("uvindex")
+  val uvIndex: Int,
 
-  @SerializedName("humidity")
-  val humidity: Int,
+  @SerializedName("cloudcover")
+  val cloudCover: Float,
 
-  @SerializedName("condition")
-  val condition: ConditionDto
+  @SerializedName("precipprob")
+  val precipProb: Float,
+
+  val precip: Float,
+
+  @SerializedName("preciptype")
+  val precipType: List<String>?,
+
+  val description: String,
+
+  val icon: String,
+
+  @SerializedName("sunriseEpoch")
+  val sunrise: Long,
+
+  @SerializedName("sunsetEpoch")
+  val sunset: Long,
+
+  @SerializedName("moonriseEpoch")
+  val moonrise: Long,
+
+  @SerializedName("moonsetEpoch")
+  val moonset: Long,
+
+  @SerializedName("moonphase")
+  val moonPhase: Float,
+
+  @SerializedName("hours")
+  val hoursForecast: List<HourForecastDto>
 )
 
-data class ForecastDaysDto(
-  @SerializedName("forecastday")
-  val forecastDay: List<ForecastDailyDto>,
-)
+data class HourForecastDto(
+  @SerializedName("datetimeEpoch")
+  val datetimeEpoch: Long,
 
-data class ForecastDailyDto(
-  @SerializedName("date_epoch")
-  val dateEpoch: Long,
+  val temp: Float,
 
-  @SerializedName("day")
-  val dailyWeather: ForecastDayDto,
+  @SerializedName("precipprob")
+  val precipProb: Float,
 
-  @SerializedName("hour")
-  val forecastHourDtoArray: List<ForecastHourDto>
-)
+  val humidity: Float,
 
-data class ForecastDayDto(
-  @SerializedName("maxtemp_c")
-  val maxTempC: Float,
+  val pressure: Float,
 
-  @SerializedName("mintemp_c")
-  val minTempC: Float,
+  @SerializedName("uvindex")
+  val uvIndex: Int,
 
-  @SerializedName("maxwind_kph")
-  val maxWindKph: Float,
-
-  @SerializedName("uv")
-  val uv: Float,
-
-  @SerializedName("daily_will_it_rain")
-  val dailyWillTtRain: Int,
-
-  @SerializedName("daily_chance_of_rain")
-  val dailyChanceOfRain: Int,
-
-  @SerializedName("daily_will_it_snow")
-  val dailyWillItSnow: Int,
-
-  @SerializedName("daily_chance_of_snow")
-  val dailyChanceOfSnow: Int,
-
-  @SerializedName("condition")
-  val conditionDto: ConditionDto
-)
-
-data class ForecastHourDto(
-  @SerializedName("time_epoch")
-  val timeEpoch: Long,
-
-  @SerializedName("temp_c")
-  val tempC: Float,
-
-  @SerializedName("wind_kph")
-  val windKph: Float,
-
-  @SerializedName("pressure_mb")
-  val pressureMb: Float,
-
-  @SerializedName("humidity")
-  val humidity: Int,
-
-  @SerializedName("wind_dir")
-  val windDir: String,
-
-  @SerializedName("will_it_rain")
-  val willItRain: Int,
-
-  @SerializedName("chance_of_rain")
-  val chanceOfRain: Int,
-
-  @SerializedName("will_it_snow")
-  val willItSnow: Int,
-
-  @SerializedName("chance_of_snow")
-  val chanceOfSnow: Int,
-
-  @SerializedName("uv")
-  val uv: Float,
-
-  @SerializedName("condition")
-  val condition: ConditionDto
+  val icon: String,
 )

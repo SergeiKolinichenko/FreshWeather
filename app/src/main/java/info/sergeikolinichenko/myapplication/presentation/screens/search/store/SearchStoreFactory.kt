@@ -1,5 +1,6 @@
 package info.sergeikolinichenko.myapplication.presentation.screens.search.store
 
+import android.util.Log
 import com.arkivanov.mvikotlin.core.store.Reducer
 import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.core.store.StoreFactory
@@ -98,7 +99,7 @@ class SearchStoreFactory @Inject constructor(
         is Intent.OnClickedCity -> {
           scope.launch {
             changeFavouriteState.addToFavourite(intent.city.toCity())
-            publish(Label.SavedToFavorite)
+            publish(Label.ClickedCityItem)
           }
         }
 

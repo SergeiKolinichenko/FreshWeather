@@ -2,6 +2,7 @@ package info.sergeikolinichenko.myapplication.repositories
 
 import android.content.SharedPreferences
 import com.google.gson.Gson
+import info.sergeikolinichenko.domain.entity.City
 import info.sergeikolinichenko.domain.entity.Forecast
 import info.sergeikolinichenko.domain.entity.PRECIPITATION
 import info.sergeikolinichenko.domain.entity.PRESSURE
@@ -9,33 +10,45 @@ import info.sergeikolinichenko.domain.entity.Settings
 import info.sergeikolinichenko.domain.entity.TEMPERATURE
 import info.sergeikolinichenko.domain.entity.Weather
 import info.sergeikolinichenko.domain.repositories.WeatherRepository
-import info.sergeikolinichenko.myapplication.mappers.toFavouriteScreenWeather
-import info.sergeikolinichenko.myapplication.mappers.toForecast
-import info.sergeikolinichenko.myapplication.network.api.ApiService
+import info.sergeikolinichenko.myapplication.local.db.FreshWeatherDao
+import info.sergeikolinichenko.myapplication.mappers.mapForecastDtoToWeather
+import info.sergeikolinichenko.myapplication.mappers.mapToForecast
+import info.sergeikolinichenko.myapplication.network.api.ApiFactory
 import info.sergeikolinichenko.myapplication.repositories.SettingsRepositoryImpl.Companion.SETTINGS_KEY
 import javax.inject.Inject
 
 class WeatherRepositoryImpl @Inject constructor(
-  private val apiService: ApiService,
+  private val apiFactory: ApiFactory,
   private val preferences: SharedPreferences
 ) : WeatherRepository {
 
-  override suspend fun getWeather(id: Int): Result<Weather> {
-    val response = apiService.getWeather("$PREFIX_CITY_ID$id")
-    if (response.isSuccessful) {
-      return Result.success(response.body()!!.toFavouriteScreenWeather(getMySettings()))
-    } else {
-      return Result.failure(Exception(response.errorBody()?.string() ?: ERROR_MESSAGE_GET_WEATHER))
-    }
+  // received forecasts from api according to the city id
+  override suspend fun getWeather(city: City): Result<Weather> {
+
+    val location = "${city.lat}, ${city.lon}"
+    val response = apiFactory.getVisualcrossingApi().getCurrentWeather(
+      location = location,
+      date1 = ONE_DAY_FORECAST
+    )
+
+    return if (response.isSuccessful)
+      Result.success(response.body()!!.mapForecastDtoToWeather(getMySettings()))
+    else
+      Result.failure(Exception(response.code().toString()))
   }
 
-  override suspend fun getForecast(id: Int): Forecast {
-    val response = apiService.getForecast("$PREFIX_CITY_ID$id")
-    if (!response.isSuccessful) {
-      throw Exception("Error while getting forecast")
-    } else {
-      return response.body()!!.toForecast()
-    }
+  override suspend fun getForecast(city: City) : Result<Forecast> {
+
+    val location = "${city.lat}, ${city.lon}"
+    val response = apiFactory.getVisualcrossingApi().getCurrentWeather(
+      location = location,
+      date1 = SEVEN_DAYS_FORECAST
+    )
+
+    return if (response.isSuccessful)
+      Result.success(response.body()!!.mapToForecast(getMySettings()))
+    else
+      Result.failure(Exception(response.code().toString()))
   }
 
   private fun getMySettings(): Settings {
@@ -45,8 +58,7 @@ class WeatherRepositoryImpl @Inject constructor(
     return jsonObject?.let {
       val settings = Gson().fromJson(jsonObject, Settings::class.java)
       settings
-    } ?:
-      Settings(
+    } ?: Settings(
       temperature = TEMPERATURE.CELSIUS,
       precipitation = PRECIPITATION.MM,
       pressure = PRESSURE.HPA
@@ -54,7 +66,7 @@ class WeatherRepositoryImpl @Inject constructor(
   }
 
   companion object {
-    private const val PREFIX_CITY_ID = "id:"
-    const val ERROR_MESSAGE_GET_WEATHER = "Error while getting weather"
+    private const val SEVEN_DAYS_FORECAST = "7"
+    private const val ONE_DAY_FORECAST = "1"
   }
 }

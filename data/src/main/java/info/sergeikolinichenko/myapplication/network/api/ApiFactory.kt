@@ -10,27 +10,20 @@ import java.util.Locale
 
 /** Created by Sergei Kolinichenko on 21.02.2024 at 19:53 (GMT+3) **/
 
-object ApiFactory {
-
-  private const val BASE_URL = "https://api.weatherapi.com/v1/"
-  private const val PARAM_KEY = "key"
-  private const val PARAM_LANG = "lang"
-  // for UI test so created at Mockoon
-  private const val TEST_BASE_URL = "http://10.0.2.2:3000/"
+class ApiFactory {
 
   private val logging = HttpLoggingInterceptor()
   init {
     logging.level = HttpLoggingInterceptor.Level.BODY
   }
 
-
-  private val okHttpClient = OkHttpClient.Builder()
+  private val okHttpClientVis = OkHttpClient.Builder()
     .addInterceptor(logging)
     .addInterceptor{ chain ->
       val originalRequest = chain.request()
       val originalHttpUrl = originalRequest.url
       val url = originalHttpUrl.newBuilder()
-        .addQueryParameter( PARAM_KEY, BuildConfig.API_KEY)
+        .addQueryParameter(PARAM_KEY, BuildConfig.API_KEY_VISUALCROSSING)
         .addQueryParameter(PARAM_LANG, Locale.getDefault().language)
         .build()
       val desiredRequest = originalRequest.newBuilder()
@@ -40,12 +33,60 @@ object ApiFactory {
     }
     .build()
 
-  private val retrofit = Retrofit.Builder()
-//    .baseUrl(TEST_BASE_URL)
-    .baseUrl(BASE_URL)
-    .addConverterFactory(GsonConverterFactory.create())
-    .client(okHttpClient)
+  private val okHttpClientWeatherApi = OkHttpClient.Builder()
+    .addInterceptor(logging)
+    .addInterceptor{ chain ->
+      val originalRequest = chain.request()
+      val originalHttpUrl = originalRequest.url
+      val url = originalHttpUrl.newBuilder()
+        .addQueryParameter(PARAM_KEY, BuildConfig.API_KEY_WEATHERAPI)
+        .addQueryParameter(PARAM_LANG, Locale.getDefault().language)
+        .build()
+      val desiredRequest = originalRequest.newBuilder()
+        .url(url)
+        .build()
+      chain.proceed(desiredRequest)
+    }
     .build()
 
-  val apiService: ApiService = retrofit.create()
+  val visualcrossingApiService = Retrofit.Builder()
+    .baseUrl(BASE_URL_VIS)
+    .addConverterFactory(GsonConverterFactory.create())
+    .client(okHttpClientVis)
+    .build()
+    .create<ApiService>()
+
+  val weatherapiApiService = Retrofit.Builder()
+    .baseUrl(BASE_URL_WEATHERAPI)
+    .addConverterFactory(GsonConverterFactory.create())
+    .client(okHttpClientWeatherApi)
+    .build()
+    .create<ApiService>()
+
+  fun getVisualcrossingApi() =
+    Retrofit.Builder()
+      .baseUrl(BASE_URL_VIS)
+      .addConverterFactory(GsonConverterFactory.create())
+      .client(okHttpClientVis)
+      .build()
+      .create<ApiService>()
+
+  fun getWeatherapiApi() =
+    Retrofit.Builder()
+      .baseUrl(BASE_URL_WEATHERAPI)
+      .addConverterFactory(GsonConverterFactory.create())
+      .client(okHttpClientWeatherApi)
+      .build()
+      .create<ApiService>()
+
+  companion object {
+    // for VisualCrossing
+    const val BASE_URL_VIS = "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/"
+    private const val BASE_URL_WEATHERAPI = "https://api.weatherapi.com/v1/"
+    private const val PARAM_KEY = "key"
+    private const val PARAM_LANG = "lang"
+    // for UI test so created at Mockoon
+    private const val TEST_BASE_URL = "http://10.0.2.2:3000/"
+  }
+
 }

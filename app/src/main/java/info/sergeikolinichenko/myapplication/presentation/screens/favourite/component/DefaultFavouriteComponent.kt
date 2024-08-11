@@ -1,6 +1,7 @@
 package info.sergeikolinichenko.myapplication.presentation.screens.favourite.component
 
 import com.arkivanov.decompose.ComponentContext
+import com.arkivanov.essenty.lifecycle.doOnDestroy
 import com.arkivanov.mvikotlin.core.instancekeeper.getStore
 import com.arkivanov.mvikotlin.extensions.coroutines.labels
 import com.arkivanov.mvikotlin.extensions.coroutines.stateFlow
@@ -20,12 +21,12 @@ import kotlinx.coroutines.launch
 class DefaultFavouriteComponent @AssistedInject constructor(
   @Assisted("onClickSearch") onSearchClicked: () -> Unit,
   @Assisted("onClickItemMenuSettings") onClickItemMenuSettings: () -> Unit,
-  @Assisted("onItemClicked") onItemClicked: (CityForScreen, Int) -> Unit,
+  @Assisted("onItemClicked") onItemClicked: (Int) -> Unit,
   @Assisted("componentContext") private val componentContext: ComponentContext,
   private val storeFactory: FavouriteStoreFactory
 ) : FavouriteComponent, ComponentContext by componentContext {
 
-  private val store = instanceKeeper.getStore { storeFactory.create() }
+  private val store: FavouriteStore = instanceKeeper.getStore { storeFactory.create() }
   private val scope = componentScope()
 
   init {
@@ -33,7 +34,7 @@ class DefaultFavouriteComponent @AssistedInject constructor(
       store.labels.collect { label ->
         when (label) {
           FavouriteStore.Label.OnClickSearch -> onSearchClicked()
-          is FavouriteStore.Label.OnClickCity -> onItemClicked(label.city, label.numberGradient)
+          is FavouriteStore.Label.OnClickCity -> onItemClicked(label.id)
           FavouriteStore.Label.OnClickItemMenuSettings -> onClickItemMenuSettings()
         }
       }
@@ -66,16 +67,15 @@ class DefaultFavouriteComponent @AssistedInject constructor(
     store.accept(FavouriteStore.Intent.ItemMenuSettingsClicked)
   }
 
-  override fun onItemClicked(city: CityForScreen, numberGradient: Int) {
-    store.accept(FavouriteStore.Intent.ItemCityClicked(city, numberGradient))
-  }
+  override fun onItemClicked(id: Int) {
+    store.accept(FavouriteStore.Intent.ItemCityClicked(id = id)) }
 
   @AssistedFactory
   interface Factory {
     fun create(
       @Assisted("onClickSearch") onClickSearch: () -> Unit,
       @Assisted("onClickItemMenuSettings") onClickItemMenuSettings: () -> Unit,
-      @Assisted("onItemClicked") onItemClicked: (CityForScreen, Int) -> Unit,
+      @Assisted("onItemClicked") onItemClicked: (Int) -> Unit,
       @Assisted("componentContext") componentContext: ComponentContext
     ): DefaultFavouriteComponent
   }

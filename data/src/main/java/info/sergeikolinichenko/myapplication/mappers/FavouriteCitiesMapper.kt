@@ -10,7 +10,9 @@ fun CityDbModel.toCity(): City {
     id = id,
     name = name,
     country = country,
-    region = region
+    region = region,
+    lat = lat,
+    lon = lon,
   )
 }
 fun City.toCityDbModel(): CityDbModel {
@@ -18,7 +20,9 @@ fun City.toCityDbModel(): CityDbModel {
     id = id,
     name = name,
     country = country,
-    region = region
+    region = region,
+    lat = lat,
+    lon = lon,
   )
 }
 fun List<CityDbModel>.toListFavouriteCities(): List<City> {

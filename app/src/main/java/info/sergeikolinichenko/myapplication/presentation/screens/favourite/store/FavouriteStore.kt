@@ -2,47 +2,67 @@ package info.sergeikolinichenko.myapplication.presentation.screens.favourite.sto
 
 /** Created by Sergei Kolinichenko on 21.02.2024 at 15:31 (GMT+3) **/
 
+import android.os.Parcelable
+import com.arkivanov.essenty.instancekeeper.InstanceKeeper
 import com.arkivanov.mvikotlin.core.store.Store
 import info.sergeikolinichenko.domain.entity.City
 import info.sergeikolinichenko.myapplication.entity.CityForScreen
+import kotlinx.parcelize.Parcelize
 import info.sergeikolinichenko.myapplication.presentation.screens.favourite.store.FavouriteStore.Intent
 import info.sergeikolinichenko.myapplication.presentation.screens.favourite.store.FavouriteStore.Label
 import info.sergeikolinichenko.myapplication.presentation.screens.favourite.store.FavouriteStore.State
 
 interface FavouriteStore : Store<Intent, State, Label> {
+
   sealed interface Intent {
     data object SearchClicked : Intent
     data object ActionMenuClicked : Intent
     data object ClosingActionMenu : Intent
-    data object ItemMenuSettingsClicked: Intent
+    data object ItemMenuSettingsClicked : Intent
     data class ReloadWeather(val cities: List<City>) : Intent
-    data class ItemCityClicked(
-      val city: CityForScreen,
-      val numberGradient: Int
-    ) : Intent
+    data class ItemCityClicked(val id: Int) : Intent
   }
 
+  @Parcelize
   data class State(
     val cityItems: List<CityItem>,
     val listCitiesLoadedState: ListCitiesLoadedState = ListCitiesLoadedState.Initial,
     val dropDownMenuState: DropDownMenuState = DropDownMenuState.Initial
-  ) {
+  ) : Parcelable, InstanceKeeper.Instance {
 
+    @Parcelize
     data class CityItem(
       val city: CityForScreen,
       val weatherLoadingState: WeatherLoadingState,
-    )
+    ) : Parcelable
 
-    sealed interface ListCitiesLoadedState {
+    @Parcelize
+    sealed interface ListCitiesLoadedState : Parcelable {
+      @Parcelize
       data object Initial : ListCitiesLoadedState
+
+      @Parcelize
       data object Loaded : ListCitiesLoadedState
+
+      @Parcelize
       data object Error : ListCitiesLoadedState
     }
 
-    sealed interface WeatherLoadingState {
+    @Parcelize
+    sealed interface WeatherLoadingState : Parcelable {
+      @Parcelize
       data object Initial : WeatherLoadingState
+
+      @Parcelize
       data object Loading : WeatherLoadingState
-      data object Error : WeatherLoadingState
+
+      @Parcelize
+      data class Error(
+        val cityName: String,
+        val codeError: String
+      ) : WeatherLoadingState
+
+      @Parcelize
       data class LoadedWeatherLoading(
         val temp: String,
         val maxTemp: String,
@@ -50,21 +70,29 @@ interface FavouriteStore : Store<Intent, State, Label> {
         val description: String,
         val iconUrl: String
       ) : WeatherLoadingState
+
     }
 
-    sealed interface DropDownMenuState {
+    @Parcelize
+    sealed interface DropDownMenuState : Parcelable {
+      @Parcelize
       data object Initial : DropDownMenuState
+
+      @Parcelize
       data object OpenMenu : DropDownMenuState
+
+      @Parcelize
       data object CloseMenu : DropDownMenuState
     }
   }
 
+
   sealed interface Label {
+
     data object OnClickSearch : Label
+
     data object OnClickItemMenuSettings : Label
-    data class OnClickCity(
-      val city: CityForScreen,
-      val numberGradient: Int
-    ) : Label
+
+    data class OnClickCity(val id: Int) : Label
   }
 }

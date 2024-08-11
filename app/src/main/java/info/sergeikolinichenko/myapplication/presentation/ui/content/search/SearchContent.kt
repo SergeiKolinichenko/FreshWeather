@@ -48,136 +48,148 @@ const val TEST_SEARCHBAR_TAG = "test_searchbar_tag"
 const val TEST_SEARCH_TEXT_TAG = "test_search_text_tag"
 
 /** Created by Sergei Kolinichenko on 21.02.2024 at 16:06 (GMT+3) **/
-@OptIn(ExperimentalMaterial3Api::class)
+
 @Composable
 fun SearchContent(component: SearchComponent) {
-
-  val state by component.model.collectAsState()
-
-  val focusRequester = remember { FocusRequester() }
-  LaunchedEffect(key1 = null) { focusRequester.requestFocus() }
 
   Box(
     modifier = Modifier
       .fillMaxSize()
       .background(MaterialTheme.colorScheme.background)
   ) {
-    SearchBar(
-      modifier = Modifier
-        .fillMaxWidth()
-        .padding(start = 16.dp, top = 24.dp, end = 16.dp, bottom = 16.dp)
-        .focusRequester(focusRequester = focusRequester)
-        .testTag(TEST_SEARCHBAR_TAG),
+    SearchScreen(
+      component = component
+    )
+  }
+}
 
-      placeholder = {
-        Text(
-          modifier = Modifier
-            .padding(end = 16.dp),
-          text = stringResource(R.string.search_content_text_into_placeholder),
-          fontFamily = FontFamily.SansSerif,
-          fontWeight = FontWeight.Normal,
-          fontSize = 16.sp,
-          textAlign = TextAlign.Start,
-          color = MaterialTheme.colorScheme.onBackground
-        )
-      },
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SearchScreen(
+  component: SearchComponent,
+  modifier: Modifier = Modifier
+) {
+  val state by component.model.collectAsState()
 
-      query = state.query,
+  val focusRequester = remember { FocusRequester() }
+  LaunchedEffect(key1 = null) { focusRequester.requestFocus() }
 
-      onQueryChange = { component.onQueryChanged(it) },
-      onSearch = { component.onQueryChanged(it) },
-      active = true,
-      leadingIcon = {
-        IconButton(onClick = { component.onBackClicked() }) {
-          Icon(
-            modifier = Modifier.size(24.dp),
-            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-            contentDescription = stringResource(id = R.string.content_description_text_back_button)
-          )
-        }
-      },
-      trailingIcon = {
-        IconButton(onClick = { component.onClickedClearLine() }) {
-          Icon(
-            modifier = Modifier.size(24.dp),
-            imageVector = Icons.Default.Close,
-            contentDescription = stringResource(R.string.content_description_text_clear_line)
-          )
-        }
-      },
-      onActiveChange = {
-        if (!it) component.onBackClicked()
-      },
-      colors = SearchBarDefaults.colors(
-        containerColor = Color.Transparent
+  SearchBar(
+    modifier = modifier
+      .fillMaxWidth()
+      .padding(start = 16.dp, top = 24.dp, end = 16.dp, bottom = 16.dp)
+      .focusRequester(focusRequester = focusRequester)
+      .testTag(TEST_SEARCHBAR_TAG),
+
+    placeholder = {
+      Text(
+        modifier = Modifier
+          .padding(end = 16.dp),
+        text = stringResource(R.string.search_content_text_into_placeholder),
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.Normal,
+        fontSize = 16.sp,
+        textAlign = TextAlign.Start,
+        color = MaterialTheme.colorScheme.onBackground
       )
-    ) {
+    },
 
-      when (val searchState = state.state) {
+    query = state.query,
 
-        SearchStore.State.SearchState.Empty ->
-          ErrorMessage(
-            modifier = Modifier.align(Alignment.CenterHorizontally),
-            text = stringResource(R.string.search_content_message_text_nothing_found_on_your_request)
+    onQueryChange = { component.onQueryChanged(it) },
+    onSearch = { component.onQueryChanged(it) },
+    active = true,
+    leadingIcon = {
+      IconButton(onClick = { component.onBackClicked() }) {
+        Icon(
+          modifier = Modifier.size(24.dp),
+          imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+          contentDescription = stringResource(id = R.string.settings_content_description_text_back_button)
+        )
+      }
+    },
+    trailingIcon = {
+      IconButton(onClick = { component.onClickedClearLine() }) {
+        Icon(
+          modifier = Modifier.size(24.dp),
+          imageVector = Icons.Default.Close,
+          contentDescription = stringResource(R.string.content_description_text_clear_line)
+        )
+      }
+    },
+    onActiveChange = {
+      if (!it) component.onBackClicked()
+    },
+    colors = SearchBarDefaults.colors(
+      containerColor = Color.Transparent,
+      inputFieldColors = SearchBarDefaults.inputFieldColors()
+    )
+  ) {
+
+    when (val searchState = state.state) {
+
+      SearchStore.State.SearchState.Empty ->
+        ErrorMessage(
+          modifier = Modifier.align(Alignment.CenterHorizontally),
+          text = stringResource(R.string.search_content_message_text_nothing_found_on_your_request)
+        )
+
+
+      SearchStore.State.SearchState.Error ->
+        ErrorMessage(
+          modifier = Modifier.align(Alignment.CenterHorizontally),
+          text = stringResource(R.string.search_content_message_text_error_something_gone_wrong)
+        )
+
+      SearchStore.State.SearchState.Initial -> {}
+      SearchStore.State.SearchState.Loading -> {
+        Box(
+          modifier = Modifier.fillMaxSize(),
+          contentAlignment = Alignment.Center
+        ) {
+          CircularProgressIndicator(
+            color = MaterialTheme.colorScheme.onBackground
           )
+        }
+      }
 
+      is SearchStore.State.SearchState.SuccessLoaded -> {
+        LazyColumn(
+          modifier = Modifier
+            .padding(top = 16.dp)
+            .fillMaxSize(),
+          verticalArrangement = Arrangement.spacedBy(16.dp),
+          horizontalAlignment = Alignment.Start,
+          contentPadding = PaddingValues()
+        ) {
 
-        SearchStore.State.SearchState.Error ->
-          ErrorMessage(
-            modifier = Modifier.align(Alignment.CenterHorizontally),
-            text = stringResource(R.string.search_content_message_text_error_something_gone_wrong)
-          )
+          items(
+            items = searchState.cities,
+            key = { item -> item.id }
+          ) { item ->
 
-        SearchStore.State.SearchState.Initial -> {}
-        SearchStore.State.SearchState.Loading -> {
-          Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-          ) {
-            CircularProgressIndicator(
+            Text(
+              modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.Start)
+                .clickable { component.onItemClicked(city = item.toCityScreen()) }
+                .testTag(TEST_SEARCH_TEXT_TAG),
+              text = item.name + ", " + item.region + ", " + item.country,
+              fontFamily = FontFamily.SansSerif,
+              fontWeight = FontWeight.Normal,
+              fontSize = 16.sp,
+              textAlign = TextAlign.Start,
               color = MaterialTheme.colorScheme.onBackground
             )
           }
         }
-
-        is SearchStore.State.SearchState.SuccessLoaded -> {
-          LazyColumn(
-            modifier = Modifier
-              .padding(top = 16.dp)
-              .fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            horizontalAlignment = Alignment.Start,
-            contentPadding = PaddingValues()
-          ) {
-
-            items(
-              items = searchState.cities,
-              key = { item -> item.id }
-            ) { item ->
-
-              Text(
-                modifier = Modifier
-                  .fillMaxWidth()
-                  .align(Alignment.Start)
-                  .clickable { component.onItemClicked(city = item.toCityScreen()) }
-                  .testTag(TEST_SEARCH_TEXT_TAG),
-                text = item.name + ", " + item.region + ", " + item.country,
-                fontFamily = FontFamily.SansSerif,
-                fontWeight = FontWeight.Normal,
-                fontSize = 16.sp,
-                textAlign = TextAlign.Start,
-                color = MaterialTheme.colorScheme.onBackground
-              )
-            }
-          }
-        }
-
-        SearchStore.State.SearchState.NotEnoughLetters ->
-          ErrorMessage(
-            modifier = Modifier.align(Alignment.CenterHorizontally),
-            text = stringResource(R.string.search_content_message_enter_more_than_3_letters_to_start_the_search)
-          )
       }
+
+      SearchStore.State.SearchState.NotEnoughLetters ->
+        ErrorMessage(
+          modifier = Modifier.align(Alignment.CenterHorizontally),
+          text = stringResource(R.string.search_content_message_enter_more_than_3_letters_to_start_the_search)
+        )
     }
   }
 }

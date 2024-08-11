@@ -92,7 +92,7 @@ private fun RadioButtonUnit(
         bottomEnd = shapesRadioButtonUnit.bottomEnd
       )
       )
-      .background(MaterialTheme.colorScheme.surfaceVariant),
+      .background(MaterialTheme.colorScheme.surface),
     horizontalArrangement = Arrangement.SpaceBetween,
     verticalAlignment = Alignment.CenterVertically
   ) {

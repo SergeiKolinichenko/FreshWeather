@@ -6,9 +6,15 @@ import com.arkivanov.mvikotlin.core.store.StoreFactory
 import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineBootstrapper
 import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineExecutor
 import info.sergeikolinichenko.domain.entity.City
+import info.sergeikolinichenko.domain.entity.Weather
+import info.sergeikolinichenko.domain.usecases.favourite.ChangeFavouriteStateUseCase
 import info.sergeikolinichenko.domain.usecases.favourite.GetFavouriteCitiesUseCase
+import info.sergeikolinichenko.domain.usecases.search.SearchCitiesUseCase
 import info.sergeikolinichenko.domain.usecases.weather.GetWeatherUseCase
+import info.sergeikolinichenko.myapplication.utils.toCity
 import info.sergeikolinichenko.myapplication.utils.toCityScreen
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -16,6 +22,8 @@ import javax.inject.Inject
 class FavouriteStoreFactory @Inject constructor(
   private val storeFactory: StoreFactory,
   private val getFavouriteCities: GetFavouriteCitiesUseCase,
+  private val changeFavouriteStateUseCase: ChangeFavouriteStateUseCase,
+  private val searchCities: SearchCitiesUseCase,
   private val getWeatherUseCase: GetWeatherUseCase
 ) {
   fun create(): FavouriteStore =
@@ -51,9 +59,12 @@ class FavouriteStoreFactory @Inject constructor(
       val iconUrl: String
     ) : Message
 
-    data class WeatherLoadingError(val cityId: Int) : Message
+    data class WeatherLoadingError(
+      val city: City,
+      val error: Throwable
+    ) : Message
 
-    data class WeatherLoading(val cityId: Int) : Message
+    data class WeatherLoading(val id: Int) : Message
 
     data object DropDownMenuOpened : Message
 
@@ -70,6 +81,12 @@ class FavouriteStoreFactory @Inject constructor(
 
             result.isSuccess -> {
               result.getOrNull()?.let { cities ->
+                cities.forEach { city ->
+                  if (city.lat == 0.0 || city.lon == 0.0) {
+                    cityInfoAdd(city, changeFavouriteStateUseCase, searchCities)
+                  }
+                }
+
                 dispatch(Action.FavouriteCitiesUploaded(cities))
               }
             }
@@ -87,19 +104,16 @@ class FavouriteStoreFactory @Inject constructor(
       Action,
       FavouriteStore.State,
       Message,
-      FavouriteStore.Label>() {
+      FavouriteStore.Label>()
+  {
 
     override fun executeIntent(intent: FavouriteStore.Intent) {
       when (intent) {
 
         is FavouriteStore.Intent.SearchClicked -> publish(FavouriteStore.Label.OnClickSearch)
 
-        is FavouriteStore.Intent.ItemCityClicked -> publish(
-          FavouriteStore.Label.OnClickCity(
-            intent.city,
-            intent.numberGradient
-          )
-        )
+        is FavouriteStore.Intent.ItemCityClicked ->
+          publish(FavouriteStore.Label.OnClickCity(intent.id))
 
         FavouriteStore.Intent.ActionMenuClicked -> dispatch(Message.DropDownMenuOpened)
 
@@ -141,18 +155,18 @@ class FavouriteStoreFactory @Inject constructor(
 
       dispatch(Message.FavoriteCityUploaded(cities))
 
-      cities.forEach {
+      cities.forEach { city ->
 
-        dispatch(Message.WeatherLoading(it.id))
+        dispatch(Message.WeatherLoading(city.id))
 
-        val result = getWeatherUseCase(it.id)
+        val result = getWeatherUseCase.invoke(city)
 
         when {
           result.isSuccess -> {
             val weather = result.getOrNull()!!
             dispatch(
               Message.CurrentWeatherLoaded(
-                cityId = it.id,
+                cityId = city.id,
                 temp = weather.temp,
                 maxTemp = weather.maxTemp,
                 minTemp = weather.minTemp,
@@ -163,7 +177,7 @@ class FavouriteStoreFactory @Inject constructor(
           }
 
           result.isFailure -> {
-            dispatch(Message.WeatherLoadingError(it.id))
+            dispatch(Message.WeatherLoadingError(city, result.exceptionOrNull()!!))
           }
         }
       }
@@ -209,7 +223,7 @@ class FavouriteStoreFactory @Inject constructor(
         is Message.WeatherLoading -> {
           copy(
             cityItems = cityItems.map { cityItem ->
-              if (cityItem.city.id == msg.cityId) {
+              if (cityItem.city.id == msg.id) {
                 cityItem.copy(
                   weatherLoadingState = FavouriteStore.State.WeatherLoadingState.Loading
                 )
@@ -221,11 +235,17 @@ class FavouriteStoreFactory @Inject constructor(
         }
 
         is Message.WeatherLoadingError -> {
+
           copy(
             cityItems = cityItems.map { cityItem ->
-              if (cityItem.city.id == msg.cityId) {
+
+              if (cityItem.city.toCity() == msg.city) {
+
                 cityItem.copy(
-                  weatherLoadingState = FavouriteStore.State.WeatherLoadingState.Error
+                  weatherLoadingState = FavouriteStore.State.WeatherLoadingState.Error(
+                    cityName = msg.city.name,
+                    codeError = msg.error.message ?: ""
+                  )
                 )
               } else {
                 cityItem
@@ -243,5 +263,16 @@ class FavouriteStoreFactory @Inject constructor(
         Message.FavouriteCityLoadingError ->
           copy(listCitiesLoadedState = FavouriteStore.State.ListCitiesLoadedState.Error)
       }
+  }
+}
+
+private suspend fun cityInfoAdd(
+  city: City,
+  changeFavouriteStateUseCase: ChangeFavouriteStateUseCase,
+  searchCities: SearchCitiesUseCase,
+) {
+  val searchedCity = searchCities(city.name)
+  if (searchedCity.isNotEmpty()) {
+    changeFavouriteStateUseCase.addToFavourite(searchedCity.first())
   }
 }

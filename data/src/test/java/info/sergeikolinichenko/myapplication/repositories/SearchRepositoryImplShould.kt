@@ -1,70 +1,81 @@
 package info.sergeikolinichenko.myapplication.repositories
 
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.times
-import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.whenever
-import info.sergeikolinichenko.domain.entity.City
+import info.sergeikolinichenko.myapplication.mappers.toListCities
+import info.sergeikolinichenko.myapplication.network.api.ApiFactory
 import info.sergeikolinichenko.myapplication.network.api.ApiService
 import info.sergeikolinichenko.myapplication.network.dto.CityDto
-import info.sergeikolinichenko.myapplication.utils.cityDto
+import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.runBlocking
-import okhttp3.ResponseBody.Companion.toResponseBody
-import org.junit.Assert
+import org.junit.Before
 import org.junit.Test
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
 import retrofit2.Response
+
 
 /** Created by Sergei Kolinichenko on 19.06.2024 at 14:38 (GMT+3) **/
 
 class SearchRepositoryImplShould {
-  // region constants
-  private val apiService = mock<ApiService>()
-  private val query = "query"
-  private val exception = Exception("Some kind of message")
-  // endregion constants
+  private lateinit var repository: SearchRepositoryImpl
+  private lateinit var mockApiService: ApiService
+  private lateinit var mockApiFactory: ApiFactory
 
-  private val SUT = SearchRepositoryImpl(apiService)
-
-  @Test
-  fun `get Response with List of CityDto from ApiService`(): Unit = runBlocking {
-    // Arrange
-    whenever(apiService.searchCities(query)).thenReturn(Response.success(listOf(cityDto)))
-    // Act
-    SUT.searchCities(query)
-    // Assert
-    verify(apiService, times(1)).searchCities(query)
-  }
-  @Test
-  fun `return List of CityDto from ApiService`(): Unit = runBlocking {
-    // Arrange
-    whenever(apiService.searchCities(query)).thenReturn(Response.success(listOf(cityDto)))
-    // Act
-    val result = SUT.searchCities(query)
-    // Assert
-    assert(result.first() == listOf(cityDto).first().toCity())
-  }
-  @Test
-  fun `get error of receiving List of CityDto from ApiService`(): Unit = runBlocking {
-    // Arrange
-    whenever(apiService.searchCities(query)).thenReturn(Response.error(
-      400,
-      "".toByteArray().toResponseBody(null)
-    ))
-    // Act
-    val thrown = Assert.assertThrows(Exception::class.java) { runBlocking { SUT.searchCities(query) } }
-    // Assert
-    assert(thrown.cause == exception.cause)
-    assert(thrown.message == "Error while searching cities")
+  @Before
+  fun setup() {
+    mockApiService = mock()
+    mockApiFactory = mock {
+      on { getWeatherapiApi() } doReturn mockApiService}
+    repository = SearchRepositoryImpl(mockApiFactory)
   }
 
-  // region helper functions
-  private fun CityDto.toCity(): City {
-    return City(
-      id = idCity,
-      name = nameCity,
-      country = countryCity,
-      region = regionCity
+  @Test
+  fun `searchCities returns a list of cities when response is successful`() = runBlocking {
+    // Arrange
+    val query = "London"
+    val cityDto1 = CityDto(
+      idCity = 1,
+      nameCity = "London",
+      regionCity = "England",
+      countryCity = "United Kingdom",
+      lat = 51.5074,
+      lon = 0.1278,
     )
+    val cityDto2 = CityDto(
+      idCity = 2,
+      nameCity = "Londonderry",
+      regionCity = "Northern Ireland",
+      countryCity = "United Kingdom",
+      lat = 55.0074,
+      lon = -7.3078
+    )
+    val cityListDto = listOf(cityDto1, cityDto2)
+    val expectedCityList = cityListDto.toListCities()
+    val response= Response.success(cityListDto)
+
+    doReturn(response).`when`(mockApiService).searchCities(query)
+
+    // Act
+    val result = repository.searchCities(query)
+
+    // Assert
+    assertEquals(expectedCityList, result)
   }
-  // endregion helper functions
+
+  @Test
+  fun `searchCities throws exception when response is not successful`() = runBlocking {
+    // Arrange
+    val query = "London"
+    val response = Response.error<List<CityDto>>(404, mock())
+
+    doReturn(response).`when`(mockApiService).searchCities(query)
+
+    // Act & Assert
+    try {
+      repository.searchCities(query)
+      assert(false) // Should not reach this line
+    } catch (e: Exception) {
+      assertEquals("Error while searching cities", e.message)
+    }
+  }
+
 }

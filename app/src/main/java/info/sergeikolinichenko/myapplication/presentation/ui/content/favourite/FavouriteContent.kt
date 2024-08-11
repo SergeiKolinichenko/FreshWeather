@@ -46,7 +46,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import info.sergeikolinichenko.myapplication.R
-import info.sergeikolinichenko.myapplication.entity.CityForScreen
 import info.sergeikolinichenko.myapplication.presentation.screens.favourite.component.FavouriteComponent
 import info.sergeikolinichenko.myapplication.presentation.screens.favourite.store.FavouriteStore
 
@@ -64,14 +63,14 @@ fun FavouriteContent(
       .fillMaxSize()
       .background(MaterialTheme.colorScheme.background)
   ) {
+
     FavoriteVerticalGrid(
-      modifier = Modifier.align(Alignment.TopCenter),
+      modifier = Modifier
+        .align(Alignment.TopCenter),
       state = state,
       onClickSearch = { component.onSearchClicked() },
       onClickActionMenu = { component.onActionMenuClicked() },
-      onItemClicked = { city, numberGradient ->
-        component.onItemClicked(city = city, numberGradient = numberGradient)
-      },
+      onItemClicked = { component.onItemClicked(it) },
       onDismissRequestDropdownMenu = { component.onClosingActionMenu() },
       onClickSettings = { component.onItemMenuSettingsClicked() }
     )
@@ -125,30 +124,30 @@ private fun FavoriteVerticalGrid(
   lazyListState: LazyListState = rememberLazyListState(),
   onClickSearch: () -> Unit,
   onClickActionMenu: () -> Unit,
-  onItemClicked: (CityForScreen, Int) -> Unit,
+  onItemClicked: (Int) -> Unit,
   onDismissRequestDropdownMenu: () -> Unit,
   onClickSettings: () -> Unit
 ) {
+
   LazyVerticalGrid(
     modifier = modifier
       .fillMaxSize()
       .padding(16.dp),
     columns = GridCells.Fixed(columns),
     verticalArrangement = Arrangement.spacedBy(16.dp),
-    horizontalArrangement = Arrangement.spacedBy(16.dp),
-    content = {
+    horizontalArrangement = Arrangement.spacedBy(16.dp)
+  ){
       cityGridContent(
         state = state,
         columns = columns,
         lazyListState = lazyListState,
         onClickSearch = { onClickSearch() },
         onClickActionMenu = { onClickActionMenu() },
-        onItemClicked = { city, gradient -> onItemClicked(city, gradient) },
+        onItemClicked = { onItemClicked(it) },
         onDismissRequestDropdownMenu = { onDismissRequestDropdownMenu() },
         onClickSettings = { onClickSettings() }
       )
     }
-  )
 }
 
 private fun LazyGridScope.cityGridContent(
@@ -157,7 +156,7 @@ private fun LazyGridScope.cityGridContent(
   lazyListState: LazyListState,
   onClickSearch: () -> Unit,
   onClickActionMenu: () -> Unit,
-  onItemClicked: (CityForScreen, Int) -> Unit,
+  onItemClicked: (Int) -> Unit,
   onDismissRequestDropdownMenu: () -> Unit,
   onClickSettings: () -> Unit
 ) {
@@ -185,6 +184,7 @@ private fun LazyGridScope.cityGridContent(
     }
 
     FavouriteStore.State.ListCitiesLoadedState.Loaded -> {
+
       itemsIndexed(
         items = state.value.cityItems,
         key = { _, item -> item.city.id }
@@ -193,19 +193,18 @@ private fun LazyGridScope.cityGridContent(
         val animation = tween<Float>(durationMillis = 500, delayMillis = delay, easing = easing)
         val args = ScaleAndAlphaArgs(fromScale = 2f, toScale = 1f, fromAlpha = 0f, toAlpha = 1f)
         val (scale, alpha) = scaleAndAlpha(args = args, animation = animation)
-        val numberGradient = index % 5
+
         CityCard(
           modifier = Modifier
             .graphicsLayer(alpha = alpha, scaleX = scale, scaleY = scale),
           item = item,
-          onItemClicked = { onItemClicked(item.city, numberGradient) }
+          onItemClicked = { onItemClicked(item.city.id) }
         )
       }
     }
 
     FavouriteStore.State.ListCitiesLoadedState.Initial -> {}
   }
-
 }
 
 // Block for animation enter CityCard

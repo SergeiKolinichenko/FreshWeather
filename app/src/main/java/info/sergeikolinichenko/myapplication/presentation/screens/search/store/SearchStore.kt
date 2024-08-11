@@ -39,7 +39,6 @@ interface SearchStore : Store<Intent, State, Label> {
 
   sealed interface Label {
     data object ClickedBack : Label
-    data object SavedToFavorite : Label
-    data class OpenCityForecast(val city: CityForScreen) : Label
+    data object ClickedCityItem : Label
   }
 }

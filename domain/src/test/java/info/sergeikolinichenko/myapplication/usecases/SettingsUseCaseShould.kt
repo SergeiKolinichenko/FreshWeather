@@ -1,9 +1,5 @@
 package info.sergeikolinichenko.myapplication.usecases
 
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.times
-import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.whenever
 import info.sergeikolinichenko.domain.entity.Settings
 import info.sergeikolinichenko.domain.repositories.SettingsRepository
 import info.sergeikolinichenko.domain.usecases.settings.SettingsUseCase
@@ -12,6 +8,10 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
 import org.junit.Test
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 
 /** Created by Sergei Kolinichenko on 17.07.2024 at 14:47 (GMT+3) **/
 

@@ -1,6 +1,5 @@
 package info.sergeikolinichenko.myapplication.usecases
 
-import com.nhaarman.mockitokotlin2.verify
 import info.sergeikolinichenko.domain.entity.City
 import info.sergeikolinichenko.domain.repositories.FavouriteRepository
 import info.sergeikolinichenko.domain.usecases.favourite.ChangeFavouriteStateUseCase
@@ -9,6 +8,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.mockito.Mockito
 import org.mockito.Mockito.mock
+import org.mockito.kotlin.verify
 
 /** Created by Sergei Kolinichenko on 15.06.2024 at 16:31 (GMT+3) **/
 

@@ -17,13 +17,12 @@ import kotlinx.coroutines.launch
 
 class DefaultDetailsComponent @AssistedInject constructor(
   @Assisted("onClickBack") private val onClickBack: () -> Unit,
-  @Assisted("city") private val city: CityForScreen,
-  @Assisted("numberGradient") private val numberGradient: Int = 0,
+  @Assisted("id") id: Int,
   @Assisted("componentContext") private val componentContext: ComponentContext,
   private val storeFactory: DetailsStoreFactory
 ) : DetailsComponent, ComponentContext by componentContext {
 
-  private val store = instanceKeeper.getStore { storeFactory.create(city, numberGradient) }
+  private val store = instanceKeeper.getStore { storeFactory.create(id = id) }
   private val scope = componentScope()
 
   init {
@@ -41,12 +40,12 @@ class DefaultDetailsComponent @AssistedInject constructor(
   override fun onBackClicked() = store.accept(DetailsStore.Intent.OnBackClicked)
   override fun onChangeFavouriteStatusClicked() =
     store.accept(DetailsStore.Intent.ChangeFavouriteStatusClicked)
+
   @AssistedFactory
   interface Factory {
     fun create(
       @Assisted("onClickBack") onClickBack: () -> Unit,
-      @Assisted("city") city: CityForScreen,
-      @Assisted("numberGradient") gradient: Int,
+      @Assisted("id") id: Int,
       @Assisted("componentContext") componentContext: ComponentContext
     ): DefaultDetailsComponent
   }

@@ -29,7 +29,7 @@ fun DropdownMenu(
 
   DropdownMenu(
     modifier = modifier
-      .background(MaterialTheme.colorScheme.surfaceContainer),
+      .background(MaterialTheme.colorScheme.surfaceVariant),
     expanded = state == FavouriteStore.State.DropDownMenuState.OpenMenu,
     onDismissRequest = { onDismissRequest() },
   ) {

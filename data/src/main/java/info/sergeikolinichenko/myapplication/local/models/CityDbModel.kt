@@ -1,5 +1,6 @@
 package info.sergeikolinichenko.myapplication.local.models
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -10,5 +11,9 @@ data class CityDbModel(
   val id: Int,
   val name: String,
   val region: String,
-  val country: String
+  val country: String,
+  @ColumnInfo(defaultValue = "0.0")
+  val lat: Double,
+  @ColumnInfo(defaultValue = "0.0")
+  val lon: Double
 )

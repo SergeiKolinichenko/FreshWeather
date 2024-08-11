@@ -1,5 +1,6 @@
 package info.sergeikolinichenko.domain.usecases.weather
 
+import info.sergeikolinichenko.domain.entity.City
 import info.sergeikolinichenko.domain.repositories.WeatherRepository
 import javax.inject.Inject
 
@@ -9,5 +10,5 @@ import javax.inject.Inject
 class GetForecastUseCase @Inject constructor(
   private val repository: WeatherRepository
 ){
-  suspend operator fun invoke(id: Int) = repository.getForecast(id)
+  suspend operator fun invoke(city: City) = repository.getForecast(city)
 }

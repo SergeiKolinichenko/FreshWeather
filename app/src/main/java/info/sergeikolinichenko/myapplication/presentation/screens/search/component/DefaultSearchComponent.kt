@@ -17,8 +17,7 @@ import kotlinx.coroutines.launch
 
 class DefaultSearchComponent @AssistedInject constructor(
   @Assisted("onClickBack") private val onClickBack: () -> Unit,
-  @Assisted("onClickItem") private val onClickItem: (CityForScreen) -> Unit,
-  @Assisted("savedToFavourite") private val savedToFavourite: () -> Unit,
+  @Assisted("onClickItem") private val onClickItem: () -> Unit,
   @Assisted("componentContext") private val componentContext: ComponentContext,
   private val storeFactory: SearchStoreFactory
 ) : SearchComponent, ComponentContext by componentContext {
@@ -31,8 +30,7 @@ class DefaultSearchComponent @AssistedInject constructor(
       store.labels.collect { label ->
         when (label) {
           SearchStore.Label.ClickedBack -> onClickBack()
-          SearchStore.Label.SavedToFavorite -> savedToFavourite()
-          is SearchStore.Label.OpenCityForecast -> onClickItem(label.city)
+          SearchStore.Label.ClickedCityItem -> onClickItem()
         }
       }
     }
@@ -55,8 +53,7 @@ class DefaultSearchComponent @AssistedInject constructor(
   interface Factory {
     fun create(
       @Assisted("onClickBack") onClickBack: () -> Unit,
-      @Assisted("onClickItem") onClickItem: (CityForScreen) -> Unit,
-      @Assisted("savedToFavourite") savedToFavourite: () -> Unit,
+      @Assisted("onClickItem") onClickItem: () -> Unit,
       @Assisted("componentContext") componentContext: ComponentContext
     ): DefaultSearchComponent
   }

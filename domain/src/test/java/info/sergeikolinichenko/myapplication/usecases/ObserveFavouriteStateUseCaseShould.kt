@@ -1,9 +1,5 @@
 package info.sergeikolinichenko.myapplication.usecases
 
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.times
-import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.whenever
 import info.sergeikolinichenko.domain.repositories.FavouriteRepository
 import info.sergeikolinichenko.domain.usecases.favourite.ObserveFavouriteStateUseCase
 import kotlinx.coroutines.flow.first
@@ -11,6 +7,10 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
 import org.junit.Test
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 
 /** Created by Sergei Kolinichenko on 16.06.2024 at 13:57 (GMT+3) **/
 

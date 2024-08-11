@@ -1,6 +1,7 @@
 package info.sergeikolinichenko.myapplication.presentation.root
 
 import android.os.Parcelable
+import android.util.Log
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.stack.ChildStack
 import com.arkivanov.decompose.router.stack.StackNavigation
@@ -18,7 +19,6 @@ import info.sergeikolinichenko.myapplication.presentation.screens.favourite.comp
 import info.sergeikolinichenko.myapplication.presentation.screens.search.component.DefaultSearchComponent
 import info.sergeikolinichenko.myapplication.presentation.screens.settings.component.DefaultSettingsComponent
 import kotlinx.parcelize.Parcelize
-import kotlin.random.Random
 
 class DefaultRootComponent @AssistedInject constructor(
   private val detailsComponentFactory: DefaultDetailsComponent.Factory,
@@ -47,8 +47,8 @@ class DefaultRootComponent @AssistedInject constructor(
         componentContext = componentContext,
         onClickSearch = { navigation.push(Config.Search) },
         onClickItemMenuSettings = { navigation.push(Config.Settings) },
-        onItemClicked = { city, numberGradient ->
-          navigation.push(Config.Details(city = city, numberGradient = numberGradient))
+        onItemClicked = { id ->
+          navigation.push(Config.Details(id = id))
         }
       )
       RootComponent.Child.Favourite(component)
@@ -57,8 +57,7 @@ class DefaultRootComponent @AssistedInject constructor(
     is Config.Details -> {
       val component = detailsComponentFactory.create(
         componentContext = componentContext,
-        city = config.city,
-        gradient = config.numberGradient,
+        id = config.id,
         onClickBack = { navigation.pop() }
       )
       RootComponent.Child.Details(component)
@@ -68,15 +67,7 @@ class DefaultRootComponent @AssistedInject constructor(
       val component = searchComponentFactory.create(
         componentContext = componentContext,
         onClickBack = { navigation.pop() },
-        onClickItem = {
-          navigation.push(
-            Config.Details(
-              city = it,
-              numberGradient = Random.nextInt(0, 5)
-            )
-          )
-        },
-        savedToFavourite = { navigation.pop() }
+        onClickItem = { navigation.pop() },
       )
       RootComponent.Child.Search(component)
     }
@@ -101,7 +92,7 @@ class DefaultRootComponent @AssistedInject constructor(
     data object Favourite : Config
 
     @Parcelize
-    data class Details(val city: CityForScreen, val numberGradient: Int) : Config
+    data class Details(val id: Int) : Config
 
     @Parcelize
     data object Search : Config

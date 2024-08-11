@@ -13,26 +13,26 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
-import com.bumptech.glide.integration.compose.GlideImage
 import info.sergeikolinichenko.myapplication.R
 import info.sergeikolinichenko.myapplication.presentation.screens.favourite.store.FavouriteStore
+import info.sergeikolinichenko.myapplication.utils.toIconId
 
 /** Created by Sergei Kolinichenko on 13.07.2024 at 17:54 (GMT+3) **/
 
-@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 internal fun CityCard(
   modifier: Modifier = Modifier,
@@ -43,22 +43,33 @@ internal fun CityCard(
   Card(
     modifier = modifier
       .fillMaxWidth()
-      .sizeIn(minWidth = 348.dp, minHeight = 136.dp),
+      .sizeIn(minHeight = 136.dp),
   ) {
     Box(
       modifier = Modifier
         .fillMaxSize()
-        .background(MaterialTheme.colorScheme.surfaceVariant)
+        .background(MaterialTheme.colorScheme.surface)
     ) {
       when (val weatherState = item.weatherLoadingState) {
-        FavouriteStore.State.WeatherLoadingState.Error -> {
+        is FavouriteStore.State.WeatherLoadingState.Error -> {
+
+          // Error message
+
           Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
           ) {
             Text(
-              text = stringResource(R.string.favourite_content_error_weather_for_city),
-              style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.W600)
+              modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp)
+                .align(Alignment.Center),
+              text = stringResource(
+                R.string.favourite_content_error_weather_for_city,
+                weatherState.codeError,
+                weatherState.cityName
+              ),
+              style = MaterialTheme.typography.titleMedium
             )
           }
         }
@@ -66,24 +77,33 @@ internal fun CityCard(
         FavouriteStore.State.WeatherLoadingState.Initial -> {}
 
         is FavouriteStore.State.WeatherLoadingState.LoadedWeatherLoading -> {
+
+          // Weather in city
+
           Column(
             modifier = Modifier
-              .clickable { onItemClicked() }
-              .fillMaxSize(),
-            verticalArrangement = Arrangement.SpaceBetween
+              .fillMaxSize()
+              .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 12.dp)
+              .clickable { onItemClicked() },
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
           ) {
+
+            // City name, temperature and icon
+
             Row(
-              Modifier
-                .fillMaxWidth()
-                .padding(start = 16.dp, end = 16.dp, top = 12.dp)
-                .sizeIn(minWidth = 348.dp, minHeight = 80.dp)
-                .alpha(90f),
-              horizontalArrangement = Arrangement.SpaceBetween
+              modifier = Modifier.fillMaxWidth(),
+              horizontalArrangement = Arrangement.SpaceBetween,
+              verticalAlignment = Alignment.Top
             ) {
-              Column {
+
+              Column(
+                horizontalAlignment = Alignment.Start,
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+              ) {
                 Text(
                   text = item.city.name,
-                  style = MaterialTheme.typography.titleLarge.copy(),
+                  style = MaterialTheme.typography.titleLarge,
                   color = MaterialTheme.colorScheme.onBackground
                 )
                 Text(
@@ -92,34 +112,40 @@ internal fun CityCard(
                   color = MaterialTheme.colorScheme.onBackground
                 )
               }
-              GlideImage(
-                modifier = Modifier
-                  .size(80.dp),
-                model = weatherState.iconUrl,
-                contentDescription = stringResource(R.string.favourite_content_description_weather_icon)
+              Icon(
+                modifier = Modifier.size(80.dp),
+                painter = painterResource(id = weatherState.iconUrl.toIconId()),
+                tint = Color.Unspecified,
+                contentDescription = null
               )
             }
+
+            // Description, max and min temperature
+
             Row(
-              modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 12.dp)
-                .sizeIn(minWidth = 348.dp, minHeight = 16.dp),
               horizontalArrangement = Arrangement.SpaceBetween,
-              verticalAlignment = Alignment.Bottom
+              verticalAlignment = Alignment.CenterVertically
             ) {
+
+              // description
+
               BottomText(
                 modifier = Modifier
-                  .weight(1f),
+                  .weight(2f),
                 text = weatherState.description
               )
-              Box(
+
+              // max and min temperature
+
+              Column(
                 modifier = Modifier
-                  .padding(start = 34.dp)
-                  .weight(2f)
+                  .weight(1f),
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.spacedBy(8.dp)
               ) {
                 Row(
-                  modifier = Modifier.align(Alignment.BottomStart),
-                  horizontalArrangement = Arrangement.SpaceAround
+                  horizontalArrangement = Arrangement.spacedBy(4.dp),
+                  verticalAlignment = Alignment.CenterVertically
                 ) {
                   BottomText(
                     text = "Max: "
@@ -129,8 +155,8 @@ internal fun CityCard(
                   )
                 }
                 Row(
-                  modifier = Modifier.align(Alignment.BottomEnd),
-                  horizontalArrangement = Arrangement.SpaceEvenly
+                  horizontalArrangement = Arrangement.spacedBy(4.dp),
+                  verticalAlignment = Alignment.CenterVertically
                 ) {
                   BottomText(
                     text = "Min: "
@@ -167,7 +193,7 @@ private fun BottomText(
     text = text,
     fontFamily = FontFamily.SansSerif,
     fontWeight = FontWeight.Medium,
-    fontSize = 12.sp,
+    fontSize = 11.sp,
     textAlign = TextAlign.Start,
     lineHeight = 16.sp,
     color = MaterialTheme.colorScheme.onBackground
