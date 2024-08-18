@@ -30,10 +30,9 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import info.sergeikolinichenko.domain.entity.Forecast
 import info.sergeikolinichenko.myapplication.R
 import info.sergeikolinichenko.myapplication.utils.LinearGradient
-import info.sergeikolinichenko.myapplication.utils.TITLE_ICON_SIZE
+import info.sergeikolinichenko.myapplication.utils.TITLE_ICON_SIZE_16
 import info.sergeikolinichenko.myapplication.utils.toPerCentFromFloat
 import info.sergeikolinichenko.myapplication.utils.toUvToStringId
 
@@ -44,7 +43,9 @@ internal const val MAXIMUM_UV = 11
 @Composable
 internal fun UvIndexAndCloudiness(
   modifier: Modifier = Modifier,
-  forecast: Forecast
+  uvIndex: Int,
+  cloudCover: Float,
+  precipitation: String?
 ) {
 
   Row(
@@ -55,15 +56,15 @@ internal fun UvIndexAndCloudiness(
   ) {
     WeatherConditionsBlock(
       modifier = Modifier.weight(1f),
-      uvIndex = forecast.currentForecast.uvIndex,
+      uvIndex = uvIndex,
       cloudiness = null,
       precipitation = null
     )
     WeatherConditionsBlock(
       modifier = Modifier.weight(1f),
-      cloudiness = forecast.currentForecast.cloudCover.toPerCentFromFloat(),
+      cloudiness = cloudCover.toPerCentFromFloat(),
       uvIndex = null,
-      precipitation = if (forecast.currentForecast.precipProb > 0) forecast.currentForecast.precip else null,
+      precipitation = precipitation,
     )
   }
 }
@@ -104,7 +105,7 @@ private fun WeatherConditionsBlock(
 
         Icon(
           modifier = Modifier
-            .size(TITLE_ICON_SIZE.dp),
+            .size(TITLE_ICON_SIZE_16.dp),
           imageVector = ImageVector.vectorResource(id = iconId),
           tint = MaterialTheme.colorScheme.surfaceTint,
           contentDescription = stringResource(R.string.details_cintent_description_uv_index_icon)
@@ -149,7 +150,7 @@ private fun WeatherConditionsBlock(
 
           Icon(
             modifier = Modifier
-              .size(TITLE_ICON_SIZE.dp),
+              .size(TITLE_ICON_SIZE_16.dp),
             imageVector = ImageVector.vectorResource(id = R.drawable.horly_rain),
             tint = MaterialTheme.colorScheme.surfaceTint,
             contentDescription = stringResource(R.string.details_cintent_description_uv_index_icon)

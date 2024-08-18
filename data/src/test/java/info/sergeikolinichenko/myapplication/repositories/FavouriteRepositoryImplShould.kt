@@ -58,24 +58,6 @@ class FavouriteRepositoryImplShould : BaseUnitTestsRules() {
   }
 
   @Test
-  fun `load true state of observe if city is exist in favorite`(): Unit = runBlocking {
-    // Arrange
-    whenever(dao.observeIsFavourite(id)).thenReturn(flow { emit(true) })
-    // Act
-    val result = SUT.observeIsFavourite(id).first()
-    // Assert
-    assert(result)
-  }
-  @Test
-  fun `load false state of observe if city is not exist in favorite`(): Unit = runBlocking {
-    // Arrange
-    whenever(dao.observeIsFavourite(id)).thenReturn(flow { emit(false) })
-    // Act
-    val result = SUT.observeIsFavourite(id).first()
-    // Assert
-    assert(!result)
-  }
-  @Test
   fun `save city to favorite`(): Unit = runBlocking {
     // Arrange
     val city = testCityDbModel.toCityInTest()

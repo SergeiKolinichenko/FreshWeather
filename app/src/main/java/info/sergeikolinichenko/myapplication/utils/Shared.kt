@@ -4,8 +4,11 @@ import androidx.compose.ui.graphics.Color
 
 /** Created by Sergei Kolinichenko on 26.07.2024 at 10:37 (GMT+3) **/
 
-const val TITLE_ICON_SIZE = 16
-const val WEATHER_ICON_SIZE = 36
+const val TITLE_ICON_SIZE_16 = 16
+const val SYS_ICON_SIZE_24 = 24
+const val WEATHER_ICON_SIZE_36 = 36
+const val ORDER_LIST_CITIES_CHANGED = true
+const val ORDER_LIST_CITIES_NOT_CHANGED = false
 
 internal object LinearGradient {
   val gradientUvIndex = arrayOf(

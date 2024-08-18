@@ -1,4 +1,4 @@
-package info.sergeikolinichenko.myapplication.presentation.ui.content.details
+package info.sergeikolinichenko.myapplication.presentation.ui.content.details.current
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -20,9 +20,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import info.sergeikolinichenko.domain.entity.Forecast
 import info.sergeikolinichenko.myapplication.R
-import info.sergeikolinichenko.myapplication.entity.CityForScreen
+import info.sergeikolinichenko.myapplication.entity.CityFs
+import info.sergeikolinichenko.myapplication.entity.ForecastFs
 import info.sergeikolinichenko.myapplication.utils.toIconId
 
 /** Created by Sergei Kolinichenko on 04.08.2024 at 10:51 (GMT+3) **/
@@ -30,8 +30,8 @@ import info.sergeikolinichenko.myapplication.utils.toIconId
 @Composable
 internal fun CurrentWeather(
   modifier: Modifier = Modifier,
-  forecast: Forecast,
-  city: CityForScreen
+  forecast: ForecastFs,
+  city: CityFs
 ) {
 
   Column(
@@ -54,14 +54,21 @@ internal fun CurrentWeather(
           textAlign = TextAlign.Start,
           color = MaterialTheme.colorScheme.onBackground
         )
-        Text(
-          text = forecast.currentForecast.temp,
-          fontFamily = FontFamily.SansSerif,
-          fontWeight = FontWeight.Normal,
-          fontSize = 80.sp,
-          textAlign = TextAlign.Start,
-          color = MaterialTheme.colorScheme.onBackground
-        )
+
+        Row(
+          verticalAlignment = Alignment.CenterVertically,
+          horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+          Text(
+            text = forecast.currentForecast.temp,
+            fontFamily = FontFamily.SansSerif,
+            fontWeight = FontWeight.Normal,
+            fontSize = 80.sp,
+            textAlign = TextAlign.Start,
+            color = MaterialTheme.colorScheme.onBackground
+          )
+        }
+
         Text(
           text = stringResource(
             R.string.details_content_current_weather_text_feels_like,
@@ -88,3 +95,7 @@ internal fun CurrentWeather(
     )
   }
 }
+
+const val TEMPERATURE_RISES = "TEMPERATURE RISES"
+const val TEMPERATURE_DROPS = "TEMPERATURE DROPS"
+const val ERROR_TEMPERATURE = "ERROR TEMPERATURE"

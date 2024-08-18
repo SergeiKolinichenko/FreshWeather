@@ -1,7 +1,6 @@
 package info.sergeikolinichenko.myapplication.presentation.screens.favourite.component
 
 import com.arkivanov.decompose.ComponentContext
-import com.arkivanov.essenty.lifecycle.doOnDestroy
 import com.arkivanov.mvikotlin.core.instancekeeper.getStore
 import com.arkivanov.mvikotlin.extensions.coroutines.labels
 import com.arkivanov.mvikotlin.extensions.coroutines.stateFlow
@@ -9,7 +8,7 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import info.sergeikolinichenko.domain.entity.City
-import info.sergeikolinichenko.myapplication.entity.CityForScreen
+import info.sergeikolinichenko.myapplication.presentation.screens.editing.store.EditingFavouritesStore
 import info.sergeikolinichenko.myapplication.presentation.screens.favourite.store.FavouriteStore
 import info.sergeikolinichenko.myapplication.presentation.screens.favourite.store.FavouriteStoreFactory
 import info.sergeikolinichenko.myapplication.utils.componentScope
@@ -19,9 +18,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class DefaultFavouriteComponent @AssistedInject constructor(
-  @Assisted("onClickSearch") onSearchClicked: () -> Unit,
-  @Assisted("onClickItemMenuSettings") onClickItemMenuSettings: () -> Unit,
-  @Assisted("onItemClicked") onItemClicked: (Int) -> Unit,
+  @Assisted("onSearchClicked") private val onClickedSearch: () -> Unit,
+  @Assisted("onItemClicked") private val onClickedItem: (Int) -> Unit,
+  @Assisted("onClickItemMenuSettings") private val onClickItemMenuSettings: () -> Unit,
+  @Assisted("onClickItemMenuEditing") private val onClickItemMenuEditing: (List<EditingFavouritesStore.State.CityItem>) -> Unit,
   @Assisted("componentContext") private val componentContext: ComponentContext,
   private val storeFactory: FavouriteStoreFactory
 ) : FavouriteComponent, ComponentContext by componentContext {
@@ -33,9 +33,15 @@ class DefaultFavouriteComponent @AssistedInject constructor(
     scope.launch {
       store.labels.collect { label ->
         when (label) {
-          FavouriteStore.Label.OnClickSearch -> onSearchClicked()
-          is FavouriteStore.Label.OnClickCity -> onItemClicked(label.id)
+          FavouriteStore.Label.OnClickSearch -> {
+            onClickedSearch()
+          }
+          is FavouriteStore.Label.OnClickCity -> {
+            onClickedItem(label.id)
+          }
           FavouriteStore.Label.OnClickItemMenuSettings -> onClickItemMenuSettings()
+          is FavouriteStore.Label.OnClickItemMenuEditing ->
+            onClickItemMenuEditing(label.cities)
         }
       }
     }
@@ -63,8 +69,16 @@ class DefaultFavouriteComponent @AssistedInject constructor(
     store.accept(FavouriteStore.Intent.ReloadWeather(list))
   }
 
+  override fun reloadCities() {
+    store.accept(FavouriteStore.Intent.ReloadCities)
+  }
+
   override fun onItemMenuSettingsClicked() {
     store.accept(FavouriteStore.Intent.ItemMenuSettingsClicked)
+  }
+
+  override fun onItemMenuEditingClicked() {
+    store.accept(FavouriteStore.Intent.ItemMenuEditingClicked)
   }
 
   override fun onItemClicked(id: Int) {
@@ -73,9 +87,10 @@ class DefaultFavouriteComponent @AssistedInject constructor(
   @AssistedFactory
   interface Factory {
     fun create(
-      @Assisted("onClickSearch") onClickSearch: () -> Unit,
+      @Assisted("onSearchClicked") onSearchClick: () -> Unit,
+      @Assisted("onItemClicked") onItemClick: (Int) -> Unit,
       @Assisted("onClickItemMenuSettings") onClickItemMenuSettings: () -> Unit,
-      @Assisted("onItemClicked") onItemClicked: (Int) -> Unit,
+      @Assisted("onClickItemMenuEditing") onClickItemMenuEditing: (List<EditingFavouritesStore.State.CityItem>) -> Unit,
       @Assisted("componentContext") componentContext: ComponentContext
     ): DefaultFavouriteComponent
   }

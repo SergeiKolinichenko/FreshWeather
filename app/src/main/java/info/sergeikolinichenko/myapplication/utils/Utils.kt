@@ -1,33 +1,35 @@
 package info.sergeikolinichenko.myapplication.utils
 
 import android.content.Context
-import android.os.Build
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.essenty.lifecycle.doOnDestroy
-import com.arkivanov.mvikotlin.core.store.StoreFactory
-import info.sergeikolinichenko.domain.entity.City
-import info.sergeikolinichenko.domain.entity.HourForecast
 import info.sergeikolinichenko.myapplication.R
 import info.sergeikolinichenko.myapplication.entity.ChartsHourlyScreenValues
-import info.sergeikolinichenko.myapplication.entity.CityForScreen
+import info.sergeikolinichenko.myapplication.entity.HourForecastFs
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import java.text.SimpleDateFormat
 import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
-import java.time.LocalTime
 import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+import java.time.format.TextStyle
 import java.util.Calendar
 import java.util.Locale
 import java.util.TimeZone
-import kotlin.math.abs
 import kotlin.math.roundToInt
 
 /** Created by Sergei Kolinichenko on 25.02.2024 at 16:40 (GMT+3) **/
@@ -58,102 +60,72 @@ internal fun Int.toUvToStringId() = when {
   else -> R.string.details_content_nothing
 }
 
-internal fun Calendar.formattedFullDate(): String {
-  val format = SimpleDateFormat("EEEE ⁞ d MMM y ⁞ HH:mm", Locale.getDefault())
-  format.isLenient = false
-  format.timeZone = this.timeZone
-  return format.format(time)
+internal fun getTwoLettersDayOfTheWeek(time: Long, tzId: String): String {
+  val instant = Instant.ofEpochSecond(time)
+  val zoneId = ZoneId.of(tzId)
+  val zonedDateTime = ZonedDateTime.ofInstant(instant, zoneId)
+  val dayOfWeek = zonedDateTime.dayOfWeek
+  return dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault()).take(2)
 }
 
-internal fun Calendar.formattedShortDayOfWeek(): String {
-  val format = SimpleDateFormat("EEE ⁞ dd.MM", Locale.getDefault())
-  format.isLenient = false
-  format.timeZone = this.timeZone
-  return format.format(time)
+internal fun getNumberDayOfMonth(time: Long, tzId: String): String {
+  val instant = Instant.ofEpochSecond(time)
+  val zoneId = ZoneId.of(tzId)
+  val zonedDateTime = ZonedDateTime.ofInstant(instant, zoneId)
+  return zonedDateTime.dayOfMonth.toString()
 }
 
-internal fun Calendar.formattedOnlyMonth(): String {
-  val format = SimpleDateFormat("dd.MM", Locale.getDefault())
-  format.isLenient = false
-  format.timeZone = this.timeZone
-  return format.format(time)
+internal fun getDayOfWeekName(time: Long, tzId: String): String {
+  val instant = Instant.ofEpochSecond(time)
+  val zoneId = ZoneId.of(tzId)
+  val zonedDateTime = ZonedDateTime.ofInstant(instant, zoneId)
+  val dayOfWeek = zonedDateTime.dayOfWeek
+  return dayOfWeek.getDisplayName(TextStyle.FULL, Locale.getDefault())
 }
 
-internal fun Calendar.formattedFullHour(): String {
-  val format = SimpleDateFormat("HH:mm", Locale.getDefault())
-  format.isLenient = false
-  format.timeZone = this.timeZone
-  return format.format(time)
+fun getTime(time: Long, tzId: String): String {
+  val instant = Instant.ofEpochSecond(time)
+  val zoneId = ZoneId.of(tzId)
+  val zonedDateTime = ZonedDateTime.ofInstant(instant, zoneId)
+  val formatter = DateTimeFormatter.ofPattern("HH:mm")
+  return zonedDateTime.format(formatter)
 }
 
-internal fun Calendar.formattedShortHour(): String {
-  val format = SimpleDateFormat("HH:m", Locale.getDefault())
-  format.isLenient = false
-  format.timeZone = this.timeZone
-  return format.format(time)
-}
-
-internal fun Calendar.formattedDayAndNameOfTheMonth(): String {
-  val format = SimpleDateFormat("d MMMM", Locale.getDefault())
-  format.isLenient = false
-  format.timeZone = this.timeZone
-  return format.format(time)
-}
-
-internal fun Calendar.formattedDayOfWeek(): String {
-  val format = SimpleDateFormat("EEEE", Locale.getDefault())
-  format.isLenient = false
-  format.timeZone = this.timeZone
-  val string = format.format(time)
-  return string.replaceFirstChar { it.titlecase(Locale.getDefault()) }
-}
-
-internal fun Calendar.formattedDateOfWeek(): String {
-  val format = SimpleDateFormat("d MMMM", Locale.getDefault())
-  format.isLenient = false
-  format.timeZone = this.timeZone
-  return format.format(time)
-}
-
-internal fun String.to24HourString(): String {
-
-  return if (this.contains("No ")) {
-    "--"
-  } else {
-    val inputFormatter = DateTimeFormatter.ofPattern("hh:mm a", Locale.US)
-    val outputFormatter = DateTimeFormatter.ofPattern("HH:mm")
-    val time = LocalTime.parse(this, inputFormatter)
-    time.format(outputFormatter)
-  }
-}
-
-internal fun String.toTitleMoonRise(): Boolean {
-  return if (this.contains("No ")) {
-    false
-  } else {
-    val amPm = this.substring(this.length - 2)
-    return amPm == "AM"
-  }
+fun getDayAndMonthName(time: Long, tzId: String): String {
+  val instant = Instant.ofEpochSecond(time)
+  val zoneId = ZoneId.of(tzId)
+  val zonedDateTime = ZonedDateTime.ofInstant(instant, zoneId)
+  val dayOfMonth = zonedDateTime.dayOfMonth
+  val monthName = zonedDateTime.month.getDisplayName(TextStyle.FULL, Locale.getDefault())
+  return "$dayOfMonth $monthName"
 }
 
 internal fun isTodayOrTomorrow(timeEpoch: Long, timeZoneId: String): Int {
   val now = LocalDate.now(ZoneId.of(timeZoneId))
   val date = Instant.ofEpochSecond(timeEpoch).atZone(ZoneId.of(timeZoneId)).toLocalDate()
 
-  return when {
-    date == now -> R.string.details_content_tittle_sun_moon_block_today
-    date == now.plusDays(1) -> R.string.details_content_tittle_sun_moon_block_tomorrow
+  return when (date) {
+    now -> R.string.details_content_tittle_sun_moon_block_today
+    now.plusDays(1) -> R.string.details_content_tittle_sun_moon_block_tomorrow
     else -> R.string.details_content_nothing
   }
 }
 
-internal fun toTimeDurationInSky(epoch1: Long, epoch2: Long, context: Context) = run {
-  val duration = Duration.between(Instant.ofEpochSecond(epoch1), Instant.ofEpochSecond(epoch2))
-  val hours = duration.toHours()
+internal fun durationBetweenTwoTimes(
+  startTimeEpoch: Long,
+  endTimeEpoch: Long,
+  context: Context
+): String {
+  val startTime = Instant.ofEpochSecond(startTimeEpoch)
+  val endTime = Instant.ofEpochSecond(endTimeEpoch)
+  val duration = Duration.between(startTime, endTime)
+
+  val totalHours = duration.toHours()
+  val hours = if (totalHours < 0) (totalHours % 24) + 24 else totalHours % 24
   val minutes =
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) duration.toMinutesPart().toLong()
-    else duration.toMinutes() - hours * 60
-  context.getString(R.string.details_content_string_time_duration_h_min, hours, minutes)
+    if (duration.toMinutes() < 0) (duration.toMinutes() % 60) + 60 else duration.toMinutes() % 60
+
+  return context.getString(R.string.details_content_string_time_duration_h_min, hours, minutes)
 }
 
 internal fun Float.toPhaseOfMoonStringId() = when {
@@ -189,25 +161,7 @@ internal fun Float.toWindDirection() = when {
   else -> -R.string.details_content_nothing
 }
 
-internal fun City.toCityScreen() = CityForScreen(
-  id = id,
-  name = name,
-  region = region,
-  country = country,
-  lat = lat,
-  lon = lon
-)
-
-internal fun CityForScreen.toCity() = City(
-  id = id,
-  name = name,
-  region = region,
-  country = country,
-  lat = lat,
-  lon = lon
-)
-
-private fun HourForecast.toChartsHourlyScreenValues() = ChartsHourlyScreenValues(
+private fun HourForecastFs.toChartsHourlyScreenValues() = ChartsHourlyScreenValues(
   date = date,
   pressureFloat = pressure.substringBeforeLast('\n').toFloat(),
   pressureString = pressure,
@@ -216,7 +170,7 @@ private fun HourForecast.toChartsHourlyScreenValues() = ChartsHourlyScreenValues
   icon = icon
 )
 
-internal fun List<HourForecast>.toListChartsHourlyScreenValues() =
+internal fun List<HourForecastFs>.toListChartsHourlyScreenValues() =
   map { it.toChartsHourlyScreenValues() }
 
 internal fun Float.fromKphToStringId() = when {
@@ -236,32 +190,12 @@ internal fun Float.fromKphToStringId() = when {
   else -> -1
 }
 
-internal fun String.toDegree() = when {
-  this == "N" -> 0f
-  this == "NNE" -> 22.5f
-  this == "NE" -> 45f
-  this == "ENE" -> 67.5f
-  this == "E" -> 90f
-  this == "ESE" -> 112.5f
-  this == "SE" -> 135f
-  this == "SSE" -> 157.5f
-  this == "S" -> 180f
-  this == "SSW" -> 202.5f
-  this == "SW" -> 225f
-  this == "WSW" -> 247.5f
-  this == "W" -> 270f
-  this == "WNW" -> 292.5f
-  this == "NW" -> 315f
-  this == "NNW" -> 337.5f
-  else -> 0f
-}
-
 internal fun toPrecipitationTypeString(context: Context, list: List<String>?): String? {
 
   if (list.isNullOrEmpty()) return null // Handle null or empty list early
 
   val stringResources = mapOf(
-    "rain" to R.string.details_content_rain,"snow" to R.string.details_content_snow,
+    "rain" to R.string.details_content_rain, "snow" to R.string.details_content_snow,
     "freezingrain" to R.string.details_content_freezingrain,
     "ice" to R.string.details_content_ice,
     "nothing" to R.string.details_content_nothing
@@ -298,6 +232,18 @@ internal fun String.toIconId() = when {
   this == "thunder-showers-night" -> R.mipmap.ic_thunder_showers_night
   this == "hail" -> R.mipmap.ic_hail
   else -> R.mipmap.ic_clear_day
+}
+
+@Composable
+internal fun DividingLine(
+  modifier: Modifier = Modifier
+) {
+  Spacer(
+    modifier = modifier
+      .fillMaxWidth()
+      .height(1.dp)
+      .background(MaterialTheme.colorScheme.surfaceBright)
+  )
 }
 
 @Composable

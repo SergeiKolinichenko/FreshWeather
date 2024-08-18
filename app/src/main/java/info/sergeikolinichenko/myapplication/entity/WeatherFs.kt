@@ -5,7 +5,7 @@ import kotlinx.parcelize.Parcelize
 
 /** Created by Sergei Kolinichenko on 11.03.2024 at 15:30 (GMT+3) **/
 @Parcelize
-data class WeatherScreen(
+data class WeatherFs(
   val date: Long,
   val temperature: String,
   val descriptionWeather: String,

@@ -19,6 +19,8 @@ interface SettingsComponent {
 
   fun setPressureType(type: PRESSURE)
 
+  fun setDaysOfWeather(days: Int)
+
   fun onClickedEvaluateApp(context: Context)
 
   fun onClickedWriteDevelopers(context: Context)

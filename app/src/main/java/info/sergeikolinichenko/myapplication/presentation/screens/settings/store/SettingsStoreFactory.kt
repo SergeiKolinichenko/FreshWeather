@@ -9,9 +9,11 @@ import info.sergeikolinichenko.domain.entity.PRECIPITATION
 import info.sergeikolinichenko.domain.entity.PRESSURE
 import info.sergeikolinichenko.domain.entity.Settings
 import info.sergeikolinichenko.domain.entity.TEMPERATURE
+import info.sergeikolinichenko.domain.usecases.settings.DaysOfWeatherUseCase
 import info.sergeikolinichenko.domain.usecases.settings.SettingsUseCase
+import info.sergeikolinichenko.myapplication.presentation.screens.details.SourceOfOpening
 import info.sergeikolinichenko.myapplication.presentation.ui.content.settings.nonuifuns.evaluateApp
-import info.sergeikolinichenko.myapplication.presentation.ui.content.settings.nonuifuns.writeSDevelopers
+import info.sergeikolinichenko.myapplication.presentation.ui.content.settings.nonuifuns.writeToDevelopers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -19,29 +21,34 @@ import javax.inject.Inject
 
 class SettingsStoreFactory @Inject constructor(
   private val storeFactory: StoreFactory,
-  private val settingsUseCase: SettingsUseCase
+  private val settingsUseCase: SettingsUseCase,
+  private val daysOfWeatherUseCase: DaysOfWeatherUseCase
 ) {
 
-  fun create(): SettingsStore = object : SettingsStore,
+  fun create(sourceOfOpening: SourceOfOpening): SettingsStore = object : SettingsStore,
     Store<SettingsStore.Intent, SettingsStore.State, SettingsStore.Label>
     by storeFactory.create(
       name = "SettingsStore",
       initialState = SettingsStore.State(
         temperature = TEMPERATURE.CELSIUS,
         precipitation = PRECIPITATION.MM,
-        pressure = PRESSURE.HPA
+        pressure = PRESSURE.HPA,
+        daysOfWeather = 7
       ),
       bootstrapper = BootstrapperImpl(),
-      executorFactory = ::ExecutorImpl,
+      executorFactory = { ExecutorImpl(sourceOfOpening = sourceOfOpening) },
       reducer = ReducerImpl
     ) {}
 
   private sealed interface Action {
-    class SettingsLoaded(val settings: Settings) : Action
+    data class SettingsLoaded(val settings: Settings) : Action
+    data class DaysOfWeatherLoaded(val days: Int) : Action
   }
 
   private sealed interface Message {
     class SettingsLoaded(val settings: Settings) : Message
+    data class DaysOfWeatherLoaded(val days: Int) : Message
+    data class DaysOfWeatherChanged(val days: Int) : Message
     class ChangeOfTemperatureMeasure(val type: TEMPERATURE) : Message
     class ChangeOfPrecipitationMeasure(val type: PRECIPITATION) : Message
     class ChangeOfPressureMeasure(val type: PRESSURE) : Message
@@ -59,12 +66,13 @@ class SettingsStoreFactory @Inject constructor(
           precipitation = msg.settings.precipitation,
           pressure = msg.settings.pressure
         )
-
+        is Message.DaysOfWeatherLoaded -> copy(daysOfWeather = msg.days)
+        is Message.DaysOfWeatherChanged -> copy(daysOfWeather = msg.days)
       }
     }
   }
 
-  private inner class ExecutorImpl : CoroutineExecutor<SettingsStore.Intent,
+  private inner class ExecutorImpl(private val sourceOfOpening: SourceOfOpening) : CoroutineExecutor<SettingsStore.Intent,
       Action,
       SettingsStore.State,
       Message,
@@ -72,6 +80,7 @@ class SettingsStoreFactory @Inject constructor(
     override fun executeAction(action: Action) {
       when (action) {
         is Action.SettingsLoaded -> dispatch(Message.SettingsLoaded(settings = action.settings))
+        is Action.DaysOfWeatherLoaded -> dispatch(Message.DaysOfWeatherLoaded(days = action.days))
       }
     }
 
@@ -89,8 +98,9 @@ class SettingsStoreFactory @Inject constructor(
           dispatch(Message.ChangeOfTemperatureMeasure(type = intent.type))
 
         is SettingsStore.Intent.OnClickedDone -> {
+          daysOfWeatherUseCase.setDaysOfWeather(days = intent.daysOfWeather)
           settingsUseCase.setSettings(settings = intent.settings)
-          publish(SettingsStore.Label.SettingsSaved)
+          publish(SettingsStore.Label.SettingsSaved(sourceOfOpening = sourceOfOpening))
         }
 
         SettingsStore.Intent.OnClickedBack ->
@@ -101,8 +111,13 @@ class SettingsStoreFactory @Inject constructor(
         }
 
         is SettingsStore.Intent.ClickedWriteDevelopers -> {
-          val result = intent.context.writeSDevelopers()
+          val result = intent.context.writeToDevelopers()
         }
+
+        is SettingsStore.Intent.ChangeOfDaysOfWeather ->
+          if (intent.days in 0..14) {
+            dispatch(Message.DaysOfWeatherChanged(days = intent.days))
+          }
       }
     }
   }
@@ -113,6 +128,7 @@ class SettingsStoreFactory @Inject constructor(
         settingsUseCase.getSettings().collect {
           dispatch(Action.SettingsLoaded(settings = it))
         }
+        dispatch(Action.DaysOfWeatherLoaded(days = daysOfWeatherUseCase.getDaysOfWeather()))
       }
     }
   }

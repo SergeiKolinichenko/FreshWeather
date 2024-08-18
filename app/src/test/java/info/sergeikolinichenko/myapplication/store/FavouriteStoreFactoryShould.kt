@@ -2,25 +2,27 @@ package info.sergeikolinichenko.myapplication.store
 
 import com.arkivanov.mvikotlin.extensions.coroutines.labels
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.times
-import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.whenever
 import info.sergeikolinichenko.domain.entity.City
+import info.sergeikolinichenko.domain.usecases.favourite.ChangeFavouriteStateUseCase
 import info.sergeikolinichenko.domain.usecases.favourite.GetFavouriteCitiesUseCase
+import info.sergeikolinichenko.domain.usecases.search.SearchCitiesUseCase
 import info.sergeikolinichenko.domain.usecases.weather.GetWeatherUseCase
 import info.sergeikolinichenko.myapplication.utils.BaseUnitTestsRules
-import info.sergeikolinichenko.myapplication.entity.CityForScreen
+import info.sergeikolinichenko.myapplication.entity.CityFs
 import info.sergeikolinichenko.myapplication.presentation.screens.favourite.store.FavouriteStore
 import info.sergeikolinichenko.myapplication.presentation.screens.favourite.store.FavouriteStoreFactory
 import info.sergeikolinichenko.myapplication.utils.test
 import info.sergeikolinichenko.myapplication.utils.testCity
-import info.sergeikolinichenko.myapplication.utils.testCityForScreen
+import info.sergeikolinichenko.myapplication.utils.testCityFs
 import info.sergeikolinichenko.myapplication.utils.testWeather
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 
 /** Created by Sergei Kolinichenko on 02.07.2024 at 17:05 (GMT+3) **/
 
@@ -29,15 +31,19 @@ class FavouriteStoreFactoryShould : BaseUnitTestsRules() {
 
   // region constants
   private val factory = DefaultStoreFactory()
-  private val getFavouriteCities = mock<GetFavouriteCitiesUseCase>()
   private val getWeatherUseCase = mock<GetWeatherUseCase>()
+  private val getFavouriteCitiesUseCase = mock<GetFavouriteCitiesUseCase>()
+  private val changeFavouriteStateUseCase = mock<ChangeFavouriteStateUseCase>()
+  private val searchCitiesUseCase = mock<SearchCitiesUseCase>()
   private val cities = listOf(testCity)
   private val exception = Exception("Something went wrong")
   // endregion constants
 
   private val SUT = FavouriteStoreFactory(
     factory,
-    getFavouriteCities,
+    getFavouriteCitiesUseCase,
+    changeFavouriteStateUseCase,
+    searchCitiesUseCase,
     getWeatherUseCase
   )
 
@@ -48,7 +54,7 @@ class FavouriteStoreFactoryShould : BaseUnitTestsRules() {
     // Act
     SUT.create()
     // Assert
-    verify(getFavouriteCities, times(1)).invoke()
+    verify(getFavouriteCitiesUseCase, times(1)).invoke()
   }
 
   @Test
@@ -76,7 +82,7 @@ class FavouriteStoreFactoryShould : BaseUnitTestsRules() {
   @Test
   fun `check that when a class is created, the favourite cities are not loaded from DB cities state is error`(): Unit = runTest {
       // Arrange
-      whenever(getFavouriteCities.invoke()).thenReturn(flowOf(Result.failure(exception)))
+      whenever(getFavouriteCitiesUseCase.invoke()).thenReturn(flowOf(Result.failure(exception)))
       // Act
       val store = SUT.create()
       val testField = store.state.listCitiesLoadedState
@@ -91,19 +97,19 @@ class FavouriteStoreFactoryShould : BaseUnitTestsRules() {
     // Act
     SUT.create()
     // Assert
-    verify(getWeatherUseCase, times(1)).invoke(testCity.id)
+    verify(getWeatherUseCase, times(1)).invoke(testCity)
   }
 
   @Test
   fun `check that when a class is created, the favourite cities weather are not loaded from Network`(): Unit = runTest {
     // Arrange
-    whenever(getFavouriteCities.invoke()).thenReturn(flowOf(Result.success(cities)))
-    whenever(getWeatherUseCase.invoke(testCity.id)).thenReturn(Result.failure(exception))
+    whenever(getFavouriteCitiesUseCase.invoke()).thenReturn(flowOf(Result.success(cities)))
+    whenever(getWeatherUseCase.invoke(testCity)).thenReturn(Result.failure(exception))
     // Act
     val store = SUT.create()
     val testField = store.state.cityItems.first().weatherLoadingState
     // Assert
-    assert(testField == FavouriteStore.State.WeatherLoadingState.Error)
+    assert(testField is FavouriteStore.State.WeatherLoadingState.Error)
   }
 
   @Test
@@ -120,7 +126,7 @@ class FavouriteStoreFactoryShould : BaseUnitTestsRules() {
     assert(testField.maxTemp == testWeather.maxTemp)
     assert(testField.minTemp == testWeather.minTemp)
     assert(testField.description == testWeather.description)
-    assert(testField.iconUrl == testWeather.condIconUrl)
+    assert(testField.icon == testWeather.condIconUrl)
   }
 
   @Test
@@ -192,23 +198,25 @@ class FavouriteStoreFactoryShould : BaseUnitTestsRules() {
     // Act
     val store = SUT.create()
     val testField = store.labels.test()
-    store.accept(FavouriteStore.Intent.ItemCityClicked(testCityForScreen, 111))
+    store.accept(FavouriteStore.Intent.ItemCityClicked(testCityFs.id))
     // Assert
-    assert(testField == listOf(FavouriteStore.Label.OnClickCity(testCityForScreen, 111)))
+    assert(testField == listOf(FavouriteStore.Label.OnClickCity(testCityFs.id)))
   }
 
   // region helper functions
 
   private suspend fun mockSuccessResult() {
-    whenever(getFavouriteCities.invoke()).thenReturn(flowOf(Result.success(cities)))
-    whenever(getWeatherUseCase.invoke(testCity.id)).thenReturn(Result.success(testWeather))
+    whenever(getFavouriteCitiesUseCase.invoke()).thenReturn(flowOf(Result.success(cities)))
+    whenever(getWeatherUseCase.invoke(testCity)).thenReturn(Result.success(testWeather))
   }
 
-  private fun CityForScreen.toTestCityForTest() = City(
+  private fun CityFs.toTestCityForTest() = City(
     id = id,
     name = name,
     region = region,
-    country = country
+    country = country,
+    lat = 0.0,
+    lon = 0.0
   )
   // endregion helper functions
 

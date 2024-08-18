@@ -6,11 +6,12 @@ import android.os.Parcelable
 import com.arkivanov.essenty.instancekeeper.InstanceKeeper
 import com.arkivanov.mvikotlin.core.store.Store
 import info.sergeikolinichenko.domain.entity.City
-import info.sergeikolinichenko.myapplication.entity.CityForScreen
-import kotlinx.parcelize.Parcelize
+import info.sergeikolinichenko.myapplication.entity.CityFs
+import info.sergeikolinichenko.myapplication.presentation.screens.editing.store.EditingFavouritesStore
 import info.sergeikolinichenko.myapplication.presentation.screens.favourite.store.FavouriteStore.Intent
 import info.sergeikolinichenko.myapplication.presentation.screens.favourite.store.FavouriteStore.Label
 import info.sergeikolinichenko.myapplication.presentation.screens.favourite.store.FavouriteStore.State
+import kotlinx.parcelize.Parcelize
 
 interface FavouriteStore : Store<Intent, State, Label> {
 
@@ -19,6 +20,8 @@ interface FavouriteStore : Store<Intent, State, Label> {
     data object ActionMenuClicked : Intent
     data object ClosingActionMenu : Intent
     data object ItemMenuSettingsClicked : Intent
+    data object ItemMenuEditingClicked : Intent
+    data object ReloadCities: Intent
     data class ReloadWeather(val cities: List<City>) : Intent
     data class ItemCityClicked(val id: Int) : Intent
   }
@@ -32,7 +35,7 @@ interface FavouriteStore : Store<Intent, State, Label> {
 
     @Parcelize
     data class CityItem(
-      val city: CityForScreen,
+      val city: CityFs,
       val weatherLoadingState: WeatherLoadingState,
     ) : Parcelable
 
@@ -68,7 +71,7 @@ interface FavouriteStore : Store<Intent, State, Label> {
         val maxTemp: String,
         val minTemp: String,
         val description: String,
-        val iconUrl: String
+        val icon: String
       ) : WeatherLoadingState
 
     }
@@ -92,6 +95,9 @@ interface FavouriteStore : Store<Intent, State, Label> {
     data object OnClickSearch : Label
 
     data object OnClickItemMenuSettings : Label
+
+    data class OnClickItemMenuEditing(val cities: List<EditingFavouritesStore.State.CityItem>) :
+      Label
 
     data class OnClickCity(val id: Int) : Label
   }

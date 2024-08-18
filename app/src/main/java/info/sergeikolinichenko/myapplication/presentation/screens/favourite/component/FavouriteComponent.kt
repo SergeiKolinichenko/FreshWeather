@@ -1,6 +1,5 @@
 package info.sergeikolinichenko.myapplication.presentation.screens.favourite.component
 
-import info.sergeikolinichenko.myapplication.entity.CityForScreen
 import info.sergeikolinichenko.myapplication.presentation.screens.favourite.store.FavouriteStore
 import kotlinx.coroutines.flow.StateFlow
 
@@ -18,7 +17,11 @@ interface FavouriteComponent {
 
   fun reloadWeather()
 
+  fun reloadCities()
+
   fun onItemMenuSettingsClicked()
+
+  fun onItemMenuEditingClicked()
 
   fun onItemClicked(id: Int)
 }

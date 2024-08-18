@@ -1,22 +1,14 @@
-package info.sergeikolinichenko.myapplication.presentation.ui.content.details
+package info.sergeikolinichenko.myapplication.presentation.ui.content.details.current
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDownward
-import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -40,14 +32,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import info.sergeikolinichenko.domain.entity.Forecast
+import androidx.compose.ui.util.fastForEachIndexed
 import info.sergeikolinichenko.myapplication.R
+import info.sergeikolinichenko.myapplication.entity.ForecastFs
+import info.sergeikolinichenko.myapplication.utils.DividingLine
 import info.sergeikolinichenko.myapplication.utils.LinearGradient.gradientDailyTemp
-import info.sergeikolinichenko.myapplication.utils.TITLE_ICON_SIZE
-import info.sergeikolinichenko.myapplication.utils.WEATHER_ICON_SIZE
+import info.sergeikolinichenko.myapplication.utils.TITLE_ICON_SIZE_16
+import info.sergeikolinichenko.myapplication.utils.WEATHER_ICON_SIZE_36
 import info.sergeikolinichenko.myapplication.utils.convertLongToCalendarWithTz
-import info.sergeikolinichenko.myapplication.utils.formattedDateOfWeek
-import info.sergeikolinichenko.myapplication.utils.formattedDayOfWeek
+import info.sergeikolinichenko.myapplication.utils.getDayAndMonthName
+import info.sergeikolinichenko.myapplication.utils.getDayOfWeekName
 import info.sergeikolinichenko.myapplication.utils.toIconId
 import info.sergeikolinichenko.myapplication.utils.toPerCentFromFloat
 import info.sergeikolinichenko.myapplication.utils.toPrecipitationTypeString
@@ -58,7 +52,8 @@ import java.util.Calendar
 @Composable
 internal fun DailyWeatherForecast(
   modifier: Modifier = Modifier,
-  forecast: Forecast
+  forecast: ForecastFs,
+  onDayClicked: (Int) -> Unit
 ) {
 
   Card(
@@ -77,16 +72,17 @@ internal fun DailyWeatherForecast(
       horizontalAlignment = Alignment.Start
     ) {
 
-      TittleDailyWeatherForecast()
+      TittleDailyWeatherForecast(forecast = forecast)
 
       DividingLine()
 
-      for (day in forecast.upcomingDays.indices) {
+      forecast.upcomingDays.fastForEachIndexed { index, _ ->
 
         DailyWeatherItem(
           modifier = Modifier,
           forecast = forecast,
-          numberOfDay = day
+          numberOfDay = index,
+          onDayClicked = { onDayClicked(it) }
         )
 
         DividingLine()
@@ -96,20 +92,9 @@ internal fun DailyWeatherForecast(
 }
 
 @Composable
-private fun DividingLine(
-  modifier: Modifier = Modifier
-) {
-  Spacer(
-    modifier = modifier
-      .fillMaxWidth()
-      .height(1.dp)
-      .background(MaterialTheme.colorScheme.surfaceBright)
-  )
-}
-
-@Composable
 private fun TittleDailyWeatherForecast(
-  modifier: Modifier = Modifier
+  modifier: Modifier = Modifier,
+  forecast: ForecastFs,
 ) {
   Row(
     modifier = modifier
@@ -120,12 +105,12 @@ private fun TittleDailyWeatherForecast(
     Icon(
       modifier = Modifier
         .padding(end = 4.dp)
-        .size(TITLE_ICON_SIZE.dp),
+        .size(TITLE_ICON_SIZE_16.dp),
       imageVector = ImageVector.vectorResource(id = R.drawable.calendar),
       contentDescription = stringResource(R.string.details_content_description_icon_calendar)
     )
     Text(
-      text = stringResource(R.string.details_content_title_text_7_day_forecast),
+      text = stringResource(R.string.details_content_title_text_next_days_forecast, forecast.upcomingDays.size -1),
       fontFamily = FontFamily.SansSerif,
       fontWeight = FontWeight.Medium,
       fontSize = 12.sp,
@@ -138,8 +123,9 @@ private fun TittleDailyWeatherForecast(
 @Composable
 private fun DailyWeatherItem(
   modifier: Modifier = Modifier,
-  forecast: Forecast,
-  numberOfDay: Int
+  forecast: ForecastFs,
+  numberOfDay: Int,
+  onDayClicked: (Int) -> Unit
 ) {
 
   val day = forecast.upcomingDays[numberOfDay]
@@ -147,13 +133,11 @@ private fun DailyWeatherItem(
   val weekday = when (numberOfDay) {
     0 -> stringResource(R.string.details_content_daily_forecast_text_today)
     1 -> stringResource(R.string.details_content_daily_forecast_text_tomorrow)
-    else -> convertLongToCalendarWithTz(
-      day.date,
-      forecast.tzId
-    ).formattedDayOfWeek() }
+    else -> getDayOfWeekName(day.date, forecast.tzId)
+  }
 
   val icon = day.icon
-  val date = convertLongToCalendarWithTz(day.date, forecast.tzId).formattedDateOfWeek()
+  val date = getDayAndMonthName(day.date, forecast.tzId)
   val minTemp = day.tempMin
   val maxTemp = day.tempMax
   val chanceOfPrecip = day.precipProb
@@ -161,12 +145,11 @@ private fun DailyWeatherItem(
     context = LocalContext.current,
     list = day.precipType
   )
-  val iconArrow = if (forecast.temperatureDirectionDetection()) Icons.Default.ArrowUpward
-   else Icons.Default.ArrowDownward
 
   Row(
     modifier = modifier
-      .fillMaxWidth(),
+      .fillMaxWidth()
+      .clickable { if (!seeIfToday(day.date, forecast.tzId)) onDayClicked(numberOfDay) },
     verticalAlignment = Alignment.CenterVertically,
     horizontalArrangement = Arrangement.SpaceBetween
   ) {
@@ -194,7 +177,7 @@ private fun DailyWeatherItem(
     }
 
     Icon(
-      modifier = Modifier.size(WEATHER_ICON_SIZE.dp),
+      modifier = Modifier.size(WEATHER_ICON_SIZE_36.dp),
       painter = painterResource(id = icon.toIconId()),
       tint = Color.Unspecified,
       contentDescription = stringResource(R.string.details_content_text_description_weather_condition)
@@ -237,19 +220,7 @@ private fun DailyWeatherItem(
         style = MaterialTheme.typography.bodyMedium,
         color = MaterialTheme.colorScheme.onBackground
       )
-      Box(
-        modifier = Modifier
-          .fillMaxHeight()
-          .wrapContentWidth()
-          .padding(end = 4.dp)
-      ) {
-        Icon(
-          modifier = Modifier
-            .size(20.dp)
-            .align(Alignment.Center),
-          imageVector = iconArrow,
-          contentDescription = null)
-      }
+
       Text(
         modifier = modifier,
         text = minTemp,
@@ -260,11 +231,10 @@ private fun DailyWeatherItem(
   }
 }
 
-private fun Forecast.temperatureDirectionDetection(): Boolean {
-  val firstIndex = this.upcomingHours.indexOfFirst {
-    convertLongToCalendarWithTz(it.date, this.tzId) >= Calendar.getInstance()
-  }
-  return this.upcomingHours[firstIndex].temp > this.upcomingHours[firstIndex - 1].temp
+private fun seeIfToday(date: Long, tz: String): Boolean {
+  val calendar = convertLongToCalendarWithTz(date, tz)
+  val today = Calendar.getInstance()
+  return calendar.get(Calendar.DAY_OF_YEAR) == today.get(Calendar.DAY_OF_YEAR)
 }
 
 // may be it is not needed

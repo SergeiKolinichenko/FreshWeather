@@ -68,44 +68,11 @@ private fun SettingsScreen(
     horizontalAlignment = Alignment.Start
   ) {
     // Header
-    Box(
-      Modifier
-        .fillMaxWidth()
-        .align(Alignment.Start)
-    ) {
-      Row(
-        modifier = Modifier.align(Alignment.CenterStart)
-      ) {
-        Icon(
-          modifier = Modifier
-            .size(24.dp)
-            .clickable { component.onClickedBack() },
-          imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-          contentDescription = stringResource(id = R.string.settings_content_description_text_back_button)
-        )
-        Text(
-          modifier = Modifier
-            .padding(start = 20.dp),
-          text = stringResource(R.string.settings_content_title_settings),
-          fontFamily = FontFamily.SansSerif,
-          fontWeight = FontWeight.Normal,
-          fontSize = 22.sp,
-          textAlign = TextAlign.Start,
-          color = MaterialTheme.colorScheme.onBackground
-        )
-      }
-      Text(
-        modifier = Modifier
-          .align(Alignment.CenterEnd)
-          .clickable { component.onClickedSaveSettings() },
-        text = stringResource(R.string.settings_content_button_done),
-        fontFamily = FontFamily.SansSerif,
-        fontWeight = FontWeight.Medium,
-        fontSize = 16.sp,
-        textAlign = TextAlign.Start,
-        color = MaterialTheme.colorScheme.onBackground
-      )
-    }
+    ScreenTopBar(
+      modifier = Modifier.align(Alignment.Start),
+      onClickedBack = { component.onClickedBack() },
+      onClickedSaveSettings = { component.onClickedSaveSettings() }
+    )
     // Block units
     // Unit Temperature
 
@@ -152,9 +119,12 @@ private fun SettingsScreen(
       onClickTopButton = { component.setPressureType(type = PRESSURE.MMHG) },
       onClickBottomButton = { component.setPressureType(type = PRESSURE.HPA) }
     )
-
+    // Unit Quantity
+    DaysOfWeather(
+      state = state,
+      daysOfWeather = { component.setDaysOfWeather(days = it) }
+    )
     // Unit Evaluate the application
-
     WideButton(
       textId = R.string.settings_content_unit_evaluate_the_application
     ) { context ->
@@ -172,5 +142,50 @@ private fun SettingsScreen(
     ) { context ->
       component.onClickedWriteDevelopers(context)
     }
+  }
+}
+
+@Composable
+private fun ScreenTopBar(
+  modifier: Modifier = Modifier,
+  onClickedBack: () -> Unit,
+  onClickedSaveSettings: () -> Unit,
+) {
+  Box(
+   modifier = modifier
+      .fillMaxWidth()
+  ) {
+    Row(
+      modifier = Modifier.align(Alignment.CenterStart)
+    ) {
+      Icon(
+        modifier = Modifier
+          .size(24.dp)
+          .clickable { onClickedBack() },
+        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+        contentDescription = stringResource(id = R.string.settings_content_description_text_back_button)
+      )
+      Text(
+        modifier = Modifier
+          .padding(start = 20.dp),
+        text = stringResource(R.string.settings_content_title_settings),
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.Normal,
+        fontSize = 22.sp,
+        textAlign = TextAlign.Start,
+        color = MaterialTheme.colorScheme.onBackground
+      )
+    }
+    Text(
+      modifier = Modifier
+        .align(Alignment.CenterEnd)
+        .clickable { onClickedSaveSettings() },
+      text = stringResource(R.string.many_place_title_button_done),
+      fontFamily = FontFamily.SansSerif,
+      fontWeight = FontWeight.Medium,
+      fontSize = 16.sp,
+      textAlign = TextAlign.Start,
+      color = MaterialTheme.colorScheme.onBackground
+    )
   }
 }

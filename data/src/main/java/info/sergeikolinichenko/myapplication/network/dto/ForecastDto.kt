@@ -124,6 +124,9 @@ data class HourForecastDto(
   @SerializedName("precipprob")
   val precipProb: Float,
 
+  @SerializedName("preciptype")
+  val precipType: List<String>?,
+
   val humidity: Float,
 
   val pressure: Float,

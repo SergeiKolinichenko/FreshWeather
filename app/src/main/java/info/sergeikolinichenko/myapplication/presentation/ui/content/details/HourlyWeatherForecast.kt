@@ -1,11 +1,11 @@
 package info.sergeikolinichenko.myapplication.presentation.ui.content.details
 
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideIn
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
@@ -27,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
@@ -35,23 +35,23 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import info.sergeikolinichenko.domain.entity.Forecast
 import info.sergeikolinichenko.myapplication.R
-import info.sergeikolinichenko.myapplication.utils.WEATHER_ICON_SIZE
-import info.sergeikolinichenko.myapplication.utils.convertLongToCalendarWithTz
-import info.sergeikolinichenko.myapplication.utils.formattedFullHour
+import info.sergeikolinichenko.myapplication.entity.HourForecastFs
+import info.sergeikolinichenko.myapplication.utils.WEATHER_ICON_SIZE_36
+import info.sergeikolinichenko.myapplication.utils.getTime
 import info.sergeikolinichenko.myapplication.utils.toIconId
 import info.sergeikolinichenko.myapplication.utils.toPerCentFromFloat
-import java.util.Calendar
+import info.sergeikolinichenko.myapplication.utils.toPrecipitationTypeString
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 
 /** Created by Sergei Kolinichenko on 23.07.2024 at 18:30 (GMT+3) **/
-
-private const val MAXIMUM_HOURS = 23
 
 @Composable
 internal fun AnimatingHourlyWeatherForecast(
   modifier: Modifier = Modifier,
-  forecast: Forecast
+  list: List<HourForecastFs>?,
+  tzId: String
 ) {
   val state = remember {
     MutableTransitionState(false).apply { targetState = true }
@@ -62,26 +62,38 @@ internal fun AnimatingHourlyWeatherForecast(
         + slideIn(animationSpec = tween(500),
       initialOffset = { IntOffset(it.width, 0) }),
   ) {
-    HourlyWeatherForecast(
-      modifier = modifier,
-      forecast = forecast
-    )
+
+    list?.let {
+      HourlyWeatherForecast(
+        modifier = modifier,
+        list = list,
+        tzId = tzId
+      )
+    } ?: run {
+      Text(
+        modifier = Modifier
+          .fillMaxSize()
+          .padding(16.dp)
+          .background(MaterialTheme.colorScheme.surface),
+        text = stringResource(R.string.details_content_error_date_set_on_phone),
+        style = MaterialTheme.typography.titleLarge,
+        textAlign = TextAlign.Center,
+        color = MaterialTheme.colorScheme.onBackground
+      )
+    }
   }
 }
 
 @Composable
 internal fun HourlyWeatherForecast(
   modifier: Modifier = Modifier,
-  forecast: Forecast
+  list: List<HourForecastFs>,
+  tzId: String
 ) {
-
-  val firstIndex = forecast.upcomingHours.indexOfFirst {
-    convertLongToCalendarWithTz(it.date, forecast.tzId) >= Calendar.getInstance()
-  }
 
   Card(
     modifier = modifier
-      .height(136.dp),
+      .height(140.dp),
     colors = CardDefaults.cardColors(
       containerColor = MaterialTheme.colorScheme.surface
     )
@@ -95,38 +107,22 @@ internal fun HourlyWeatherForecast(
       verticalAlignment = Alignment.CenterVertically,
     ) {
 
-      if (firstIndex <= 0) {
-        item {
-          Text(
-            modifier = Modifier
-              .fillMaxHeight()
-              .width(300.dp)
-              .padding(8.dp)
-              .align(Alignment.CenterHorizontally),
-            text = stringResource(R.string.details_content_error_date_set_on_phone),
-            style = MaterialTheme.typography.titleLarge,
-            textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onBackground
-          )
-        }
-      } else {
-
-        val list = forecast.upcomingHours.subList(firstIndex - 1, firstIndex + MAXIMUM_HOURS)
-        val hours = list.mapIndexed { index, hour -> if (index == 0) hour.copy(date = 0L) else hour }
-
         items(
-          items = hours,
+          items = list,
           key = { it.date }
         ) {
           HourlyWeatherItem(
-            time = if (it.date == 0L) stringResource(R.string.details_content_title_now_date)
-            else convertLongToCalendarWithTz(it.date, forecast.tzId).formattedFullHour(),
+            time = if (it.date.isCurrentHour()) stringResource(R.string.details_content_title_now_date)
+            else getTime(it.date, tzId),
             icon = it.icon,
             chanceOfPrecip = it.precipProb,
+            precipType = toPrecipitationTypeString(
+              context = LocalContext.current,
+              list = it.precipType
+            ),
             temp = it.temp
           )
         }
-      }
     }
   }
 }
@@ -137,6 +133,7 @@ private fun HourlyWeatherItem(
   time: String,
   icon: String,
   chanceOfPrecip: Float,
+  precipType: String?,
   temp: String
 ) {
   Column(
@@ -153,17 +150,27 @@ private fun HourlyWeatherItem(
       color = MaterialTheme.colorScheme.onBackground
     )
     Icon(
-      modifier = Modifier.size(WEATHER_ICON_SIZE.dp),
+      modifier = Modifier.size(WEATHER_ICON_SIZE_36.dp),
       painter = painterResource(id = icon.toIconId()), //
       tint = Color.Unspecified,
       contentDescription = null
     )
-    if (chanceOfPrecip > 0f) {
+    if (chanceOfPrecip > 0f && precipType != null) {
+      Text(
+        text = precipType,
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W500,
+        fontSize = 10.sp,
+        textAlign = TextAlign.Center,
+        lineHeight = 10.sp,
+        color = MaterialTheme.colorScheme.onBackground
+      )
       Text(
         text = chanceOfPrecip.toPerCentFromFloat(),
         fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.Medium,
         fontSize = 12.sp,
+        lineHeight = 12.sp,
         textAlign = TextAlign.Center,
         color = MaterialTheme.colorScheme.onBackground
       )
@@ -176,3 +183,10 @@ private fun HourlyWeatherItem(
     )
   }
 }
+
+fun Long.isCurrentHour(): Boolean {
+  val now = Instant.now()
+  val hourStart = now.truncatedTo(ChronoUnit.HOURS).minus(1, ChronoUnit.HOURS)
+  val hourEnd = hourStart.plus(2, ChronoUnit.HOURS)
+  val targetTime = Instant.ofEpochSecond(this)
+  return  targetTime.isAfter(hourStart) && targetTime.isBefore(hourEnd)}

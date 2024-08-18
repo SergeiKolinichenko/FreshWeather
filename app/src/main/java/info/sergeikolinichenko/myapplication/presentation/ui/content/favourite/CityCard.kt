@@ -114,7 +114,7 @@ internal fun CityCard(
               }
               Icon(
                 modifier = Modifier.size(80.dp),
-                painter = painterResource(id = weatherState.iconUrl.toIconId()),
+                painter = painterResource(id = weatherState.icon.toIconId()),
                 tint = Color.Unspecified,
                 contentDescription = null
               )
@@ -148,7 +148,7 @@ internal fun CityCard(
                   verticalAlignment = Alignment.CenterVertically
                 ) {
                   BottomText(
-                    text = "Max: "
+                    text = stringResource(R.string.caption_max)
                   )
                   BottomText(
                     text = weatherState.maxTemp
@@ -159,7 +159,7 @@ internal fun CityCard(
                   verticalAlignment = Alignment.CenterVertically
                 ) {
                   BottomText(
-                    text = "Min: "
+                    text = stringResource(R.string.caption_min)
                   )
                   BottomText(
                     text = weatherState.minTemp

@@ -1,14 +1,11 @@
-package info.sergeikolinichenko.myapplication.presentation.ui.content.details
+package info.sergeikolinichenko.myapplication.presentation.ui.content.details.current
 
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideIn
-import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -24,11 +21,13 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -37,49 +36,31 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import info.sergeikolinichenko.myapplication.R
+import info.sergeikolinichenko.myapplication.entity.ForecastFs
+import info.sergeikolinichenko.myapplication.entity.HourForecastFs
 import info.sergeikolinichenko.myapplication.presentation.screens.details.component.DetailsComponent
 import info.sergeikolinichenko.myapplication.presentation.screens.details.store.DetailsStore
+import info.sergeikolinichenko.myapplication.presentation.ui.content.details.AnimatingHourlyWeatherForecast
+import info.sergeikolinichenko.myapplication.presentation.ui.content.details.Charts
+import info.sergeikolinichenko.myapplication.presentation.ui.content.details.HumidityWindPressure
+import info.sergeikolinichenko.myapplication.presentation.ui.content.details.SunAndMoon
+import info.sergeikolinichenko.myapplication.presentation.ui.content.details.UvIndexAndCloudiness
+import info.sergeikolinichenko.myapplication.utils.SYS_ICON_SIZE_24
+import info.sergeikolinichenko.myapplication.utils.convertLongToCalendarWithTz
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.util.Calendar
 
 /** Created by Sergei Kolinichenko on 21.02.2024 at 15:57 (GMT+3) **/
 
 @Composable
-fun AnimatedDetailsContent(
-  modifier: Modifier = Modifier,
+fun DetailsContent(
   component: DetailsComponent
 ) {
-
-  val state = remember {
-    MutableTransitionState(false).apply { targetState = true }
-  }
-
-  AnimatedVisibility(
-    visibleState = state,
-    enter = fadeIn(animationSpec = tween(300, 1000)) +
-        slideIn(animationSpec = tween( 300, 1000),
-      initialOffset = { IntOffset(it.width, 0) }),
-
-    exit = fadeOut(
-      animationSpec = tween(300))
-        + slideOut(
-      animationSpec = tween(300),
-        targetOffset = { IntOffset(-it.width, 0) }),
-  ) {
-    DetailsScreen(
-      modifier = modifier,
-      component = component,
-    )
-  }
-}
-
-@Composable
-fun DetailsContent(component: DetailsComponent) {
 
   Box( // it's for background
     modifier = Modifier
@@ -94,12 +75,53 @@ fun DetailsContent(component: DetailsComponent) {
 }
 
 @Composable
-private fun DetailsScreen(
+fun AnimatedDetailsContent(
   modifier: Modifier = Modifier,
   component: DetailsComponent
 ) {
 
   val state = component.model.collectAsState()
+
+  val animState = remember { MutableTransitionState(false) }
+
+  animState.targetState = state.value.forecastState is DetailsStore.State.ForecastState.Loaded
+
+  AnimatedVisibility(
+    visibleState = animState,
+    enter = fadeIn(animationSpec = tween(300)) +
+        slideIn(animationSpec = tween(300),
+          initialOffset = { IntOffset(it.width, 0) }),
+
+    exit = fadeOut(
+      animationSpec = tween(300)
+    ) + slideOut(
+      animationSpec = tween(300),
+      targetOffset = { IntOffset(-it.width, 0) }),
+  ) {
+    DetailsScreen(
+      modifier = modifier,
+      state = state,
+      onBackClicked = { component.onBackClicked() },
+      onChangeFavouriteStatusClicked = { component.onSettingsClicked() },
+      onDayClicked = { id, index, forecast ->
+        component.onDayClicked(
+          id = id,
+          index = index,
+          forecast = forecast
+        )
+      }
+    )
+  }
+}
+
+@Composable
+private fun DetailsScreen(
+  modifier: Modifier = Modifier,
+  state: State<DetailsStore.State>,
+  onBackClicked: () -> Unit,
+  onChangeFavouriteStatusClicked: () -> Unit,
+  onDayClicked: (Int, Int, ForecastFs) -> Unit
+) {
 
   Column(
     modifier = modifier
@@ -117,15 +139,20 @@ private fun DetailsScreen(
       ),
       state = state.value,
       onBackButtonClick = {
-        component.onBackClicked()
+        onBackClicked()
       },
-      onChangeFavouriteStatusClicked = {
-        component.onChangeFavouriteStatusClicked()
+      onSettingsClicked = {
+        onChangeFavouriteStatusClicked()
       }
     )
 
     MainScreen(
-      modifier = Modifier, state = state.value)
+      modifier = Modifier,
+      state = state.value,
+      onDayClicked = { id, index, forecast ->
+        onDayClicked(id, index, forecast)
+      }
+    )
   }
 }
 
@@ -134,7 +161,7 @@ private fun TopBar(
   modifier: Modifier = Modifier,
   state: DetailsStore.State,
   onBackButtonClick: () -> Unit,
-  onChangeFavouriteStatusClicked: () -> Unit
+  onSettingsClicked: () -> Unit
 ) {
 
   Box(
@@ -180,22 +207,13 @@ private fun TopBar(
         }
       }
     }
-
-
-
-    Text(
+    Icon(
       modifier = Modifier
+        .size(SYS_ICON_SIZE_24.dp)
         .align(Alignment.CenterEnd)
-        .clickable { onChangeFavouriteStatusClicked() },
-      text = when (state.isFavourite) {
-        true -> stringResource(R.string.details_content_button_delete_from_favourite)
-        false -> stringResource(R.string.details_content_button_add_to_favourite)
-      },
-      fontFamily = FontFamily.SansSerif,
-      fontWeight = FontWeight.Medium,
-      fontSize = 16.sp,
-      textAlign = TextAlign.Start,
-      color = MaterialTheme.colorScheme.onBackground
+        .clickable { onSettingsClicked() },
+      imageVector = Icons.Default.Settings,
+      contentDescription = "Icon Settings"
     )
   }
 }
@@ -204,6 +222,7 @@ private fun TopBar(
 private fun MainScreen(
   modifier: Modifier = Modifier,
   state: DetailsStore.State,
+  onDayClicked: (Int, Int, ForecastFs) -> Unit
 ) {
   if (state.citiesState is DetailsStore.State.CitiesState.Loaded) {
 
@@ -219,7 +238,7 @@ private fun MainScreen(
         val forecast = forecastState.forecast
 
         CurrentWeather(
-          modifier = Modifier
+          modifier = modifier
             .padding(
               start = 16.dp,
               end = 16.dp
@@ -228,14 +247,42 @@ private fun MainScreen(
           city = city
         )
 
-        CurrentWeatherConditions(
+        // Humidity, wind, pressure
+        HumidityWindPressure(
           modifier = Modifier
             .padding(
               top = 24.dp,
               start = 16.dp,
               end = 16.dp
             ),
-          forecast = forecast
+          humidity = forecast.currentForecast.humidity,
+          windDir = forecast.currentForecast.windDir,
+          windSpeed = forecast.currentForecast.windSpeed,
+          pressure = forecast.currentForecast.pressure
+        )
+
+        // UV index and cloudiness
+        UvIndexAndCloudiness(
+          modifier = Modifier
+            .padding(
+              top = 16.dp,
+              start = 16.dp,
+              end = 16.dp
+            ),
+          uvIndex = forecast.currentForecast.uvIndex,
+          cloudCover = forecast.currentForecast.cloudCover,
+          precipitation = if (forecast.currentForecast.precipProb > 0) forecast.currentForecast.precip else null
+        )
+
+        // Hourly weather forecast
+        val firstIndex = forecast.upcomingHours.indexOfFirst {
+          convertLongToCalendarWithTz(it.date, forecast.tzId) >= Calendar.getInstance()
+        }
+
+        val list = if (firstIndex - 1 == WRONG_INDEX_OF_FORECAST) null
+        else forecast.upcomingHours.subList(
+          firstIndex - 1,
+          firstIndex + MAXIMUM_HOURS_HOURLY_WEATHER
         )
 
         AnimatingHourlyWeatherForecast(
@@ -245,7 +292,8 @@ private fun MainScreen(
               start = 16.dp,
               end = 16.dp
             ),
-          forecast = forecast
+          list = list,
+          tzId = forecast.tzId
         )
 
         DailyWeatherForecast(
@@ -255,18 +303,12 @@ private fun MainScreen(
               start = 16.dp,
               end = 16.dp
             ),
-          forecast = forecast
+          forecast = forecast,
+          onDayClicked = { index ->
+            onDayClicked(city.id, index, forecast)
+          }
         )
 
-        UvIndexAndCloudiness(
-          modifier = Modifier
-            .padding(
-              top = 16.dp,
-              start = 16.dp,
-              end = 16.dp
-            ),
-          forecast = forecast
-        )
         SunAndMoon(
           modifier = Modifier
             .padding(
@@ -274,8 +316,14 @@ private fun MainScreen(
               start = 16.dp,
               end = 16.dp
             ),
-          forecast = forecast
+          sunrise = forecast.upcomingDays.first().sunrise,
+          sunset = forecast.upcomingDays.first().sunset,
+          moonrise = forecast.upcomingDays.first().moonrise,
+          moonset = forecast.upcomingDays.first().moonset,
+          moonPhase = forecast.upcomingDays.first().moonPhase,
+          tzId = forecast.tzId
         )
+
         Charts(
           modifier = Modifier
             .padding(
@@ -283,7 +331,8 @@ private fun MainScreen(
               start = 16.dp,
               end = 16.dp
             ),
-          forecast = forecast
+          list = forecast.getSublistForecastHourly(),
+          tzId = forecast.tzId
         )
       }
     }
@@ -321,3 +370,20 @@ private fun Error() {
     )
   }
 }
+
+private fun ForecastFs.getSublistForecastHourly(): List<HourForecastFs> {
+
+  val now = LocalDateTime.now(ZoneId.of(this.tzId))
+
+  return this.upcomingHours.filter { item ->
+    val itemHour = LocalDateTime.ofInstant(
+      Instant.ofEpochSecond(item.date),
+      ZoneId.of(this.tzId)
+    )
+    itemHour > now.minusHours(2) && itemHour < now.plusHours(MAXIMUM_HOURS_CHART)
+  }
+}
+
+private const val MAXIMUM_HOURS_HOURLY_WEATHER = 23
+private const val MAXIMUM_HOURS_CHART = 25L
+private const val WRONG_INDEX_OF_FORECAST = -1

@@ -9,7 +9,6 @@ import info.sergeikolinichenko.domain.entity.PRESSURE
 import info.sergeikolinichenko.domain.entity.Settings
 import info.sergeikolinichenko.domain.entity.TEMPERATURE
 import info.sergeikolinichenko.domain.entity.Weather
-import info.sergeikolinichenko.myapplication.network.dto.CurrentWeatherDto
 import info.sergeikolinichenko.myapplication.network.dto.DayForecastDto
 import info.sergeikolinichenko.myapplication.network.dto.ForecastDto
 import info.sergeikolinichenko.myapplication.network.dto.HourForecastDto
@@ -19,14 +18,12 @@ import info.sergeikolinichenko.myapplication.utils.toFahrenheitString
 import info.sergeikolinichenko.myapplication.utils.toHpaString
 import info.sergeikolinichenko.myapplication.utils.toMmHgString
 import info.sergeikolinichenko.myapplication.utils.toMmsString
-import info.sergeikolinichenko.myapplication.utils.toStringFromStringList
-import info.sergeikolinichenko.myapplication.utils.toStringListFromString
 
 /** Created by Sergei Kolinichenko on 29.07.2024 at 17:36 (GMT+3) **/
 
 //fun ForecastDto.toForecast()
 internal fun ForecastDto.mapForecastDtoToWeather(settings: Settings) = Weather(
-  temp = when(settings.temperature) {
+  temp = when (settings.temperature) {
     TEMPERATURE.CELSIUS -> this.currentWeatherDto.temp.toCelsiusString()
     TEMPERATURE.FAHRENHEIT -> this.currentWeatherDto.temp.toFahrenheitString()
   },
@@ -51,11 +48,11 @@ internal fun ForecastDto.mapToForecast(settings: Settings) = Forecast(
 
 private fun ForecastDto.mapToForecastCurrent(settings: Settings) = CurrentForecast(
   date = this.currentWeatherDto.datetimeEpoch,
-  temp = when(settings.temperature) {
+  temp = when (settings.temperature) {
     TEMPERATURE.CELSIUS -> this.currentWeatherDto.temp.toCelsiusString()
     TEMPERATURE.FAHRENHEIT -> this.currentWeatherDto.temp.toFahrenheitString()
   },
-  feelsLike = when(settings.temperature) {
+  feelsLike = when (settings.temperature) {
     TEMPERATURE.CELSIUS -> this.currentWeatherDto.feelsLike.toCelsiusString()
     TEMPERATURE.FAHRENHEIT -> this.currentWeatherDto.feelsLike.toFahrenheitString()
   },
@@ -83,7 +80,7 @@ private fun ForecastDto.mapToDaysForecast(settings: Settings) =
 
 private fun DayForecastDto.mapToForecastDay(settings: Settings) = DayForecast(
   date = this.datetimeEpoch,
-  temp = when(settings.temperature) {
+  temp = when (settings.temperature) {
     TEMPERATURE.CELSIUS -> this.temp.toCelsiusString()
     TEMPERATURE.FAHRENHEIT -> this.temp.toFahrenheitString()
   },
@@ -119,12 +116,12 @@ private fun DayForecastDto.mapToForecastDay(settings: Settings) = DayForecast(
   moonPhase = this.moonPhase
 )
 
-private fun DayForecastDto.mapToHourlyForecast(settings: Settings)
-= this.hoursForecast.map { it.mapToForecastHour(settings) }
+private fun DayForecastDto.mapToHourlyForecast(settings: Settings) =
+  this.hoursForecast.map { it.mapToForecastHour(settings) }
 
 private fun HourForecastDto.mapToForecastHour(settings: Settings) = HourForecast(
   date = this.datetimeEpoch,
-  temp = when(settings.temperature) {
+  temp = when (settings.temperature) {
     TEMPERATURE.CELSIUS -> this.temp.toCelsiusString()
     TEMPERATURE.FAHRENHEIT -> this.temp.toFahrenheitString()
   },
@@ -136,4 +133,5 @@ private fun HourForecastDto.mapToForecastHour(settings: Settings) = HourForecast
   humidity = this.humidity,
   uvIndex = this.uvIndex,
   precipProb = this.precipProb,
+  precipType = this.precipType
 )

@@ -22,7 +22,7 @@ class SearchContentFeature : BaseUiTest() {
     with(composeTestRule) {
       // Arrange
       // Act
-      onNodeWithText(activity.getString(R.string.favourite_content_text_in_search)).performClick()
+      onNodeWithText(activity.getString(R.string.title_few_contents_text_favourite)).performClick()
       // Assert
       onNodeWithText(activity.getString(R.string.search_content_text_into_placeholder)).assertIsDisplayed()
     }
@@ -33,7 +33,7 @@ class SearchContentFeature : BaseUiTest() {
     with(composeTestRule) {
       // Arrange
       onNodeWithText(
-        activity.getString(R.string.favourite_content_text_in_search)
+        activity.getString(R.string.title_few_contents_text_favourite)
       ).performClick()
       // Act
       onNodeWithText(
@@ -51,7 +51,7 @@ class SearchContentFeature : BaseUiTest() {
     with(composeTestRule) {
       // Arrange
       onNodeWithText(
-        activity.getString(R.string.favourite_content_text_in_search)
+        activity.getString(R.string.title_few_contents_text_favourite)
       ).performClick()
       // Act
       onNodeWithText(
@@ -77,7 +77,7 @@ class SearchContentFeature : BaseUiTest() {
     with(composeTestRule) {
       // Arrange
       onNodeWithText(
-        activity.getString(R.string.favourite_content_text_in_search)
+        activity.getString(R.string.title_few_contents_text_favourite)
       ).performClick()
       // Act
       onNodeWithText(
@@ -97,7 +97,7 @@ class SearchContentFeature : BaseUiTest() {
     with(composeTestRule) {
       // Arrange
       onNodeWithText(
-        activity.getString(R.string.favourite_content_text_in_search)
+        activity.getString(R.string.title_few_contents_text_favourite)
       ).performClick()
       // Act
       onNodeWithText(

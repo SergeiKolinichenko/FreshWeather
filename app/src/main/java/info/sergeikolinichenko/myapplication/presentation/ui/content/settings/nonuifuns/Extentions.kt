@@ -4,12 +4,11 @@ import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
 import info.sergeikolinichenko.myapplication.R
 
 /** Created by Sergei Kolinichenko on 22.07.2024 at 10:12 (GMT+3) **/
 
-internal fun Context.writeSDevelopers(): Boolean {
+internal fun Context.writeToDevelopers(): Boolean {
 
   val emailIntent = Intent(Intent.ACTION_SENDTO).apply {
     data = Uri.parse("mailto: sergeikolinicenko@gmail.com")

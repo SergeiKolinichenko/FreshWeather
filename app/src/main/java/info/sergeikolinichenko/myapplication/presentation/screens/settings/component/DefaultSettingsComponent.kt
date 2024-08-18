@@ -12,6 +12,7 @@ import info.sergeikolinichenko.domain.entity.PRECIPITATION
 import info.sergeikolinichenko.domain.entity.PRESSURE
 import info.sergeikolinichenko.domain.entity.Settings
 import info.sergeikolinichenko.domain.entity.TEMPERATURE
+import info.sergeikolinichenko.myapplication.presentation.screens.details.SourceOfOpening
 import info.sergeikolinichenko.myapplication.presentation.screens.settings.store.SettingsStore
 import info.sergeikolinichenko.myapplication.presentation.screens.settings.store.SettingsStoreFactory
 import info.sergeikolinichenko.myapplication.utils.componentScope
@@ -20,13 +21,14 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class DefaultSettingsComponent @AssistedInject constructor(
-  @Assisted("exitSettings") onClickBack: () -> Unit,
-  @Assisted("settingsSaved") settingsSaved: () -> Unit,
+  @Assisted("sourceOfOpening") private val sourceOfOpening: SourceOfOpening,
+  @Assisted("exitSettings") private val onClickBack: () -> Unit,
+  @Assisted("settingsSaved") private val settingsSaved: (sourceOfOpening: SourceOfOpening) -> Unit,
   @Assisted("componentContext") private val componentContext: ComponentContext,
   private val storeFactory: SettingsStoreFactory
 ) : SettingsComponent, ComponentContext by componentContext {
 
-  private val store = instanceKeeper.getStore{ storeFactory.create() }
+  private val store = instanceKeeper.getStore{ storeFactory.create(sourceOfOpening) }
   private val scope = componentScope()
 
   init {
@@ -34,7 +36,7 @@ class DefaultSettingsComponent @AssistedInject constructor(
       store.labels.collect {
         when (it) {
           is SettingsStore.Label.OnBackClicked -> onClickBack()
-          is SettingsStore.Label.SettingsSaved -> settingsSaved()
+          is SettingsStore.Label.SettingsSaved -> settingsSaved(it.sourceOfOpening)
         }
       }
     }
@@ -56,6 +58,10 @@ class DefaultSettingsComponent @AssistedInject constructor(
     store.accept(SettingsStore.Intent.ChangeOfPressureMeasure(type = type))
   }
 
+  override fun setDaysOfWeather(days: Int) {
+    store.accept(SettingsStore.Intent.ChangeOfDaysOfWeather(days = days))
+  }
+
   override fun onClickedEvaluateApp(context: Context) {
     store.accept(SettingsStore.Intent.OnClickedEvaluateApp(context = context))
   }
@@ -66,7 +72,8 @@ class DefaultSettingsComponent @AssistedInject constructor(
       precipitation = model.value.precipitation,
       pressure = model.value.pressure
     )
-    store.accept(SettingsStore.Intent.OnClickedDone(settings = settings))
+    val days = model.value.daysOfWeather
+    store.accept(SettingsStore.Intent.OnClickedDone(settings = settings, daysOfWeather = days))
   }
 
   override fun onClickedWriteDevelopers(context: Context) {
@@ -80,8 +87,9 @@ class DefaultSettingsComponent @AssistedInject constructor(
   @AssistedFactory
   interface Factory {
     fun create(
+      @Assisted("sourceOfOpening") sourceOfOpening: SourceOfOpening,
       @Assisted("exitSettings") onClickBack: () -> Unit,
-      @Assisted("settingsSaved") settingsSaved: () -> Unit,
+      @Assisted("settingsSaved") settingsSaved: (sourceOfOpening: SourceOfOpening) -> Unit,
       @Assisted("componentContext") componentContext: ComponentContext
     ): DefaultSettingsComponent
   }

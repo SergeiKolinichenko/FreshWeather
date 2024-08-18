@@ -10,4 +10,5 @@ data class HourForecast(
   val humidity: Float,
   val uvIndex: Int,
   val precipProb: Float,
+  val precipType: List<String>?,
 )

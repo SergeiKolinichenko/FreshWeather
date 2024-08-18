@@ -4,7 +4,7 @@ package info.sergeikolinichenko.myapplication.presentation.screens.search.store
 
 import com.arkivanov.mvikotlin.core.store.Store
 import info.sergeikolinichenko.domain.entity.City
-import info.sergeikolinichenko.myapplication.entity.CityForScreen
+import info.sergeikolinichenko.myapplication.entity.CityFs
 import info.sergeikolinichenko.myapplication.presentation.screens.search.store.SearchStore.Intent
 import info.sergeikolinichenko.myapplication.presentation.screens.search.store.SearchStore.Label
 import info.sergeikolinichenko.myapplication.presentation.screens.search.store.SearchStore.State
@@ -13,7 +13,7 @@ interface SearchStore : Store<Intent, State, Label> {
 
   sealed interface Intent {
     data class OnQueryChanged(val query: String) : Intent
-    data class OnClickedCity(val city: CityForScreen) : Intent
+    data class OnClickedCity(val city: CityFs) : Intent
     data object OnClickedClearLine : Intent
     data object OnClickedBack : Intent
   }

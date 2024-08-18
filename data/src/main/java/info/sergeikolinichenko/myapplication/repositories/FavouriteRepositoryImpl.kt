@@ -1,7 +1,6 @@
 package info.sergeikolinichenko.myapplication.repositories
 
 import android.content.SharedPreferences
-import android.util.Log
 import com.google.gson.Gson
 import info.sergeikolinichenko.domain.entity.City
 import info.sergeikolinichenko.domain.repositories.FavouriteRepository
@@ -22,15 +21,16 @@ class FavouriteRepositoryImpl @Inject constructor(
       if (list.isEmpty()) {
         Result.failure(RuntimeException(ERROR_NO_CITIES_LIST))
       } else {
-        Result.success(list.toListFavouriteCities().sortedBy { item ->
-          getOrderCitiesViewed()?.get(item.id)
-        }
+
+        val orderMap = getOrderCitiesViewed()?.withIndex()?.associate { it.value to it.index }
+
+        Result.success(list.toListFavouriteCities()
+          .sortedBy { item ->
+            orderMap?.get(item.id)
+          }
         )
       }
     }
-
-  override fun observeIsFavourite(id: Int): Flow<Boolean> =
-    freshWeatherDao.observeIsFavourite(id)
 
   override suspend fun setToFavourite(city: City) {
     val cityDbModel = city.toCityDbModel()
@@ -41,17 +41,17 @@ class FavouriteRepositoryImpl @Inject constructor(
     freshWeatherDao.removeCityById(id)
   }
 
-  override fun setOrderCitiesViewed(order: List<Int>) {
-    TODO("Not yet implemented")
-  }
 
   private fun getOrderCitiesViewed(): List<Int>? =
     preferences.getString(ORDER_CITIES_VIEWED, null)?.let {
       Gson().fromJson(it, Array<Int>::class.java).toList()
     }
 
+  override fun setOrderCitiesViewed(order: List<Int>) =
+    preferences.edit().putString(ORDER_CITIES_VIEWED, Gson().toJson(order)).apply()
+
   companion object {
-    private const val ORDER_CITIES_VIEWED = "order_cities_viewed"
+    const val ORDER_CITIES_VIEWED = "order_cities_viewed"
     const val ERROR_NO_CITIES_LIST = "no_cities_list"
   }
 }

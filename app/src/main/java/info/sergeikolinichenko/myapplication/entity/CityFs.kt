@@ -5,7 +5,7 @@ import kotlinx.parcelize.Parcelize
 
 /** Created by Sergei Kolinichenko on 21.02.2024 at 16:34 (GMT+3) **/
 @Parcelize
-data class CityForScreen(
+data class CityFs(
   val id: Int,
   val name: String,
   val region: String,

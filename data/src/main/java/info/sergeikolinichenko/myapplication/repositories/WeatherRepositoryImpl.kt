@@ -10,10 +10,10 @@ import info.sergeikolinichenko.domain.entity.Settings
 import info.sergeikolinichenko.domain.entity.TEMPERATURE
 import info.sergeikolinichenko.domain.entity.Weather
 import info.sergeikolinichenko.domain.repositories.WeatherRepository
-import info.sergeikolinichenko.myapplication.local.db.FreshWeatherDao
 import info.sergeikolinichenko.myapplication.mappers.mapForecastDtoToWeather
 import info.sergeikolinichenko.myapplication.mappers.mapToForecast
 import info.sergeikolinichenko.myapplication.network.api.ApiFactory
+import info.sergeikolinichenko.myapplication.repositories.SettingsRepositoryImpl.Companion.DAYS_OF_WEATHER_KEY
 import info.sergeikolinichenko.myapplication.repositories.SettingsRepositoryImpl.Companion.SETTINGS_KEY
 import javax.inject.Inject
 
@@ -40,9 +40,12 @@ class WeatherRepositoryImpl @Inject constructor(
   override suspend fun getForecast(city: City) : Result<Forecast> {
 
     val location = "${city.lat}, ${city.lon}"
+
+    val days = preferences.getInt(DAYS_OF_WEATHER_KEY, 7)
+
     val response = apiFactory.getVisualcrossingApi().getCurrentWeather(
       location = location,
-      date1 = SEVEN_DAYS_FORECAST
+      date1 = days.toString()
     )
 
     return if (response.isSuccessful)
@@ -66,7 +69,6 @@ class WeatherRepositoryImpl @Inject constructor(
   }
 
   companion object {
-    private const val SEVEN_DAYS_FORECAST = "7"
     private const val ONE_DAY_FORECAST = "1"
   }
 }

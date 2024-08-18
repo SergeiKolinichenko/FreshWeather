@@ -104,6 +104,7 @@ private fun RadioButtonUnit(
       fontFamily = FontFamily.SansSerif,
       fontWeight = FontWeight.Normal,
       fontSize = 16.sp,
+      lineHeight = 18.sp,
       textAlign = TextAlign.Start,
       color = MaterialTheme.colorScheme.onBackground
     )

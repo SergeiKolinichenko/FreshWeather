@@ -72,7 +72,8 @@ fun FavouriteContent(
       onClickActionMenu = { component.onActionMenuClicked() },
       onItemClicked = { component.onItemClicked(it) },
       onDismissRequestDropdownMenu = { component.onClosingActionMenu() },
-      onClickSettings = { component.onItemMenuSettingsClicked() }
+      onClickSettings = { component.onItemMenuSettingsClicked() },
+      onClickEditing = { component.onItemMenuEditingClicked() }
     )
   }
 }
@@ -126,7 +127,8 @@ private fun FavoriteVerticalGrid(
   onClickActionMenu: () -> Unit,
   onItemClicked: (Int) -> Unit,
   onDismissRequestDropdownMenu: () -> Unit,
-  onClickSettings: () -> Unit
+  onClickSettings: () -> Unit,
+  onClickEditing: () -> Unit
 ) {
 
   LazyVerticalGrid(
@@ -145,7 +147,8 @@ private fun FavoriteVerticalGrid(
         onClickActionMenu = { onClickActionMenu() },
         onItemClicked = { onItemClicked(it) },
         onDismissRequestDropdownMenu = { onDismissRequestDropdownMenu() },
-        onClickSettings = { onClickSettings() }
+        onClickSettings = { onClickSettings() },
+        onClickEditing = { onClickEditing() }
       )
     }
 }
@@ -158,7 +161,8 @@ private fun LazyGridScope.cityGridContent(
   onClickActionMenu: () -> Unit,
   onItemClicked: (Int) -> Unit,
   onDismissRequestDropdownMenu: () -> Unit,
-  onClickSettings: () -> Unit
+  onClickSettings: () -> Unit,
+  onClickEditing: () -> Unit
 ) {
   item(
     span = { GridItemSpan(columns) }
@@ -168,7 +172,8 @@ private fun LazyGridScope.cityGridContent(
       state = state.value.dropDownMenuState,
       onClickActionMenu = { onClickActionMenu() },
       onDismissRequest = { onDismissRequestDropdownMenu() },
-      onClickSettings = { onClickSettings() }
+      onClickSettings = { onClickSettings() },
+      onClickEditing = { onClickEditing() }
     )
   }
 

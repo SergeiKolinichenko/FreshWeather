@@ -11,7 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
@@ -38,7 +38,8 @@ internal fun SearchCard(
   onClickSearch: () -> Unit,
   onClickActionMenu: () -> Unit,
   onDismissRequest: () -> Unit,
-  onClickSettings: () -> Unit
+  onClickSettings: () -> Unit,
+  onClickEditing: () -> Unit
 ) {
   Card(
     modifier = modifier
@@ -60,7 +61,7 @@ internal fun SearchCard(
       ) {
           Text(
             modifier = Modifier.align(Alignment.CenterStart),
-            text = stringResource(R.string.favourite_content_text_in_search),
+            text = stringResource(R.string.title_few_contents_text_favourite),
             fontFamily = FontFamily.SansSerif,
             fontWeight = FontWeight.Normal,
             fontSize = 22.sp,
@@ -84,12 +85,13 @@ internal fun SearchCard(
           state = state,
           onDismissRequest = { onDismissRequest() },
           onClickSettings = { onClickSettings() },
+          onClickEditing = { onClickEditing() }
         )
         Icon(
           modifier = Modifier
             .size(24.dp)
             .clickable { onClickActionMenu() },
-          imageVector = Icons.Default.Menu,
+          imageVector = Icons.Default.MoreVert,
           contentDescription = stringResource(R.string.favourite_content_description_menu_icon)
         )
       }

@@ -27,10 +27,8 @@ class SettingsRepositoryImpl @Inject constructor(
   override fun getSettings(): Flow<Settings> {
 
     val jsonObject = preferences.getString(SETTINGS_KEY, null)
-
     return jsonObject?.let {
       val settings = Gson().fromJson(jsonObject, Settings::class.java)
-
       flowOf(settings)
     } ?: flowOf(Settings(
       temperature = TEMPERATURE.CELSIUS,
@@ -39,7 +37,13 @@ class SettingsRepositoryImpl @Inject constructor(
     ))
   }
 
+  override fun setDaysOfWeather(days: Int) {
+    preferences.edit().putInt(DAYS_OF_WEATHER_KEY, days).apply()
+  }
+  override fun getDaysOfWeather() = preferences.getInt(DAYS_OF_WEATHER_KEY, 7)
+
   companion object {
     const val SETTINGS_KEY = "settings"
+    const val DAYS_OF_WEATHER_KEY = "days_of_weather"
   }
 }

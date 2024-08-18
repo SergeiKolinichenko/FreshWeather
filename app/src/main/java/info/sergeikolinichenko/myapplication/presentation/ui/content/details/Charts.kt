@@ -4,7 +4,6 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Parcelable
-import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
@@ -53,16 +52,15 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import info.sergeikolinichenko.domain.entity.Forecast
-import info.sergeikolinichenko.domain.entity.HourForecast
 import info.sergeikolinichenko.myapplication.R
 import info.sergeikolinichenko.myapplication.entity.ChartsHourlyScreenValues
+import info.sergeikolinichenko.myapplication.entity.ForecastFs
+import info.sergeikolinichenko.myapplication.entity.HourForecastFs
 import info.sergeikolinichenko.myapplication.utils.LinearGradient.gradientHumidityChart
 import info.sergeikolinichenko.myapplication.utils.LinearGradient.gradientPressureChart
 import info.sergeikolinichenko.myapplication.utils.LinearGradient.gradientUvIndexChart
-import info.sergeikolinichenko.myapplication.utils.TITLE_ICON_SIZE
-import info.sergeikolinichenko.myapplication.utils.convertLongToCalendarWithTz
-import info.sergeikolinichenko.myapplication.utils.formattedFullHour
+import info.sergeikolinichenko.myapplication.utils.TITLE_ICON_SIZE_16
+import info.sergeikolinichenko.myapplication.utils.getTime
 import info.sergeikolinichenko.myapplication.utils.toIconId
 import info.sergeikolinichenko.myapplication.utils.toListChartsHourlyScreenValues
 import info.sergeikolinichenko.myapplication.utils.toPerCentFromInt
@@ -75,16 +73,15 @@ import kotlin.math.roundToInt
 
 /** Created by Sergei Kolinichenko on 25.07.2024 at 18:48 (GMT+3) **/
 
-private const val MAXIMUM_HOURS = 25L
-private const val MIN_VISIBILITY_COUNT = 6
+private const val MAXIMUM_HOURS_CHART = 25L
+private const val MIN_VISIBILITY_COUNT_CHART = 6
 
 @Composable
 fun Charts(
   modifier: Modifier = Modifier,
-  forecast: Forecast
+  list: List<HourForecastFs>,
+  tzId: String
 ) {
-
-  val list = forecast.getSublistForecastHourly()
 
   val chartsState = rememberChartState(list = list.toListChartsHourlyScreenValues())
 
@@ -113,7 +110,7 @@ fun Charts(
 
         Chart(
           list = list,
-          tz = forecast.tzId,
+          tz = tzId,
           state = chartsState,
           changeState = { chartsState.value = it }
         )
@@ -133,7 +130,7 @@ fun Charts(
 
           Icon(
             modifier = Modifier
-              .size(TITLE_ICON_SIZE.dp),
+              .size(TITLE_ICON_SIZE_16.dp),
             imageVector = ImageVector.vectorResource(id = R.drawable.chart),
             contentDescription = stringResource(R.string.details_content_description_graph_icon)
           )
@@ -161,7 +158,7 @@ fun Charts(
 @Composable
 private fun Chart(
   modifier: Modifier = Modifier,
-  list: List<HourForecast>,
+  list: List<HourForecastFs>,
   state: State<ChartsState>,
   tz: String,
   changeState: (ChartsState) -> Unit
@@ -275,11 +272,6 @@ private fun DrawScope.drawFilledArea(
   val pxPerPoint = chartsState.pxPerPoint
   val footer = chartsState.footer
 
-  Log.d(
-    "TAG",
-    "max: $max min: $min max - min: ${max - min} pxPerPoint: $pxPerPoint footer: $footer"
-  )
-
   drawPath(
     path = Path()
       .apply {
@@ -371,11 +363,9 @@ private fun DrawScope.drawTextHours(
   chartsState.list.forEachIndexed { index, item ->
 
     val textLayoutResult = textMeasurer.measure(
-      text = if (index == 1) textNow else
-        convertLongToCalendarWithTz(
-          item.date,
-          tzId
-        ).formattedFullHour(),
+      text = if (item.date.isCurrentHour()) textNow
+      else getTime(item.date, tzId),
+
       style = TextStyle(
         fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.Normal,
@@ -569,7 +559,7 @@ private enum class Displayed {
 @Parcelize
 private data class ChartsState(
   val list: List<ChartsHourlyScreenValues>,
-  val visibleItemCount: Int = MIN_VISIBILITY_COUNT,
+  val visibleItemCount: Int = MIN_VISIBILITY_COUNT_CHART,
   val displayedItem: Displayed = Displayed.UV_INDEX,
   val screenWidth: Float = 0f,
   val screenHeight: Float = 0f,
@@ -625,7 +615,8 @@ private fun getDisplayedValue(item: ChartsHourlyScreenValues, chartsState: Chart
     Displayed.PRESSURE -> item.pressureFloat - chartsState.min
   }
 
-private fun Forecast.getSublistForecastHourly(): List<HourForecast> {
+private fun ForecastFs.getSublistForecastHourly(): List<HourForecastFs> {
+
   val now = LocalDateTime.now(ZoneId.of(this.tzId))
 
   return this.upcomingHours.filter { item ->
@@ -634,7 +625,6 @@ private fun Forecast.getSublistForecastHourly(): List<HourForecast> {
       Instant.ofEpochSecond(item.date),
       ZoneId.of(this.tzId)
     )
-
-    itemHour > now.minusHours(2) && itemHour < now.plusHours(MAXIMUM_HOURS)
+    itemHour > now.minusHours(2) && itemHour < now.plusHours(MAXIMUM_HOURS_CHART)
   }
 }

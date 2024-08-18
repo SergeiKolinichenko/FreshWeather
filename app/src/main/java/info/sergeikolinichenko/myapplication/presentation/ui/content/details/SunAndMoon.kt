@@ -35,52 +35,37 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import info.sergeikolinichenko.domain.entity.Forecast
 import info.sergeikolinichenko.myapplication.R
-import info.sergeikolinichenko.myapplication.utils.TITLE_ICON_SIZE
-import info.sergeikolinichenko.myapplication.utils.WEATHER_ICON_SIZE
-import info.sergeikolinichenko.myapplication.utils.convertLongToCalendarWithTz
-import info.sergeikolinichenko.myapplication.utils.formattedFullHour
+import info.sergeikolinichenko.myapplication.utils.TITLE_ICON_SIZE_16
+import info.sergeikolinichenko.myapplication.utils.WEATHER_ICON_SIZE_36
+import info.sergeikolinichenko.myapplication.utils.durationBetweenTwoTimes
+import info.sergeikolinichenko.myapplication.utils.getTime
 import info.sergeikolinichenko.myapplication.utils.isTodayOrTomorrow
 import info.sergeikolinichenko.myapplication.utils.toPhaseOfMoonStringId
-import info.sergeikolinichenko.myapplication.utils.toTimeDurationInSky
 
 /** Created by Sergei Kolinichenko on 26.07.2024 at 10:15 (GMT+3) **/
 
 @Composable
 internal fun SunAndMoon(
   modifier: Modifier = Modifier,
-  forecast: Forecast
+  sunrise: Long,
+  sunset: Long,
+  moonrise: Long,
+  moonset: Long,
+  moonPhase: Float,
+  tzId: String
 ) {
 
-  val timeSunrise = convertLongToCalendarWithTz(
-    forecast.upcomingDays.first().sunrise,
-    forecast.tzId
-  ).formattedFullHour()
-  val timeSunset = convertLongToCalendarWithTz(
-    forecast.upcomingDays.first().sunset,
-    forecast.tzId
-  ).formattedFullHour()
-  val timeMoonrise = convertLongToCalendarWithTz(
-    forecast.upcomingDays.first().moonrise,
-    forecast.tzId
-  ).formattedFullHour()
-  val timeMoonset = convertLongToCalendarWithTz(
-    forecast.upcomingDays.first().moonset,
-    forecast.tzId
-  ).formattedFullHour()
+  val timeSunrise = getTime(sunrise, tzId)
 
-  val sunInSky = toTimeDurationInSky(
-    forecast.upcomingDays.first().sunrise,
-    forecast.upcomingDays.first().sunset,
-    LocalContext.current
-  )
+  val timeSunset = getTime(sunset, tzId)
 
-  val moonInSky = toTimeDurationInSky(
-    forecast.upcomingDays.first().moonrise,
-    forecast.upcomingDays.first().moonset,
-    LocalContext.current
-  )
+  val timeMoonrise = getTime(moonrise, tzId)
+
+  val timeMoonset = getTime(moonset, tzId)
+  val sunInSky = durationBetweenTwoTimes(sunrise, sunset, LocalContext.current)
+
+  val moonInSky = durationBetweenTwoTimes(moonrise, moonset, LocalContext.current)
 
   Card(
     modifier = modifier
@@ -100,7 +85,7 @@ internal fun SunAndMoon(
       ) {
         Icon(
           modifier = Modifier
-            .size(TITLE_ICON_SIZE.dp),
+            .size(TITLE_ICON_SIZE_16.dp),
           imageVector = ImageVector.vectorResource(id = R.drawable.sun_moon),
           contentDescription = stringResource(R.string.details_content_description_sun_and_moon_icon)
         )
@@ -145,10 +130,7 @@ internal fun SunAndMoon(
           set = timeMoonset,
           riseIcon = R.drawable.moonrise,
           setIcon = R.drawable.moonset,
-          tittleRise = stringResource(isTodayOrTomorrow(
-            forecast.upcomingDays.first().moonset,
-            forecast.tzId
-          )),
+          tittleRise = stringResource(isTodayOrTomorrow(moonset, tzId)),
           tittleSet = stringResource(R.string.details_content_tittle_sun_moon_block_tomorrow)
         )
       }
@@ -178,7 +160,7 @@ internal fun SunAndMoon(
         {
           Icon(
             modifier = Modifier
-              .size(TITLE_ICON_SIZE.dp)
+              .size(TITLE_ICON_SIZE_16.dp)
               .align(Alignment.Center),
             imageVector = ImageVector.vectorResource(id = R.drawable.moon_phases),
             tint = Color.Unspecified,
@@ -192,7 +174,7 @@ internal fun SunAndMoon(
           verticalArrangement = Arrangement.SpaceAround
         ) {
           Text(
-            text = stringResource(id = forecast.upcomingDays.first().moonPhase.toPhaseOfMoonStringId()),
+            text = stringResource(id = moonPhase.toPhaseOfMoonStringId()),
             fontWeight = FontWeight.Normal,
             fontSize = 14.sp,
             lineHeight = 16.sp,
@@ -273,7 +255,7 @@ private fun Item(
         ) {
           Icon(
             modifier = Modifier
-              .size(WEATHER_ICON_SIZE.dp),
+              .size(WEATHER_ICON_SIZE_36.dp),
             imageVector = ImageVector.vectorResource(id = riseIcon),
             tint = Color.Unspecified,
             contentDescription = stringResource(R.string.details_content_description_rise_icon)
@@ -304,7 +286,7 @@ private fun Item(
         ) {
           Icon(
             modifier = Modifier
-              .size(WEATHER_ICON_SIZE.dp),
+              .size(WEATHER_ICON_SIZE_36.dp),
             imageVector = ImageVector.vectorResource(id = setIcon),
             tint = Color.Unspecified,
             contentDescription = stringResource(R.string.details_content_description_set_icon)

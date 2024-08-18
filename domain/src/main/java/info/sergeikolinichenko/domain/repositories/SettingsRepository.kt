@@ -8,7 +8,9 @@ import kotlinx.coroutines.flow.Flow
 interface SettingsRepository {
 
   fun setSettings(settings: Settings)
-
   fun getSettings(): Flow<Settings>
+
+  fun setDaysOfWeather(days: Int)
+  fun getDaysOfWeather(): Int
 
 }

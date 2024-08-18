@@ -1,12 +1,9 @@
 package info.sergeikolinichenko.myapplication.local.db
 
 import androidx.room.Dao
-import androidx.room.Embedded
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import androidx.room.Relation
-import androidx.room.Transaction
 import info.sergeikolinichenko.myapplication.local.models.CityDbModel
 import kotlinx.coroutines.flow.Flow
 
@@ -15,9 +12,6 @@ import kotlinx.coroutines.flow.Flow
 interface FreshWeatherDao {
   @Query("SELECT * FROM favourite_cities")
   fun getAllCities(): Flow<List<CityDbModel>>
-
-  @Query("SELECT EXISTS (SELECT * FROM favourite_cities WHERE id = :id LIMIT 1)")
-  fun observeIsFavourite(id: Int): Flow<Boolean>
 
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   suspend fun addCity(city: CityDbModel)

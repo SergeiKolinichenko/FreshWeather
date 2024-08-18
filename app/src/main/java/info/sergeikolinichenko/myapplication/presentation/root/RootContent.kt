@@ -2,8 +2,10 @@ package info.sergeikolinichenko.myapplication.presentation.root
 
 import androidx.compose.runtime.Composable
 import com.arkivanov.decompose.extensions.compose.stack.Children
-import info.sergeikolinichenko.myapplication.presentation.ui.content.details.DetailsContent
+import info.sergeikolinichenko.myapplication.presentation.ui.content.details.current.DetailsContent
 import info.sergeikolinichenko.myapplication.presentation.ui.content.favourite.FavouriteContent
+import info.sergeikolinichenko.myapplication.presentation.ui.content.details.nextdays.NextdaysContent
+import info.sergeikolinichenko.myapplication.presentation.ui.content.editing.EditingContent
 import info.sergeikolinichenko.myapplication.presentation.ui.content.search.SearchContent
 import info.sergeikolinichenko.myapplication.presentation.ui.content.settings.SettingsContent
 import info.sergeikolinichenko.myapplication.presentation.ui.theme.FreshWeatherTheme
@@ -19,6 +21,8 @@ fun RootContent(component: RootComponent) {
         is RootComponent.Child.Favourite -> FavouriteContent(component = instance.component)
         is RootComponent.Child.Search -> SearchContent(component = instance.component)
         is RootComponent.Child.Settings -> SettingsContent(component = instance.component)
+        is RootComponent.Child.Nextdays -> NextdaysContent(component = instance.component)
+        is RootComponent.Child.EditingFavourites -> EditingContent(component = instance.component)
       }
     }
   }

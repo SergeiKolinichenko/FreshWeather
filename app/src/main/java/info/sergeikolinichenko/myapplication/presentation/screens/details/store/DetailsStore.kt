@@ -8,38 +8,36 @@ import com.arkivanov.mvikotlin.core.store.StoreFactory
 import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineBootstrapper
 import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineExecutor
 import info.sergeikolinichenko.domain.entity.City
-import info.sergeikolinichenko.domain.entity.Forecast
-import info.sergeikolinichenko.domain.usecases.favourite.ChangeFavouriteStateUseCase
 import info.sergeikolinichenko.domain.usecases.favourite.GetFavouriteCitiesUseCase
-import info.sergeikolinichenko.domain.usecases.favourite.ObserveFavouriteStateUseCase
 import info.sergeikolinichenko.domain.usecases.weather.GetForecastUseCase
-import info.sergeikolinichenko.myapplication.entity.CityForScreen
+import info.sergeikolinichenko.myapplication.entity.CityFs
+import info.sergeikolinichenko.myapplication.entity.ForecastFs
 import info.sergeikolinichenko.myapplication.presentation.screens.details.store.DetailsStore.Intent
 import info.sergeikolinichenko.myapplication.presentation.screens.details.store.DetailsStore.Label
 import info.sergeikolinichenko.myapplication.presentation.screens.details.store.DetailsStore.State
+import info.sergeikolinichenko.myapplication.utils.mapToForecastScreen
 import info.sergeikolinichenko.myapplication.utils.toCity
 import info.sergeikolinichenko.myapplication.utils.toCityScreen
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 interface DetailsStore : Store<Intent, State, Label> {
 
   sealed interface Intent {
-    data object ChangeFavouriteStatusClicked : Intent
+    data class OnDayClicked(val id: Int, val index: Int, val forecast: ForecastFs) : Intent
     data object OnBackClicked : Intent
+    data object OnSettingsClicked : Intent
+    data object ReloadWeather : Intent
   }
 
   data class State(
-    val isFavourite: Boolean,
     val citiesState: CitiesState,
     val forecastState: ForecastState
   ) {
     sealed interface ForecastState {
       data object Initial : ForecastState
       data object Loading : ForecastState
-      data class Loaded(val forecast: Forecast) : ForecastState
+      data class Loaded(val forecast: ForecastFs) : ForecastState
       data object Error : ForecastState
     }
 
@@ -47,7 +45,7 @@ interface DetailsStore : Store<Intent, State, Label> {
       data object Initial : CitiesState
       data class Loaded(
         val id: Int,
-        val cities: List<CityForScreen>
+        val cities: List<CityFs>
       ) : CitiesState
 
       data object Error : CitiesState
@@ -56,15 +54,15 @@ interface DetailsStore : Store<Intent, State, Label> {
 
   sealed interface Label {
     data object OnBackClicked : Label
+    data object OnSettingsClicked : Label
+    data class OnDayClicked(val id: Int, val index: Int, val forecast: ForecastFs) : Label
   }
 }
 
 class DetailsStoreFactory @Inject constructor(
   private val storeFactory: StoreFactory,
   private val getForecast: GetForecastUseCase,
-  private val getFavouriteCities: GetFavouriteCitiesUseCase,
-  private val changeFavouriteState: ChangeFavouriteStateUseCase,
-  private val observeFavouriteState: ObserveFavouriteStateUseCase
+  private val getFavouriteCities: GetFavouriteCitiesUseCase
 ) {
 
   fun create(id: Int): DetailsStore =
@@ -72,7 +70,6 @@ class DetailsStoreFactory @Inject constructor(
       name = "DetailsStore",
       initialState = State(
         citiesState = State.CitiesState.Initial,
-        isFavourite = false,
         forecastState = State.ForecastState.Initial
       ),
       bootstrapper = BootstrapperImpl(id),
@@ -81,16 +78,14 @@ class DetailsStoreFactory @Inject constructor(
     ) {}
 
   private sealed interface Action {
-    data class ChangeFavouriteState(val isFavourite: Boolean) : Action
-    data class CitiesLoaded(val id: Int, val cities: List<CityForScreen>) : Action
+    data class CitiesLoaded(val id: Int, val cities: List<CityFs>) : Action
     data object CitiesLoadingFailed : Action
   }
 
   private sealed interface Message {
-    data class ChangeFavouriteState(val isFavourite: Boolean) : Message
-    data class CitiesLoaded(val id: Int, val cities: List<CityForScreen>) : Message
+    data class CitiesLoaded(val id: Int, val cities: List<CityFs>) : Message
     data object CitiesLoadingFailed : Message
-    data class ForecastLoaded(val forecast: Forecast) : Message
+    data class ForecastLoaded(val forecast: ForecastFs) : Message
     data object ForecastStartLoading : Message
     data class ForecastLoadingFailed(val referrerCode: String) : Message
   }
@@ -105,17 +100,19 @@ class DetailsStoreFactory @Inject constructor(
 
         getFavouriteCities().collect {
 
-          dispatch(
-            Action.CitiesLoaded(
-              id = id,
-              cities = it.getOrNull()!!.map { city -> city.toCityScreen() })
-          )
-        }
-      }
+          when {
+            it.isSuccess -> {
+              dispatch(
+                Action.CitiesLoaded(
+                  id = id,
+                  cities = it.getOrNull()!!.map { city -> city.toCityScreen() })
+              )
+            }
 
-      scope.launch {
-        observeFavouriteState(id).collect {
-          dispatch(Action.ChangeFavouriteState(it))
+            it.isFailure -> {
+              dispatch(Action.CitiesLoadingFailed)
+            }
+          }
         }
       }
     }
@@ -126,36 +123,35 @@ class DetailsStoreFactory @Inject constructor(
     override fun executeIntent(intent: Intent) {
       when (intent) {
 
-        is Intent.ChangeFavouriteStatusClicked -> {
-          scope.launch {
-
-            val cityState = state().citiesState as? State.CitiesState.Loaded
-
-            val id = cityState?.id!!
-            val city = cityState.cities[id]
-            val isFavourite = state().isFavourite
-
-            if (isFavourite) {
-              changeFavouriteState.removeFromFavourite(id)
-            } else {
-              changeFavouriteState.addToFavourite(city.toCity())
-            }
-
-          }
-        }
-
         is Intent.OnBackClicked -> {
           publish(Label.OnBackClicked)
+        }
+
+        is Intent.OnDayClicked -> publish(
+          Label.OnDayClicked(
+            id = intent.id,
+            forecast = intent.forecast,
+            index = intent.index
+          )
+        )
+
+        Intent.OnSettingsClicked -> publish(Label.OnSettingsClicked)
+
+        Intent.ReloadWeather -> {
+          if (state().citiesState is State.CitiesState.Loaded) {
+            scope.launch {
+              val id = (state().citiesState as State.CitiesState.Loaded).id
+              val cities = (state().citiesState as State.CitiesState.Loaded).cities
+              val city = cities.find { it.id == id }!!
+              loadForecast(city.toCity())
+            }
+          }
         }
       }
     }
 
     override fun executeAction(action: Action) {
       when (action) {
-
-        is Action.ChangeFavouriteState -> {
-          dispatch(Message.ChangeFavouriteState(action.isFavourite))
-        }
 
         is Action.CitiesLoaded -> {
 
@@ -186,7 +182,7 @@ class DetailsStoreFactory @Inject constructor(
       when {
         result.isSuccess -> {
           val forecast = result.getOrNull()!!
-          dispatch(Message.ForecastLoaded(forecast))
+          dispatch(Message.ForecastLoaded(forecast.mapToForecastScreen()))
         }
 
         result.isFailure -> {
@@ -199,10 +195,9 @@ class DetailsStoreFactory @Inject constructor(
   }
 
   private object ReducerImpl : Reducer<State, Message> {
+
     override fun State.reduce(msg: Message): State =
       when (msg) {
-        is Message.ChangeFavouriteState ->
-          copy(isFavourite = msg.isFavourite)
 
         is Message.ForecastLoaded ->
           copy(forecastState = State.ForecastState.Loaded(msg.forecast))
@@ -213,11 +208,11 @@ class DetailsStoreFactory @Inject constructor(
         is Message.ForecastLoadingFailed ->
           copy(forecastState = State.ForecastState.Error)
 
-        is Message.CitiesLoaded -> {
+        is Message.CitiesLoaded ->
           copy(citiesState = State.CitiesState.Loaded(msg.id, msg.cities))
-        }
 
-        Message.CitiesLoadingFailed -> copy(forecastState = State.ForecastState.Error)
+
+        Message.CitiesLoadingFailed -> copy(citiesState = State.CitiesState.Error)
       }
   }
 }

@@ -5,21 +5,17 @@ import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import androidx.test.core.app.ApplicationProvider
 import com.arkivanov.mvikotlin.extensions.coroutines.labels
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
-import com.nhaarman.mockitokotlin2.argThat
-import com.nhaarman.mockitokotlin2.argumentCaptor
-import com.nhaarman.mockitokotlin2.inOrder
-import com.nhaarman.mockitokotlin2.times
 import info.sergeikolinichenko.domain.entity.PRECIPITATION
 import info.sergeikolinichenko.domain.entity.PRESSURE
 import info.sergeikolinichenko.domain.entity.Settings
 import info.sergeikolinichenko.domain.entity.TEMPERATURE
+import info.sergeikolinichenko.domain.usecases.settings.DaysOfWeatherUseCase
 import info.sergeikolinichenko.domain.usecases.settings.SettingsUseCase
+import info.sergeikolinichenko.myapplication.presentation.screens.details.SourceOfOpening
 import info.sergeikolinichenko.myapplication.presentation.screens.settings.store.SettingsStore
 import info.sergeikolinichenko.myapplication.presentation.screens.settings.store.SettingsStoreFactory
-import info.sergeikolinichenko.myapplication.presentation.ui.content.settings.nonuifuns.writeSDevelopers
 import info.sergeikolinichenko.myapplication.utils.BaseUnitTestsRules
 import info.sergeikolinichenko.myapplication.utils.test
 import junit.framework.TestCase.assertEquals
@@ -30,19 +26,20 @@ import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito
 import org.mockito.Mockito.doThrow
+import org.mockito.Mockito.inOrder
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.spy
+import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
+import org.mockito.kotlin.argThat
+import org.mockito.kotlin.argumentCaptor
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.Shadows
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
-import org.robolectric.shadow.api.Shadow
 
 /** Created by Sergei Kolinichenko on 21.07.2024 at 17:31 (GMT+3) **/
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -53,6 +50,8 @@ class SettingsStoreFactoryShould: BaseUnitTestsRules() {
 
   private val storeFactory = DefaultStoreFactory()
   private val mockSettingsUseCase = mock<SettingsUseCase>()
+  private val daysOfWeatherUseCase = mock<DaysOfWeatherUseCase>()
+  private val sourceOfOpening = mock<SourceOfOpening>()
   private val testSettings = Settings(
     temperature = TEMPERATURE.FAHRENHEIT,
     precipitation = PRECIPITATION.INCHES,
@@ -61,7 +60,8 @@ class SettingsStoreFactoryShould: BaseUnitTestsRules() {
 
   private val SUT = SettingsStoreFactory(
     storeFactory,
-    mockSettingsUseCase
+    mockSettingsUseCase,
+    daysOfWeatherUseCase
   )
 
   @Before
@@ -75,7 +75,7 @@ class SettingsStoreFactoryShould: BaseUnitTestsRules() {
   fun `test initial state`() = runTest {
     mockSuccessfulCase()
     // Act
-    SUT.create()
+    SUT.create(sourceOfOpening)
     // Assert
     verify(mockSettingsUseCase, times(1)).getSettings()
   }
@@ -85,7 +85,7 @@ class SettingsStoreFactoryShould: BaseUnitTestsRules() {
     // Arrange
     mockSuccessfulCase()
     // Act
-    val store = SUT.create()
+    val store = SUT.create(sourceOfOpening)
     // Assert
     assertEquals(testSettings.temperature, store.state.temperature)
     assertEquals(testSettings.precipitation, store.state.precipitation)
@@ -101,7 +101,7 @@ class SettingsStoreFactoryShould: BaseUnitTestsRules() {
     // Arrange
     mockSuccessfulCase()
     // Act
-    val store = SUT.create()
+    val store = SUT.create(sourceOfOpening)
     store.accept(SettingsStore.Intent.ChangeOfTemperatureMeasure(TEMPERATURE.FAHRENHEIT))
     // Assert
     assertEquals(TEMPERATURE.FAHRENHEIT, store.state.temperature)
@@ -112,7 +112,7 @@ class SettingsStoreFactoryShould: BaseUnitTestsRules() {
     // Arrange
     mockSuccessfulCase()
     // Act
-    val store = SUT.create()
+    val store = SUT.create(sourceOfOpening)
     store.accept(SettingsStore.Intent.ChangeOfPrecipitationMeasure(PRECIPITATION.INCHES))
     // Assert
     assertEquals(PRECIPITATION.INCHES, store.state.precipitation)
@@ -123,7 +123,7 @@ class SettingsStoreFactoryShould: BaseUnitTestsRules() {
     // Arrange
     mockSuccessfulCase()
     // Act
-    val store = SUT.create()
+    val store = SUT.create(sourceOfOpening)
     store.accept(SettingsStore.Intent.ChangeOfPressureMeasure(PRESSURE.MMHG))
     // Assert
     assertEquals(PRESSURE.MMHG, store.state.pressure)
@@ -134,13 +134,13 @@ class SettingsStoreFactoryShould: BaseUnitTestsRules() {
     // Arrange
     mockSuccessfulCase()
     // Act
-    val store = SUT.create()
+    val store = SUT.create(sourceOfOpening)
     val testSettings = Settings(
       temperature = store.state.temperature,
       precipitation = store.state.precipitation,
       pressure = store.state.pressure
     )
-    store.accept(SettingsStore.Intent.OnClickedDone(testSettings))
+    store.accept(SettingsStore.Intent.OnClickedDone(testSettings, 7))
     // Assert
     verify(mockSettingsUseCase, times(1)).setSettings(testSettings)
   }
@@ -150,7 +150,7 @@ class SettingsStoreFactoryShould: BaseUnitTestsRules() {
     // Arrange
     mockSuccessfulCase()
     // Act
-    val store = SUT.create()
+    val store = SUT.create(sourceOfOpening)
     val testField = store.labels.test()
     store.accept(SettingsStore.Intent.OnClickedBack)
     // Assert
@@ -163,7 +163,7 @@ class SettingsStoreFactoryShould: BaseUnitTestsRules() {
     mockSuccessfulCase()
     val context = spy(Robolectric.buildActivity(Activity::class.java).get())
     // Act
-    val store = SUT.create()
+    val store = SUT.create(sourceOfOpening)
     store.accept(SettingsStore.Intent.OnClickedEvaluateApp(context))
     val startedIntent = shadowOf(context).nextStartedActivity
     val expectedUri = Uri.parse("market://details?id=${context.packageName}")
@@ -185,7 +185,7 @@ class SettingsStoreFactoryShould: BaseUnitTestsRules() {
       .`when`(context)
       .startActivity(argThat { action == Intent.ACTION_VIEW && data?.scheme == "market" })
     // Act
-    val store = SUT.create()
+    val store = SUT.create(sourceOfOpening)
     store.accept(SettingsStore.Intent.OnClickedEvaluateApp(context))
 
     inOrder.verify(context).startActivity(argThat{
@@ -203,7 +203,7 @@ class SettingsStoreFactoryShould: BaseUnitTestsRules() {
     mockSuccessfulCase()
     val context = mock(Context::class.java)
     // Act
-    val store = SUT.create()
+    val store = SUT.create(sourceOfOpening)
     store.accept(SettingsStore.Intent.ClickedWriteDevelopers(context))
     // Assert
     verify(context).startActivity(argThat { action == Intent.ACTION_CHOOSER })

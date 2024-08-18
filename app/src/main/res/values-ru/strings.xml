@@ -3,7 +3,7 @@
   <string name="app_name">Свежая Погода</string>
   <string name="ext_floating_action_button_title">Добавить в Избранное</string>
   <string name="favourite_content_description_weather_icon">Значок погоды</string>
-  <string name="favourite_content_text_in_search">Избранное</string>
+  <string name="title_few_contents_text_favourite">Избранное</string>
   <string name="settings_content_description_text_back_button">Кнопка назад</string>
   <string name="details_content_text_description_button_favourite">Икона Любимое</string>
   <string name="details_content_text_description_weather_condition">Состояние погоды</string>
@@ -49,7 +49,7 @@
   <string name="content_description_dropdown_menu_item_icon_settings">Найстройки приложения</string>
   <string name="content_description_text_clear_line">Очистить строку</string>
   <string name="settings_content_title_settings">Настройки</string>
-  <string name="settings_content_button_done">Готово</string>
+  <string name="many_place_title_button_done">Готово</string>
   <string name="settings_content_unit_title_temperature">Температура</string>
   <string name="settings_content_unit_title_temperature_celsius">Градусы Цельсия (°C)</string>
   <string name="settings_content_unit_title_temperature_fahrenheit">Градусы Фаренгейта (°F)</string>
@@ -77,10 +77,10 @@
   <string name="details_content_title_now_date">Сейчас</string>
   <string name="details_content_error_date_set_on_phone">У вас на телефоне установлена неправильная дата.</string>
   <string name="details_content_description_icon_calendar">Иконка календаря</string>
-  <string name="details_content_title_text_7_day_forecast">ПРОГНОЗ НА 7 ДНЕЙ</string>
+  <string name="details_content_title_text_next_days_forecast">ПРОГНОЗ НА %1$d ДНЕЙ</string>
   <string name="details_content_daily_forecast_text_today">Сегодня</string>
   <string name="details_content_daily_forecast_text_tomorrow">Завтра</string>
-  <string name="details_content_current_weather_text_feels_like">Чувствуется как: %1$s</string>
+  <string name="details_content_current_weather_text_feels_like">Ощущается как: %1$s</string>
   <string name="details_cintent_description_uv_index_icon">Иконка УФ индекс</string>
   <string name="details_content_title_block_uv_index">УФ-ИНДЕКС</string>
   <string name="details_content_description_cloud_icon">Иконка облака</string>
@@ -133,4 +133,11 @@
   <string name="details_content_freezingrain">ледяной дождь</string>
   <string name="details_content_ice">лёд</string>
   <string name="details_content_title_block_precipitation">ОСАДКИ</string>
+  <string name="nextdays_title_text_weather_conditions">Погодные условия</string>
+  <string name="caption_max">"Макс: "</string>
+  <string name="caption_min">"Мин: "</string>
+  <string name="error_loading_favourite_cities_please_inform_the_developers_about_the_problem">Ошибка при загрузке любимых городов, пожалуйста, сообщите разработчикам о проблеме.</string>
+  <string name="error_receiving_weather_forecast_please_try_again_later_if_the_error_occurs_again_please_notify_the_developers">Ошибка при получении прогноза погоды, пожалуйста, повторите попытку позже, если ошибка возникнет снова, пожалуйста, сообщите об этом разработчикам.</string>
+  <string name="dropdown_menu_title_screen_editing">Редактировать избранное</string>
+  <string name="failed_to_load_the_list_of_favourite_cities">Не удалось загрузить список избранных городов!\\nПожалуйста, сообщите о проблеме разработчикам приложения.</string>
 </resources>

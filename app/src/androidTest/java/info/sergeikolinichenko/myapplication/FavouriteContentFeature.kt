@@ -19,7 +19,7 @@ class FavouriteContentFeature : BaseUiTest() {
   @Test
   fun checksIfTheSearchStringExistOnFavouriteScreen() {
     // Arrange
-    val string = composeTestRule.activity.getString(R.string.favourite_content_text_in_search)
+    val string = composeTestRule.activity.getString(R.string.title_few_contents_text_favourite)
     // Assert
     composeTestRule.onNodeWithText(string).assertExists()
   }
@@ -68,7 +68,7 @@ class FavouriteContentFeature : BaseUiTest() {
     // Act
 
     composeTestRule.onNodeWithText(
-      composeTestRule.activity.getString(R.string.favourite_content_text_in_search)
+      composeTestRule.activity.getString(R.string.title_few_contents_text_favourite)
     ).performClick()
 
     composeTestRule.onNodeWithText(

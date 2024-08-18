@@ -25,9 +25,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import info.sergeikolinichenko.domain.entity.Forecast
 import info.sergeikolinichenko.myapplication.R
-import info.sergeikolinichenko.myapplication.utils.TITLE_ICON_SIZE
+import info.sergeikolinichenko.myapplication.utils.TITLE_ICON_SIZE_16
 import info.sergeikolinichenko.myapplication.utils.fromKphToStringId
 import info.sergeikolinichenko.myapplication.utils.toPerCentFromFloat
 import info.sergeikolinichenko.myapplication.utils.toWindDirection
@@ -35,9 +34,12 @@ import info.sergeikolinichenko.myapplication.utils.toWindDirection
 /** Created by Sergei Kolinichenko on 27.07.2024 at 16:00 (GMT+3) **/
 
 @Composable
-internal fun CurrentWeatherConditions(
+internal fun HumidityWindPressure(
   modifier: Modifier = Modifier,
-  forecast: Forecast
+  humidity: Float,
+  windDir: Float,
+  windSpeed: Float,
+  pressure: String
 ) {
   Row(
     modifier = modifier
@@ -55,7 +57,7 @@ internal fun CurrentWeatherConditions(
         .align(Alignment.CenterVertically),
       icon = ImageVector.vectorResource(id = R.drawable.humidity),
       title = stringResource(R.string.details_content_conditions_text_humidity),
-      value = forecast.currentForecast.humidity.toPerCentFromFloat()
+      value = humidity.toPerCentFromFloat()
     )
     // Wind block
     WeatherConditionsBlock(
@@ -63,9 +65,9 @@ internal fun CurrentWeatherConditions(
         .weight(1f)
         .align(Alignment.CenterVertically),
       icon = ImageVector.vectorResource(id = R.drawable.compass),
-      textToWindBlock = stringResource(id = forecast.currentForecast.windDir.toWindDirection()),
+      textToWindBlock = stringResource(id = windDir.toWindDirection()),
       title = stringResource(R.string.details_content_conditions_text_wind),
-      value = stringResource(id = forecast.currentForecast.windSpeed.fromKphToStringId())
+      value = stringResource(id = windSpeed.fromKphToStringId())
     )
 
     // Pressure block
@@ -75,7 +77,7 @@ internal fun CurrentWeatherConditions(
         .align(Alignment.CenterVertically),
       icon = ImageVector.vectorResource(id = R.drawable.thermostat),
       title = stringResource(R.string.details_content_conditions_text_pressure),
-      value = forecast.currentForecast.pressure
+      value = pressure
     )
   }
 }
@@ -109,7 +111,7 @@ private fun WeatherConditionsBlock(
         Icon(
           modifier = Modifier
             .padding(end = 4.dp)
-            .size(TITLE_ICON_SIZE.dp),
+            .size(TITLE_ICON_SIZE_16.dp),
           imageVector = icon,
           tint = MaterialTheme.colorScheme.surfaceTint,
           contentDescription = stringResource(R.string.details_content_description_current_weather_conditions_block_icon)
