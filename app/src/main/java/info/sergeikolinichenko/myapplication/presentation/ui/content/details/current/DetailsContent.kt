@@ -8,22 +8,13 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideIn
 import androidx.compose.animation.slideOut
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,10 +23,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import info.sergeikolinichenko.myapplication.R
@@ -48,7 +36,6 @@ import info.sergeikolinichenko.myapplication.presentation.ui.content.details.Cha
 import info.sergeikolinichenko.myapplication.presentation.ui.content.details.HumidityWindPressure
 import info.sergeikolinichenko.myapplication.presentation.ui.content.details.SunAndMoon
 import info.sergeikolinichenko.myapplication.presentation.ui.content.details.UvIndexAndCloudiness
-import info.sergeikolinichenko.myapplication.utils.SYS_ICON_SIZE_24
 import info.sergeikolinichenko.myapplication.utils.convertLongToCalendarWithTz
 import java.time.Instant
 import java.time.LocalDateTime
@@ -125,18 +112,13 @@ private fun DetailsScreen(
 
   Column(
     modifier = modifier
-      .padding(bottom = 16.dp)
+      .padding(16.dp)
       .fillMaxSize()
       .verticalScroll(rememberScrollState())
   ) {
 
     TopBar(
-      modifier = Modifier.padding(
-        start = 16.dp,
-        top = 20.dp,
-        end = 16.dp,
-        bottom = 36.dp
-      ),
+      modifier = Modifier,
       state = state.value,
       onBackButtonClick = {
         onBackClicked()
@@ -152,68 +134,6 @@ private fun DetailsScreen(
       onDayClicked = { id, index, forecast ->
         onDayClicked(id, index, forecast)
       }
-    )
-  }
-}
-
-@Composable
-private fun TopBar(
-  modifier: Modifier = Modifier,
-  state: DetailsStore.State,
-  onBackButtonClick: () -> Unit,
-  onSettingsClicked: () -> Unit
-) {
-
-  Box(
-    modifier = modifier
-      .fillMaxWidth(),
-  ) {
-    // Back button
-    Icon(
-      modifier = Modifier
-        .size(24.dp)
-        .align(Alignment.CenterStart)
-        .clickable { onBackButtonClick() },
-      imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-      contentDescription = stringResource(R.string.details_content_description_text_back_button)
-    )
-
-    if (state.citiesState is DetailsStore.State.CitiesState.Loaded) {
-
-
-      if (state.forecastState is DetailsStore.State.ForecastState.Loaded) {
-        Row(
-          modifier = modifier.align(Alignment.Center),
-          horizontalArrangement = Arrangement.spacedBy(4.dp),
-          verticalAlignment = Alignment.CenterVertically
-        ) {
-          for (number in state.citiesState.cities) {
-            if (number.id == state.citiesState.id) {
-              Icon(
-                modifier = Modifier.size(8.dp),
-                imageVector = ImageVector.vectorResource(id = R.drawable.ellipse),
-                tint = Color.Black,
-                contentDescription = null
-              )
-            } else {
-              Icon(
-                modifier = Modifier.size(8.dp),
-                imageVector = ImageVector.vectorResource(id = R.drawable.ellipse),
-                tint = Color.White,
-                contentDescription = null
-              )
-            }
-          }
-        }
-      }
-    }
-    Icon(
-      modifier = Modifier
-        .size(SYS_ICON_SIZE_24.dp)
-        .align(Alignment.CenterEnd)
-        .clickable { onSettingsClicked() },
-      imageVector = Icons.Default.Settings,
-      contentDescription = "Icon Settings"
     )
   }
 }
@@ -239,10 +159,7 @@ private fun MainScreen(
 
         CurrentWeather(
           modifier = modifier
-            .padding(
-              start = 16.dp,
-              end = 16.dp
-            ),
+            .padding(top = 24.dp),
           forecast = forecast,
           city = city
         )
@@ -250,11 +167,7 @@ private fun MainScreen(
         // Humidity, wind, pressure
         HumidityWindPressure(
           modifier = Modifier
-            .padding(
-              top = 24.dp,
-              start = 16.dp,
-              end = 16.dp
-            ),
+            .padding(top = 16.dp),
           humidity = forecast.currentForecast.humidity,
           windDir = forecast.currentForecast.windDir,
           windSpeed = forecast.currentForecast.windSpeed,
@@ -264,11 +177,7 @@ private fun MainScreen(
         // UV index and cloudiness
         UvIndexAndCloudiness(
           modifier = Modifier
-            .padding(
-              top = 16.dp,
-              start = 16.dp,
-              end = 16.dp
-            ),
+            .padding(top = 24.dp),
           uvIndex = forecast.currentForecast.uvIndex,
           cloudCover = forecast.currentForecast.cloudCover,
           precipitation = if (forecast.currentForecast.precipProb > 0) forecast.currentForecast.precip else null
@@ -287,22 +196,14 @@ private fun MainScreen(
 
         AnimatingHourlyWeatherForecast(
           modifier = Modifier
-            .padding(
-              top = 16.dp,
-              start = 16.dp,
-              end = 16.dp
-            ),
+            .padding(top = 16.dp),
           list = list,
           tzId = forecast.tzId
         )
 
         DailyWeatherForecast(
           modifier = Modifier
-            .padding(
-              top = 16.dp,
-              start = 16.dp,
-              end = 16.dp
-            ),
+            .padding(top = 16.dp),
           forecast = forecast,
           onDayClicked = { index ->
             onDayClicked(city.id, index, forecast)
@@ -311,11 +212,7 @@ private fun MainScreen(
 
         SunAndMoon(
           modifier = Modifier
-            .padding(
-              top = 16.dp,
-              start = 16.dp,
-              end = 16.dp
-            ),
+            .padding(top = 16.dp),
           sunrise = forecast.upcomingDays.first().sunrise,
           sunset = forecast.upcomingDays.first().sunset,
           moonrise = forecast.upcomingDays.first().moonrise,
@@ -326,11 +223,7 @@ private fun MainScreen(
 
         Charts(
           modifier = Modifier
-            .padding(
-              top = 16.dp,
-              start = 16.dp,
-              end = 16.dp
-            ),
+            .padding(top = 16.dp,),
           list = forecast.getSublistForecastHourly(),
           tzId = forecast.tzId
         )

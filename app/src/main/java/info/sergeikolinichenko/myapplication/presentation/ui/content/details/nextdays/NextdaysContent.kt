@@ -1,7 +1,6 @@
 package info.sergeikolinichenko.myapplication.presentation.ui.content.details.nextdays
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,8 +13,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -55,8 +52,6 @@ import info.sergeikolinichenko.myapplication.presentation.ui.content.details.Hum
 import info.sergeikolinichenko.myapplication.presentation.ui.content.details.SunAndMoon
 import info.sergeikolinichenko.myapplication.presentation.ui.content.details.UvIndexAndCloudiness
 import info.sergeikolinichenko.myapplication.utils.DividingLine
-import info.sergeikolinichenko.myapplication.utils.getNumberDayOfMonth
-import info.sergeikolinichenko.myapplication.utils.getTwoLettersDayOfTheWeek
 import info.sergeikolinichenko.myapplication.utils.toIconId
 import java.time.Instant
 import java.time.ZoneId
@@ -315,67 +310,6 @@ internal fun NextdaysScreen(
 }
 
 @Composable
-private fun ControlPanel(
-  modifier: Modifier = Modifier,
-  state: NextdaysStore.State,
-  onDayClicked: (Int) -> Unit,
-  onCloseClicked: () -> Unit
-) {
-  Box(
-    modifier = modifier
-      .fillMaxWidth()
-      .padding(start = 16.dp, end = 16.dp, top = 12.dp)
-  ) {
-    Text(
-      modifier = Modifier.align(Alignment.Center),
-      text = stringResource(R.string.nextdays_title_text_weather_conditions),
-      fontFamily = FontFamily.SansSerif,
-      fontWeight = FontWeight.Normal,
-      fontSize = 22.sp,
-      textAlign = TextAlign.Center,
-      color = MaterialTheme.colorScheme.onBackground
-    )
-    Icon(
-      modifier = Modifier
-        .size(24.dp)
-        .align(Alignment.CenterEnd)
-        .clickable { onCloseClicked() },
-      imageVector = Icons.Default.Close,
-      contentDescription = "Close nextdays screen"
-    )
-  }
-  Row(
-    modifier = Modifier
-      .fillMaxWidth()
-      .padding(16.dp),
-    horizontalArrangement = Arrangement.SpaceBetween,
-    verticalAlignment = Alignment.CenterVertically
-  ) {
-
-    val forecast = (state.forecast as NextdaysStore.State.ForecastState.Loaded).forecast
-
-    val days = forecast.upcomingDays
-
-    days.drop(1).forEach { day ->
-
-      val color =
-        if (forecast.upcomingDays.indexOf(day) == state.index) MaterialTheme.colorScheme.tertiary
-        else MaterialTheme.colorScheme.background
-
-      DayOfWeek(
-        modifier = Modifier
-          .weight(1f),
-        titleTopText = getTwoLettersDayOfTheWeek(day.date, forecast.tzId),
-        titleBottomText = getNumberDayOfMonth(day.date, forecast.tzId),
-        backgroundColor = color,
-        index = forecast.upcomingDays.indexOf(day),
-        onDayClicked = { onDayClicked(it) }
-      )
-    }
-  }
-}
-
-@Composable
 private fun DailyWeather(
   modifier: Modifier = Modifier,
   state: NextdaysStore.State,
@@ -471,48 +405,6 @@ private fun DailyWeatherTempText(
     textAlign = TextAlign.Start,
     color = MaterialTheme.colorScheme.onBackground
   )
-}
-
-@Composable
-private fun DayOfWeek(
-  modifier: Modifier = Modifier,
-  titleTopText: String,
-  titleBottomText: String,
-  backgroundColor: Color,
-  index: Int,
-  onDayClicked: (Int) -> Unit
-) {
-  Column(
-    modifier = modifier.clickable { onDayClicked(index) },
-    horizontalAlignment = Alignment.CenterHorizontally
-  ) {
-
-    Text(
-      modifier = Modifier,
-      text = titleTopText,
-      fontFamily = FontFamily.SansSerif,
-      fontWeight = FontWeight.Normal,
-      fontSize = 12.sp,
-      textAlign = TextAlign.Center,
-      color = MaterialTheme.colorScheme.onBackground
-    )
-    Box(
-      modifier = Modifier
-        .size(34.dp)
-        .clip(shape = RoundedCornerShape(16.dp))
-        .background(backgroundColor),
-    ) {
-      Text(
-        modifier = Modifier.align(Alignment.Center),
-        text = titleBottomText,
-        fontFamily = FontFamily.SansSerif,
-        fontWeight = FontWeight.Normal,
-        fontSize = 12.sp,
-        textAlign = TextAlign.Center,
-        color = MaterialTheme.colorScheme.onBackground
-      )
-    }
-  }
 }
 
 @Composable

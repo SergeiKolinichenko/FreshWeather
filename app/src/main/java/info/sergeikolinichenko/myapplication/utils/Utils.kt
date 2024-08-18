@@ -60,39 +60,47 @@ internal fun Int.toUvToStringId() = when {
   else -> R.string.details_content_nothing
 }
 
-internal fun getTwoLettersDayOfTheWeek(time: Long, tzId: String): String {
-  val instant = Instant.ofEpochSecond(time)
+internal fun getTwoLettersDayOfTheWeek(date: Long, tzId: String): String {
+  val instant = Instant.ofEpochSecond(date)
   val zoneId = ZoneId.of(tzId)
   val zonedDateTime = ZonedDateTime.ofInstant(instant, zoneId)
   val dayOfWeek = zonedDateTime.dayOfWeek
   return dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault()).take(2)
 }
 
-internal fun getNumberDayOfMonth(time: Long, tzId: String): String {
-  val instant = Instant.ofEpochSecond(time)
+internal fun getNumberDayOfMonth(date: Long, tzId: String): String {
+  val instant = Instant.ofEpochSecond(date)
   val zoneId = ZoneId.of(tzId)
   val zonedDateTime = ZonedDateTime.ofInstant(instant, zoneId)
   return zonedDateTime.dayOfMonth.toString()
 }
 
-internal fun getDayOfWeekName(time: Long, tzId: String): String {
-  val instant = Instant.ofEpochSecond(time)
+internal fun getDayOfWeekName(date: Long, tzId: String): String {
+  val instant = Instant.ofEpochSecond(date)
   val zoneId = ZoneId.of(tzId)
   val zonedDateTime = ZonedDateTime.ofInstant(instant, zoneId)
   val dayOfWeek = zonedDateTime.dayOfWeek
   return dayOfWeek.getDisplayName(TextStyle.FULL, Locale.getDefault())
 }
 
-fun getTime(time: Long, tzId: String): String {
-  val instant = Instant.ofEpochSecond(time)
+fun getMonthAbbreviation(date: Long, tzId: String): String {
+  val instant = Instant.ofEpochSecond(date)
+  val zoneId = ZoneId.of(tzId)
+  val zonedDateTime = ZonedDateTime.ofInstant(instant, zoneId)
+  val monthName = zonedDateTime.month.getDisplayName(TextStyle.SHORT, Locale.getDefault())
+  return " $monthName"
+}
+
+fun getTime(date: Long, tzId: String): String {
+  val instant = Instant.ofEpochSecond(date)
   val zoneId = ZoneId.of(tzId)
   val zonedDateTime = ZonedDateTime.ofInstant(instant, zoneId)
   val formatter = DateTimeFormatter.ofPattern("HH:mm")
   return zonedDateTime.format(formatter)
 }
 
-fun getDayAndMonthName(time: Long, tzId: String): String {
-  val instant = Instant.ofEpochSecond(time)
+fun getDayAndMonthName(date: Long, tzId: String): String {
+  val instant = Instant.ofEpochSecond(date)
   val zoneId = ZoneId.of(tzId)
   val zonedDateTime = ZonedDateTime.ofInstant(instant, zoneId)
   val dayOfMonth = zonedDateTime.dayOfMonth
@@ -100,11 +108,11 @@ fun getDayAndMonthName(time: Long, tzId: String): String {
   return "$dayOfMonth $monthName"
 }
 
-internal fun isTodayOrTomorrow(timeEpoch: Long, timeZoneId: String): Int {
-  val now = LocalDate.now(ZoneId.of(timeZoneId))
-  val date = Instant.ofEpochSecond(timeEpoch).atZone(ZoneId.of(timeZoneId)).toLocalDate()
+internal fun isTodayOrTomorrow(date: Long, tzId: String): Int {
+  val now = LocalDate.now(ZoneId.of(tzId))
+  val dateIn = Instant.ofEpochSecond(date).atZone(ZoneId.of(tzId)).toLocalDate()
 
-  return when (date) {
+  return when (dateIn) {
     now -> R.string.details_content_tittle_sun_moon_block_today
     now.plusDays(1) -> R.string.details_content_tittle_sun_moon_block_tomorrow
     else -> R.string.details_content_nothing
