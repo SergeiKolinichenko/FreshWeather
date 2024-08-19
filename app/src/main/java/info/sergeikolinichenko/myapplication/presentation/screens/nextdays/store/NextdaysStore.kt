@@ -23,9 +23,10 @@ import javax.inject.Inject
 
 interface NextdaysStore : Store<Intent, State, Label> {
   sealed interface Intent {
-    data object OnCloseClicked : Intent
+    data object OnSwipeTop : Intent
     data object OnSwipeLeft : Intent
     data object OnSwipeRight : Intent
+    data object OnClickClose : Intent
     data class OnDayClicked(val index: Int) : Intent
   }
 
@@ -53,7 +54,8 @@ interface NextdaysStore : Store<Intent, State, Label> {
   }
 
   sealed interface Label {
-    data class OnCloseClicked(val id: Int, val forecast: ForecastFs) : Label
+    data object OnSwipedTop : Label
+    data object OnClickedClose : Label
   }
 }
 
@@ -119,17 +121,8 @@ class NextdaysStoreFactory @Inject constructor(
 
       when (intent) {
 
-        is Intent.OnCloseClicked -> {
+        is Intent.OnSwipeTop -> publish(Label.OnSwipedTop)
 
-
-          if (state().citiesState is State.CitiesState.Loaded && state().forecast is State.ForecastState.Loaded) {
-            val citiesState = state().citiesState as State.CitiesState.Loaded
-            val forecastState = state().forecast as State.ForecastState.Loaded
-
-            publish(Label.OnCloseClicked(citiesState.id, forecastState.forecast))
-          }
-
-        }
         is Intent.OnDayClicked -> {
           dispatch(Message.OnDayClicked(intent.index))}
 
@@ -173,6 +166,8 @@ class NextdaysStoreFactory @Inject constructor(
             }
           }
         }
+
+        Intent.OnClickClose -> publish(Label.OnClickedClose)
       }
     }
 

@@ -1,6 +1,5 @@
-package info.sergeikolinichenko.myapplication.presentation.ui.content.details.current
+package info.sergeikolinichenko.myapplication.presentation.ui.content.details.currentweather
 
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -17,11 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -36,7 +31,6 @@ import androidx.compose.ui.util.fastForEachIndexed
 import info.sergeikolinichenko.myapplication.R
 import info.sergeikolinichenko.myapplication.entity.ForecastFs
 import info.sergeikolinichenko.myapplication.utils.DividingLine
-import info.sergeikolinichenko.myapplication.utils.LinearGradient.gradientDailyTemp
 import info.sergeikolinichenko.myapplication.utils.TITLE_ICON_SIZE_16
 import info.sergeikolinichenko.myapplication.utils.WEATHER_ICON_SIZE_36
 import info.sergeikolinichenko.myapplication.utils.convertLongToCalendarWithTz
@@ -84,7 +78,6 @@ internal fun DailyWeatherForecast(
           numberOfDay = index,
           onDayClicked = { onDayClicked(it) }
         )
-
         DividingLine()
       }
     }
@@ -235,75 +228,5 @@ private fun seeIfToday(date: Long, tz: String): Boolean {
   val calendar = convertLongToCalendarWithTz(date, tz)
   val today = Calendar.getInstance()
   return calendar.get(Calendar.DAY_OF_YEAR) == today.get(Calendar.DAY_OF_YEAR)
-}
-
-// may be it is not needed
-@Composable
-fun CustomGradientLine(
-  modifier: Modifier = Modifier,
-  minTemp: String,
-  maxTemp: String,
-  currentTemp: String? = null
-) {
-
-  val colorOutline = MaterialTheme.colorScheme.outline
-
-  val minTempFloat = minTemp.substringBefore("°").toFloat()
-  val maxTempFloat = maxTemp.substringBefore("°").toFloat()
-
-  val startX = (maxTempFloat + 50) / 100
-  val endX = (maxTempFloat + 50) / 100
-
-  Canvas(modifier = modifier) {
-
-    drawPartialGradientLine(startX, endX)
-
-    currentTemp?.let {
-
-      val currentTempFloat = currentTemp.substringBefore("°").toFloat()
-      val indexLength =
-        (size.width / (maxTempFloat - minTempFloat)) * (currentTempFloat - minTempFloat)
-
-      drawCircle(
-        color = Color.White,
-        radius = 6.dp.toPx(),
-        center = Offset(indexLength, 0f)
-      )
-      drawCircle(
-        color = colorOutline,
-        style = Stroke(width = 1.dp.toPx()),
-        radius = 6.dp.toPx(),
-        center = Offset(indexLength, 0f)
-      )
-    }
-  }
-}
-
-fun DrawScope.drawPartialGradientLine(startX: Float, endX: Float) {
-
-  val partialGradient = Brush.horizontalGradient(
-
-    colorStops = gradientDailyTemp.filter { (offset, _) ->
-
-      startX < 0.25f && offset == 0f ||
-          startX >= 0.25f && startX < 0.5f && offset == 0.25f ||
-          startX >= 0.5f && startX < 0.75f && offset == 0.5f ||
-          startX >= 0.75f && offset == 0.75f ||
-          endX < 0.25f && offset == 0.25f ||
-          endX > 0.25f && endX < 0.5f && offset == 0.5f ||
-          endX >= 0.5f && endX < 0.75f && offset == 0.75f ||
-          endX >= 0.75f && offset == 1f
-
-    }.map { (offset, color) ->
-      ((offset - startX) / (endX - startX)) to color
-    }.toTypedArray()
-  )
-
-  drawLine(
-    brush = partialGradient,
-    start = Offset(0f, 0f),
-    end = Offset(size.width, 0f),
-    strokeWidth = 4.dp.toPx()
-  )
 }
 

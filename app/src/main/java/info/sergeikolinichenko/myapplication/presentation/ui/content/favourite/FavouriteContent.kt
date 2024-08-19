@@ -10,6 +10,7 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -30,14 +31,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontFamily
@@ -51,74 +54,24 @@ import info.sergeikolinichenko.myapplication.presentation.screens.favourite.stor
 
 /** Created by Sergei Kolinichenko on 21.02.2024 at 16:06 (GMT+3) **/
 @Composable
-fun FavouriteContent(
-  component: FavouriteComponent,
-  modifier: Modifier = Modifier
-) {
-
-  val state = component.model.collectAsState()
+fun FavouriteContent(component: FavouriteComponent) {
 
   Box(
-    modifier = modifier
+    modifier = Modifier
       .fillMaxSize()
       .background(MaterialTheme.colorScheme.background)
   ) {
-
-    FavoriteVerticalGrid(
+    AnimatedFavouriteContent(
+      component = component,
       modifier = Modifier
-        .align(Alignment.TopCenter),
-      state = state,
-      onClickSearch = { component.onSearchClicked() },
-      onClickActionMenu = { component.onActionMenuClicked() },
-      onItemClicked = { component.onItemClicked(it) },
-      onDismissRequestDropdownMenu = { component.onClosingActionMenu() },
-      onClickSettings = { component.onItemMenuSettingsClicked() },
-      onClickEditing = { component.onItemMenuEditingClicked() }
+        .fillMaxSize()
+        .align(Alignment.TopCenter)
     )
   }
 }
 
 @Composable
-private fun InitialBox(
-  modifier: Modifier = Modifier
-) {
-  Column(
-    modifier = modifier
-      .padding(top = 120.dp)
-      .size(258.dp)
-  ) {
-    val icon = if (isSystemInDarkTheme()) R.drawable.dark_initial_picture
-    else R.drawable.light_initial_picture
-    Icon(
-      modifier = Modifier.align(Alignment.CenterHorizontally),
-      imageVector = ImageVector.vectorResource(id = icon),
-      contentDescription = stringResource(id = R.string.favourite_content_initial_picture),
-      tint = Color.Unspecified,
-    )
-    Spacer(modifier = Modifier.size(10.dp))
-    Text(
-      modifier = Modifier.align(Alignment.CenterHorizontally),
-      text = stringResource(id = R.string.favourite_content_text_favourites_are_empty),
-      textAlign = TextAlign.Center,
-      fontFamily = FontFamily.SansSerif,
-      fontWeight = FontWeight.Medium,
-      fontSize = 20.sp,
-      color = MaterialTheme.colorScheme.onBackground
-    )
-    Text(
-      modifier = Modifier.align(Alignment.CenterHorizontally),
-      text = stringResource(id = R.string.favourite_content_add_cities_here),
-      textAlign = TextAlign.Center,
-      fontFamily = FontFamily.SansSerif,
-      fontWeight = FontWeight.Normal,
-      fontSize = 14.sp,
-      color = MaterialTheme.colorScheme.onBackground
-    )
-  }
-}
-
-@Composable
-private fun FavoriteVerticalGrid(
+internal fun FavoriteVerticalGrid(
   modifier: Modifier = Modifier,
   state: State<FavouriteStore.State>,
   columns: Int = 1,
@@ -128,29 +81,50 @@ private fun FavoriteVerticalGrid(
   onItemClicked: (Int) -> Unit,
   onDismissRequestDropdownMenu: () -> Unit,
   onClickSettings: () -> Unit,
-  onClickEditing: () -> Unit
+  onClickEditing: () -> Unit,
+  onSwipeLeft: () -> Unit,
+  onSwipeRight: () -> Unit
 ) {
+
+  var swipeLeft by remember { mutableStateOf(false) }
+  var swipeRight by remember { mutableStateOf(false) }
 
   LazyVerticalGrid(
     modifier = modifier
       .fillMaxSize()
-      .padding(16.dp),
+      .padding(16.dp)
+      .pointerInput(Unit) {
+        detectHorizontalDragGestures { change, dragAmount ->
+          if (dragAmount > 0) {
+            swipeLeft = true
+            swipeRight = false
+          } else if (dragAmount < 0) {
+            swipeRight = true
+            swipeLeft = false
+          }
+          change.consume()
+        }
+      },
     columns = GridCells.Fixed(columns),
     verticalArrangement = Arrangement.spacedBy(16.dp),
     horizontalArrangement = Arrangement.spacedBy(16.dp)
-  ){
-      cityGridContent(
-        state = state,
-        columns = columns,
-        lazyListState = lazyListState,
-        onClickSearch = { onClickSearch() },
-        onClickActionMenu = { onClickActionMenu() },
-        onItemClicked = { onItemClicked(it) },
-        onDismissRequestDropdownMenu = { onDismissRequestDropdownMenu() },
-        onClickSettings = { onClickSettings() },
-        onClickEditing = { onClickEditing() }
-      )
-    }
+  ) {
+    cityGridContent(
+      state = state,
+      columns = columns,
+      lazyListState = lazyListState,
+      onClickSearch = { onClickSearch() },
+      onClickActionMenu = { onClickActionMenu() },
+      onItemClicked = { onItemClicked(it) },
+      onDismissRequestDropdownMenu = { onDismissRequestDropdownMenu() },
+      onClickSettings = { onClickSettings() },
+      onClickEditing = { onClickEditing() }
+    )
+  }
+
+  if (swipeLeft) onSwipeLeft()
+
+  if (swipeRight) onSwipeRight()
 }
 
 private fun LazyGridScope.cityGridContent(
@@ -164,6 +138,7 @@ private fun LazyGridScope.cityGridContent(
   onClickSettings: () -> Unit,
   onClickEditing: () -> Unit
 ) {
+
   item(
     span = { GridItemSpan(columns) }
   ) {
@@ -184,7 +159,11 @@ private fun LazyGridScope.cityGridContent(
       item(
         span = { GridItemSpan(columns) }
       ) {
-        InitialBox()
+        InitialBox(
+          modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+        )
       }
     }
 
@@ -257,6 +236,53 @@ fun scaleAndAlpha(
     }
   }
   return alpha to scale
+}
+
+@Composable
+private fun InitialBox(
+  modifier: Modifier = Modifier
+) {
+
+  Box(
+    modifier = modifier,
+  ) {
+
+  Column(
+    modifier = Modifier.fillMaxSize(),
+    horizontalAlignment = Alignment.CenterHorizontally,
+    verticalArrangement = Arrangement.Center
+  ) {
+
+    val icon = if (isSystemInDarkTheme()) R.drawable.dark_initial_picture
+    else R.drawable.light_initial_picture
+
+      Icon(
+        modifier = Modifier
+          .size(300.dp),
+        imageVector = ImageVector.vectorResource(id = icon),
+        contentDescription = stringResource(id = R.string.favourite_content_initial_picture),
+        tint = Color.Unspecified,
+      )
+      Spacer(modifier = Modifier.size(20.dp))
+      Text(
+        text = stringResource(id = R.string.favourite_content_text_favourites_are_empty),
+        textAlign = TextAlign.Center,
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.Medium,
+        fontSize = 20.sp,
+        color = MaterialTheme.colorScheme.onBackground
+      )
+      Spacer(modifier = Modifier.size(10.dp))
+      Text(
+        text = stringResource(id = R.string.favourite_content_add_cities_here),
+        textAlign = TextAlign.Center,
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.Normal,
+        fontSize = 14.sp,
+        color = MaterialTheme.colorScheme.onBackground
+      )
+    }
+  }
 }
 
 data class ScaleAndAlphaArgs(

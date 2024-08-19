@@ -1,4 +1,4 @@
-package info.sergeikolinichenko.myapplication.presentation.ui.content.details.current
+package info.sergeikolinichenko.myapplication.presentation.ui.content.details.currentweather
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement

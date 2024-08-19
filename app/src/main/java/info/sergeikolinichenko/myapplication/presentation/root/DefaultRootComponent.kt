@@ -7,6 +7,7 @@ import com.arkivanov.decompose.router.stack.StackNavigation
 import com.arkivanov.decompose.router.stack.active
 import com.arkivanov.decompose.router.stack.childStack
 import com.arkivanov.decompose.router.stack.pop
+import com.arkivanov.decompose.router.stack.popWhile
 import com.arkivanov.decompose.router.stack.push
 import com.arkivanov.decompose.value.Value
 import dagger.assisted.Assisted
@@ -83,9 +84,12 @@ class DefaultRootComponent @AssistedInject constructor(
         id = config.id,
         index = config.index,
         forecast = config.forecast,
-        onClickClose = { id, forecast ->
+        onSwipedTop = {
           navigation.pop()
         },
+        onClickedClose = {
+          navigation.popWhile{ it !is Config.Favourite}
+        }
       )
       RootComponent.Child.Nextdays(component)
     }

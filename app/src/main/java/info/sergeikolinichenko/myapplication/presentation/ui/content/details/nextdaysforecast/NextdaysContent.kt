@@ -1,4 +1,4 @@
-package info.sergeikolinichenko.myapplication.presentation.ui.content.details.nextdays
+package info.sergeikolinichenko.myapplication.presentation.ui.content.details.nextdaysforecast
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
@@ -91,13 +91,14 @@ fun NextdaysContent(
           NextdaysStore.State.ForecastState.Initial -> {}
           is NextdaysStore.State.ForecastState.Loaded -> {
 
-            AppearanceAnimationNextdays(
+            AnimatedNextdaysScreen(
               modifier = Modifier.weight(1f),
               state = state,
               onDayClicked = { component.onDayClicked(it) },
               onCloseClicked = { component.onCloseClicked() },
               onSwipeLeft = { component.onSwipeLeft() },
-              onSwipeRight = { component.onSwipeRight() }
+              onSwipeRight = { component.onSwipeRight() },
+              onSwipeTop = { component.onSwipeTop() }
             )
           }
 
@@ -151,6 +152,7 @@ internal fun NextdaysScreen(
   onCloseClicked: () -> Unit,
   onSwipeLeft: () -> Unit,
   onSwipeRight: () -> Unit,
+  onSwipeTop: () -> Unit,
   animatedDirection: (AnimatedDirection) -> Unit
 ) {
 
@@ -158,10 +160,7 @@ internal fun NextdaysScreen(
 
   var overScrollTop by remember { mutableStateOf(false) }
   var overScrollBottom by remember { mutableStateOf(false) }
-  var swipeLeft by remember { mutableStateOf(false) }
-  var swipeRight by remember { mutableStateOf(false) }
   val scrollState = rememberScrollState()
-
   val nestedScrollConnection = remember {
     object : NestedScrollConnection {
       override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
@@ -182,11 +181,11 @@ internal fun NextdaysScreen(
     }
   }
 
+  var swipeLeft by remember { mutableStateOf(false) }
+  var swipeRight by remember { mutableStateOf(false) }
+
   if (overScrollTop) {
-    if (state.index > 1) {
-      animatedDirection(AnimatedDirection.Bottom)
-      onDayClicked(state.index - 1)
-    }
+    onSwipeTop()
   }
   if (overScrollBottom) {
     if (state.index < forecast.upcomingDays.size - 1) {
@@ -459,4 +458,8 @@ fun getHoursForDay(hours: List<HourForecastFs>, dayEpoch: Long, tz: String): Lis
     val hourInstant = Instant.ofEpochSecond(hour.date).atZone(zoneId)
     hourInstant.isAfter(dayStart) && hourInstant.isBefore(dayEnd)
   }
+}
+
+internal enum class AnimatedDirection {
+  Top, Bottom, Left, Right
 }

@@ -1,9 +1,9 @@
 package info.sergeikolinichenko.myapplication.presentation.ui.content.editing
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,7 +25,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -64,16 +63,11 @@ import kotlinx.coroutines.launch
 @Composable
 internal fun EditingContent(component: EditingFavouritesComponent) {
 
-  val state by component.model.collectAsState()
-  EditingScreen(
-    state = state,
-    onCloseClicked = {
-      component.onBackClicked()
-    },
-    onDoneClicked = {
-      component.onDoneClicked(it)
-    }
+  AnimatedEditingContent(
+    modifier = Modifier.fillMaxSize(),
+    component = component,
   )
+
 }
 
 @Composable
@@ -81,15 +75,26 @@ internal fun EditingScreen(
   modifier: Modifier = Modifier,
   state: EditingFavouritesStore.State,
   onCloseClicked: () -> Unit,
-  onDoneClicked: (cities: List<CityFs>) -> Unit
+  onDoneClicked: (cities: List<CityFs>) -> Unit,
+  onSwipeRight: () -> Unit
 ) {
 
   var listCity: List<CityFs>? = null
+
+  var swipeRight by remember { mutableStateOf(false) }
 
   Column(
     modifier = modifier
       .fillMaxSize()
       .background(MaterialTheme.colorScheme.background)
+      .pointerInput(Unit) {
+        detectHorizontalDragGestures { change, dragAmount ->
+          if (dragAmount < 0) {
+            swipeRight = true
+          }
+          change.consume()
+        }
+      }
   ) {
     TopBar(
       modifier = Modifier,
@@ -102,7 +107,7 @@ internal fun EditingScreen(
       listCityFs = { cities ->  listCity = cities }
     )
   }
-
+  if (swipeRight) onSwipeRight()
 }
 
 @Composable
@@ -126,7 +131,6 @@ private fun MainScreen(
 
       val dragDropListState = rememberDragDropListState(onMove = { from, to ->
         cities.move(from, to)
-        Log.d("TAG", "MainScreen: ${cities.map { it.name }}")
         listCityFs(cities)
       })
 

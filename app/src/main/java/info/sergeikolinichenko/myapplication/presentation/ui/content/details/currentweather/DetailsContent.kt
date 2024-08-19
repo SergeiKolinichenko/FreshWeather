@@ -1,12 +1,5 @@
-package info.sergeikolinichenko.myapplication.presentation.ui.content.details.current
+package info.sergeikolinichenko.myapplication.presentation.ui.content.details.currentweather
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.MutableTransitionState
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideIn
-import androidx.compose.animation.slideOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,12 +12,18 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import info.sergeikolinichenko.myapplication.R
 import info.sergeikolinichenko.myapplication.entity.ForecastFs
@@ -62,47 +61,7 @@ fun DetailsContent(
 }
 
 @Composable
-fun AnimatedDetailsContent(
-  modifier: Modifier = Modifier,
-  component: DetailsComponent
-) {
-
-  val state = component.model.collectAsState()
-
-  val animState = remember { MutableTransitionState(false) }
-
-  animState.targetState = state.value.forecastState is DetailsStore.State.ForecastState.Loaded
-
-  AnimatedVisibility(
-    visibleState = animState,
-    enter = fadeIn(animationSpec = tween(300)) +
-        slideIn(animationSpec = tween(300),
-          initialOffset = { IntOffset(it.width, 0) }),
-
-    exit = fadeOut(
-      animationSpec = tween(300)
-    ) + slideOut(
-      animationSpec = tween(300),
-      targetOffset = { IntOffset(-it.width, 0) }),
-  ) {
-    DetailsScreen(
-      modifier = modifier,
-      state = state,
-      onBackClicked = { component.onBackClicked() },
-      onChangeFavouriteStatusClicked = { component.onSettingsClicked() },
-      onDayClicked = { id, index, forecast ->
-        component.onDayClicked(
-          id = id,
-          index = index,
-          forecast = forecast
-        )
-      }
-    )
-  }
-}
-
-@Composable
-private fun DetailsScreen(
+internal fun DetailsScreen(
   modifier: Modifier = Modifier,
   state: State<DetailsStore.State>,
   onBackClicked: () -> Unit,
@@ -110,11 +69,35 @@ private fun DetailsScreen(
   onDayClicked: (Int, Int, ForecastFs) -> Unit
 ) {
 
+  var overScrollTop by remember { mutableStateOf(false) }
+  var overScrollBottom by remember { mutableStateOf(false) }
+  val scrollState = rememberScrollState()
+  val nestedScrollConnection = remember {
+    object : NestedScrollConnection {
+      override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+        val delta = available.y
+        if (delta > 0 && scrollState.value == 0) {
+          overScrollTop = true
+        } else if (delta < 0 && scrollState.value == scrollState.maxValue) {
+          overScrollBottom = true
+        }
+        return Offset.Zero
+      }
+
+      override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
+        overScrollTop = false
+        overScrollBottom = false
+        return super.onPostFling(consumed, available)
+      }
+    }
+  }
+
   Column(
     modifier = modifier
       .padding(16.dp)
       .fillMaxSize()
-      .verticalScroll(rememberScrollState())
+      .nestedScroll(nestedScrollConnection)
+      .verticalScroll(scrollState)
   ) {
 
     TopBar(
@@ -135,6 +118,13 @@ private fun DetailsScreen(
         onDayClicked(id, index, forecast)
       }
     )
+  }
+
+  if (overScrollBottom) {
+    val id = (state.value.citiesState as DetailsStore.State.CitiesState.Loaded).id
+    val index = 1
+    val forecast = (state.value.forecastState as DetailsStore.State.ForecastState.Loaded).forecast
+    onDayClicked(id, index, forecast)
   }
 }
 

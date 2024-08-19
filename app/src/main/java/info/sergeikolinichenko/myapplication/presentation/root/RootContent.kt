@@ -2,10 +2,10 @@ package info.sergeikolinichenko.myapplication.presentation.root
 
 import androidx.compose.runtime.Composable
 import com.arkivanov.decompose.extensions.compose.stack.Children
-import info.sergeikolinichenko.myapplication.presentation.ui.content.details.current.DetailsContent
-import info.sergeikolinichenko.myapplication.presentation.ui.content.favourite.FavouriteContent
-import info.sergeikolinichenko.myapplication.presentation.ui.content.details.nextdays.NextdaysContent
+import info.sergeikolinichenko.myapplication.presentation.ui.content.details.currentweather.DetailsContent
+import info.sergeikolinichenko.myapplication.presentation.ui.content.details.nextdaysforecast.NextdaysContent
 import info.sergeikolinichenko.myapplication.presentation.ui.content.editing.EditingContent
+import info.sergeikolinichenko.myapplication.presentation.ui.content.favourite.FavouriteContent
 import info.sergeikolinichenko.myapplication.presentation.ui.content.search.SearchContent
 import info.sergeikolinichenko.myapplication.presentation.ui.content.settings.SettingsContent
 import info.sergeikolinichenko.myapplication.presentation.ui.theme.FreshWeatherTheme
@@ -14,6 +14,7 @@ import info.sergeikolinichenko.myapplication.presentation.ui.theme.FreshWeatherT
 
 @Composable
 fun RootContent(component: RootComponent) {
+
   FreshWeatherTheme {
     Children(stack = component.stack) { child ->
       when (val instance = child.instance) {

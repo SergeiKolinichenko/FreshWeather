@@ -1,4 +1,4 @@
-package info.sergeikolinichenko.myapplication.presentation.ui.content.details.current
+package info.sergeikolinichenko.myapplication.presentation.ui.content.details.currentweather
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -95,7 +95,3 @@ internal fun CurrentWeather(
     )
   }
 }
-
-const val TEMPERATURE_RISES = "TEMPERATURE RISES"
-const val TEMPERATURE_DROPS = "TEMPERATURE DROPS"
-const val ERROR_TEMPERATURE = "ERROR TEMPERATURE"

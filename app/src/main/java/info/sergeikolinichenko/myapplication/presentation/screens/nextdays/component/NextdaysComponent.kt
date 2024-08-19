@@ -24,11 +24,13 @@ interface NextdaysComponent {
   fun onCloseClicked()
   fun onSwipeLeft()
   fun onSwipeRight()
+  fun onSwipeTop()
   fun onDayClicked(index: Int)
 }
 
 class DefaultNextdaysComponent @AssistedInject constructor(
-  @Assisted("onClickClose") private val onClickClose: (id: Int, forecast: ForecastFs) -> Unit,
+  @Assisted("onSwipedTop") private val onSwipedTop: () -> Unit,
+  @Assisted("onClickedClose") private val onClickedClose:() -> Unit,
   @Assisted("id") private val id: Int,
   @Assisted("index") private val index: Int,
   @Assisted("forecast") private val forecast: ForecastFs,
@@ -47,7 +49,8 @@ class DefaultNextdaysComponent @AssistedInject constructor(
     scope.launch {
       store.labels.collect{
         when(it){
-          is NextdaysStore.Label.OnCloseClicked -> onClickClose(it.id, it.forecast)
+          is NextdaysStore.Label.OnSwipedTop -> onSwipedTop()
+          is NextdaysStore.Label.OnClickedClose -> onClickedClose()
         }
       }
     }
@@ -59,7 +62,7 @@ class DefaultNextdaysComponent @AssistedInject constructor(
   override val model: StateFlow<NextdaysStore.State> = store.stateFlow
 
   override fun onCloseClicked() {
-    store.accept(NextdaysStore.Intent.OnCloseClicked)
+    store.accept(NextdaysStore.Intent.OnClickClose)
   }
 
   override fun onSwipeLeft() {
@@ -70,6 +73,10 @@ class DefaultNextdaysComponent @AssistedInject constructor(
     store.accept(NextdaysStore.Intent.OnSwipeRight)
   }
 
+  override fun onSwipeTop() {
+    store.accept(NextdaysStore.Intent.OnSwipeTop)
+  }
+
   override fun onDayClicked(index: Int) {
     store.accept(NextdaysStore.Intent.OnDayClicked(index))
   }
@@ -77,7 +84,8 @@ class DefaultNextdaysComponent @AssistedInject constructor(
   @AssistedFactory
   interface Factory {
     fun create(
-      @Assisted("onClickClose") onClickClose: (id: Int, forecast: ForecastFs) -> Unit,
+      @Assisted("onSwipedTop") onSwipedTop: () -> Unit,
+      @Assisted("onClickedClose") onClickedClose:() -> Unit,
       @Assisted("id") id: Int,
       @Assisted("index") index: Int,
       @Assisted("forecast") forecast: ForecastFs,

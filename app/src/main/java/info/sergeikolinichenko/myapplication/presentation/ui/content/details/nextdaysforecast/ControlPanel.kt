@@ -1,4 +1,4 @@
-package info.sergeikolinichenko.myapplication.presentation.ui.content.details.nextdays
+package info.sergeikolinichenko.myapplication.presentation.ui.content.details.nextdaysforecast
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

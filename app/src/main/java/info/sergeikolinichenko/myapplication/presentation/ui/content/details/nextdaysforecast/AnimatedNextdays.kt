@@ -1,4 +1,4 @@
-package info.sergeikolinichenko.myapplication.presentation.ui.content.details.nextdays
+package info.sergeikolinichenko.myapplication.presentation.ui.content.details.nextdaysforecast
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.MutableTransitionState
@@ -23,13 +23,14 @@ import kotlinx.coroutines.launch
 /** Created by Sergei Kolinichenko on 14.08.2024 at 10:12 (GMT+3) **/
 
 @Composable
-internal fun AppearanceAnimationNextdays(
+internal fun AnimatedNextdaysScreen(
   modifier: Modifier = Modifier,
   state: NextdaysStore.State,
   onDayClicked: (Int) -> Unit,
   onCloseClicked: () -> Unit,
   onSwipeLeft: () -> Unit,
-  onSwipeRight: () -> Unit
+  onSwipeRight: () -> Unit,
+  onSwipeTop: () -> Unit,
 ) {
 
   val animState = remember { MutableTransitionState(false) }
@@ -57,25 +58,29 @@ internal fun AppearanceAnimationNextdays(
       onCloseClicked = { onCloseClicked() },
       onSwipeLeft = {
         animState.targetState = false
-        onSwipeLeft() },
+        onSwipeLeft()
+      },
       onSwipeRight = {
         animState.targetState = false
-        onSwipeRight() },
+        onSwipeRight()
+      },
       animatedDirection = {
         animatedDirection = it
         animState.targetState = true
-      }
+      },
+      onSwipeTop = { onSwipeTop() }
     )
   }
 }
 
 private fun AnimatedDirection.directEnter() =
-  when(this){
+  when (this) {
     AnimatedDirection.Top -> {
       fadeIn(animationSpec = tween(300)) +
           slideIn(animationSpec = tween(300),
             initialOffset = { IntOffset(0, it.height) })
     }
+
     AnimatedDirection.Bottom -> {
       fadeIn(animationSpec = tween(300)) +
           slideIn(animationSpec = tween(300),
@@ -87,6 +92,7 @@ private fun AnimatedDirection.directEnter() =
           slideIn(animationSpec = tween(300),
             initialOffset = { IntOffset(it.width, 0) })
     }
+
     AnimatedDirection.Right -> {
       fadeIn(animationSpec = tween(300)) +
           slideIn(animationSpec = tween(300),
@@ -103,6 +109,7 @@ private fun AnimatedDirection.directExit() =
         animationSpec = tween(300),
         targetOffset = { IntOffset(0, -it.height) })
     }
+
     AnimatedDirection.Bottom -> {
       fadeOut(
         animationSpec = tween(300)
@@ -118,6 +125,7 @@ private fun AnimatedDirection.directExit() =
         animationSpec = tween(300),
         targetOffset = { IntOffset(-it.width, 0) })
     }
+
     AnimatedDirection.Right -> {
       fadeOut(
         animationSpec = tween(300)
@@ -126,7 +134,3 @@ private fun AnimatedDirection.directExit() =
         targetOffset = { IntOffset(it.width, 0) })
     }
   }
-
-internal enum class AnimatedDirection {
-  Top, Bottom, Left, Right
-}
