@@ -5,13 +5,12 @@ import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideIn
-import androidx.compose.animation.slideOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.IntOffset
 import info.sergeikolinichenko.myapplication.presentation.screens.details.component.DetailsComponent
 import info.sergeikolinichenko.myapplication.presentation.screens.details.store.DetailsStore
 
@@ -20,38 +19,46 @@ import info.sergeikolinichenko.myapplication.presentation.screens.details.store.
 @Composable
 internal fun AnimatedDetailsContent(
   modifier: Modifier = Modifier,
-  component: DetailsComponent
+  component: DetailsComponent,
 ) {
 
   val state = component.model.collectAsState()
 
-  val animState = remember { MutableTransitionState(false) }
+  val animState = remember { MutableTransitionState(false) }.apply {
+    targetState = state.value.forecastState is DetailsStore.State.ForecastState.Loaded
+  }
 
-  animState.targetState = state.value.forecastState is DetailsStore.State.ForecastState.Loaded
+//  animState.targetState = state.value.forecastState is DetailsStore.State.ForecastState.Loaded
 
   AnimatedVisibility(
     visibleState = animState,
     enter = fadeIn(animationSpec = tween(300)) +
-        slideIn(animationSpec = tween(300),
-          initialOffset = { IntOffset(it.width, 0) }),
+        scaleIn(animationSpec = tween(300),
+          initialScale = 0.5f),
 
     exit = fadeOut(
       animationSpec = tween(300)
-    ) + slideOut(
+    ) + scaleOut(
       animationSpec = tween(300),
-      targetOffset = { IntOffset(-it.width, 0) }),
+      targetScale = 0.5f),
   ) {
     DetailsScreen(
       modifier = modifier,
-      state = state,
-      onBackClicked = { component.onBackClicked() },
-      onChangeFavouriteStatusClicked = { component.onSettingsClicked() },
+      state = state.value,
       onDayClicked = { id, index, forecast ->
-        component.onDayClicked(
-          id = id,
-          index = index,
-          forecast = forecast
-        )
+        component.onDayClicked(id, index, forecast)
+      },
+      onSwipeLeft = {
+        component.onSwipeLeft()
+      },
+      onSwipeRight = {
+        component.onSwipeRight()
+      },
+      onBackClicked = {
+        component.onBackClicked()
+      },
+      onSettingsClicked = {
+        component.onSettingsClicked()
       }
     )
   }

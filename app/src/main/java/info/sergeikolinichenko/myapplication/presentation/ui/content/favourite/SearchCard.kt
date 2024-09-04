@@ -81,7 +81,8 @@ internal fun SearchCard(
             .weight(1f)
       ) {
         DropdownMenu(
-          modifier = Modifier.align(Alignment.BottomEnd),
+          modifier = Modifier
+            .align(Alignment.BottomEnd),
           state = state,
           onDismissRequest = { onDismissRequest() },
           onClickSettings = { onClickSettings() },

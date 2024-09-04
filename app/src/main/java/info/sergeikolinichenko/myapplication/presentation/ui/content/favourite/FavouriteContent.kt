@@ -26,6 +26,7 @@ import androidx.compose.foundation.lazy.grid.LazyGridScope
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -74,7 +75,7 @@ fun FavouriteContent(component: FavouriteComponent) {
 internal fun FavoriteVerticalGrid(
   modifier: Modifier = Modifier,
   state: State<FavouriteStore.State>,
-  columns: Int = 1,
+  columns: Int = NUMBER_OF_COLUMNS,
   lazyListState: LazyListState = rememberLazyListState(),
   onClickSearch: () -> Unit,
   onClickActionMenu: () -> Unit,
@@ -152,9 +153,21 @@ private fun LazyGridScope.cityGridContent(
     )
   }
 
-  when (state.value.listCitiesLoadedState) {
+  when (val citiesState = state.value.citiesState) {
 
-    FavouriteStore.State.ListCitiesLoadedState.Error -> {
+    FavouriteStore.State.CitiesState.Initial -> {
+      item(
+        span = { GridItemSpan(columns) }
+      ) {
+        InitialBox(
+          modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+        )
+      }
+    }
+
+    FavouriteStore.State.CitiesState.Error -> {
 
       item(
         span = { GridItemSpan(columns) }
@@ -167,11 +180,12 @@ private fun LazyGridScope.cityGridContent(
       }
     }
 
-    FavouriteStore.State.ListCitiesLoadedState.Loaded -> {
+    is FavouriteStore.State.CitiesState.Loaded -> {
+
 
       itemsIndexed(
-        items = state.value.cityItems,
-        key = { _, item -> item.city.id }
+        items = citiesState.listCities,
+        key = { _, item -> item.id }
       ) { index, item ->
         val (delay, easing) = lazyListState.calculateDelayAndEasing(index, columns)
         val animation = tween<Float>(durationMillis = 500, delayMillis = delay, easing = easing)
@@ -181,13 +195,23 @@ private fun LazyGridScope.cityGridContent(
         CityCard(
           modifier = Modifier
             .graphicsLayer(alpha = alpha, scaleX = scale, scaleY = scale),
-          item = item,
-          onItemClicked = { onItemClicked(item.city.id) }
+          city = item,
+          weatherState = state.value.weatherState,
+          onItemClicked = { onItemClicked(item.id) }
         )
       }
     }
 
-    FavouriteStore.State.ListCitiesLoadedState.Initial -> {}
+    FavouriteStore.State.CitiesState.Loading -> {
+      item(
+        span = { GridItemSpan(columns) }
+      ) {
+        CitiesLoadingBox(
+          modifier = Modifier.fillMaxSize()
+        )
+      }
+    }
+
   }
 }
 
@@ -247,19 +271,19 @@ private fun InitialBox(
     modifier = modifier,
   ) {
 
-  Column(
-    modifier = Modifier.fillMaxSize(),
-    horizontalAlignment = Alignment.CenterHorizontally,
-    verticalArrangement = Arrangement.Center
-  ) {
+    Column(
+      modifier = Modifier.fillMaxSize(),
+      horizontalAlignment = Alignment.CenterHorizontally,
+      verticalArrangement = Arrangement.Center
+    ) {
 
-    val icon = if (isSystemInDarkTheme()) R.drawable.dark_initial_picture
-    else R.drawable.light_initial_picture
+      val img = if (isSystemInDarkTheme()) R.drawable.dark_initial_picture
+      else R.drawable.light_initial_picture
 
       Icon(
         modifier = Modifier
           .size(300.dp),
-        imageVector = ImageVector.vectorResource(id = icon),
+        imageVector = ImageVector.vectorResource(id = img),
         contentDescription = stringResource(id = R.string.favourite_content_initial_picture),
         tint = Color.Unspecified,
       )
@@ -285,6 +309,21 @@ private fun InitialBox(
   }
 }
 
+@Composable
+private fun CitiesLoadingBox(
+  modifier: Modifier = Modifier
+) {
+  Box(
+    modifier = modifier,
+  ) {
+    CircularProgressIndicator(
+      modifier = Modifier
+        .size(48.dp)
+        .align(Alignment.Center)
+    )
+  }
+}
+
 data class ScaleAndAlphaArgs(
   val fromScale: Float,
   val toScale: Float,
@@ -293,3 +332,5 @@ data class ScaleAndAlphaArgs(
 )
 
 private enum class TransitionState { PLACING, PLACED }
+
+private const val NUMBER_OF_COLUMNS = 1

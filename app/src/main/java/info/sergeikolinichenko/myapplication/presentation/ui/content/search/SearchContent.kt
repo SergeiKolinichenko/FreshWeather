@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.sp
 import info.sergeikolinichenko.myapplication.R
 import info.sergeikolinichenko.myapplication.presentation.screens.search.component.SearchComponent
 import info.sergeikolinichenko.myapplication.presentation.screens.search.store.SearchStore
+import info.sergeikolinichenko.myapplication.utils.ResponsiveText
 import info.sergeikolinichenko.myapplication.utils.toCityScreen
 
 const val TEST_SEARCHBAR_TAG = "test_searchbar_tag"
@@ -82,13 +83,13 @@ private fun SearchScreen(
       .testTag(TEST_SEARCHBAR_TAG),
 
     placeholder = {
-      Text(
+      ResponsiveText(
         modifier = Modifier
           .padding(end = 16.dp),
         text = stringResource(R.string.search_content_text_into_placeholder),
         fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.Normal,
-        fontSize = 16.sp,
+        targetTextSizeHeight = 16.sp,
         textAlign = TextAlign.Start,
         color = MaterialTheme.colorScheme.onBackground
       )
@@ -168,7 +169,7 @@ private fun SearchScreen(
             key = { item -> item.id }
           ) { item ->
 
-            Text(
+            ResponsiveText(
               modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.Start)
@@ -177,7 +178,7 @@ private fun SearchScreen(
               text = item.name + ", " + item.region + ", " + item.country,
               fontFamily = FontFamily.SansSerif,
               fontWeight = FontWeight.Normal,
-              fontSize = 16.sp,
+              targetTextSizeHeight = 16.sp,
               textAlign = TextAlign.Start,
               color = MaterialTheme.colorScheme.onBackground
             )
@@ -200,13 +201,13 @@ private fun ErrorMessage(
   modifier: Modifier = Modifier,
   text: String
 ) {
-    Text(
+    ResponsiveText(
       modifier = modifier.padding(top = 16.dp),
       text = text,
       textAlign = TextAlign.Start,
       fontFamily = FontFamily.SansSerif,
       fontWeight = FontWeight.Normal,
-      fontSize = 16.sp,
+      targetTextSizeHeight = 16.sp,
       color = MaterialTheme.colorScheme.onBackground
     )
 }

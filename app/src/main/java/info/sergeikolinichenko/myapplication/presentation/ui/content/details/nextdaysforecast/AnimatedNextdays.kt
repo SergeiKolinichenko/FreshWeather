@@ -11,14 +11,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.IntOffset
 import info.sergeikolinichenko.myapplication.presentation.screens.nextdays.store.NextdaysStore
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 /** Created by Sergei Kolinichenko on 14.08.2024 at 10:12 (GMT+3) **/
 
@@ -31,11 +28,13 @@ internal fun AnimatedNextdaysScreen(
   onSwipeLeft: () -> Unit,
   onSwipeRight: () -> Unit,
   onSwipeTop: () -> Unit,
+  onSwipeBottom: () -> Unit
 ) {
 
   val animState = remember { MutableTransitionState(false) }
 
   animState.targetState = state.forecast is NextdaysStore.State.ForecastState.Loaded
+  val scope = rememberCoroutineScope()
 
   var animatedDirection by remember { mutableStateOf(AnimatedDirection.Bottom) }
 
@@ -49,26 +48,23 @@ internal fun AnimatedNextdaysScreen(
       modifier = modifier,
       state = state,
       onDayClicked = {
-        CoroutineScope(Dispatchers.Main).launch {
-          animState.targetState = false
-          delay(350)
-          onDayClicked(it)
-        }
+        onDayClicked(it)
       },
       onCloseClicked = { onCloseClicked() },
       onSwipeLeft = {
-        animState.targetState = false
         onSwipeLeft()
       },
       onSwipeRight = {
-        animState.targetState = false
         onSwipeRight()
       },
-      animatedDirection = {
-        animatedDirection = it
-        animState.targetState = true
+      onSwipeTop = {
+        onSwipeTop()
       },
-      onSwipeTop = { onSwipeTop() }
+      onSwipeBottom = {
+        if (state.index < (state.forecast as NextdaysStore.State.ForecastState.Loaded).forecast.upcomingDays.size - 1) {
+          onSwipeBottom()
+        }
+      }
     )
   }
 }

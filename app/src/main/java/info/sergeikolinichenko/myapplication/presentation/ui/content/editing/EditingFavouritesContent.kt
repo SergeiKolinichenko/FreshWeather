@@ -25,6 +25,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -53,6 +54,7 @@ import info.sergeikolinichenko.myapplication.R
 import info.sergeikolinichenko.myapplication.entity.CityFs
 import info.sergeikolinichenko.myapplication.presentation.screens.editing.component.EditingFavouritesComponent
 import info.sergeikolinichenko.myapplication.presentation.screens.editing.store.EditingFavouritesStore
+import info.sergeikolinichenko.myapplication.utils.ResponsiveText
 import info.sergeikolinichenko.myapplication.utils.SYS_ICON_SIZE_24
 import info.sergeikolinichenko.myapplication.utils.toIconId
 import kotlinx.coroutines.Job
@@ -67,7 +69,6 @@ internal fun EditingContent(component: EditingFavouritesComponent) {
     modifier = Modifier.fillMaxSize(),
     component = component,
   )
-
 }
 
 @Composable
@@ -229,25 +230,27 @@ private fun CityItem(
         verticalAlignment = Alignment.CenterVertically
       ) {
         Column(
-          modifier = Modifier,
+          modifier = Modifier.weight(1f),
           horizontalAlignment = Alignment.Start,
           verticalArrangement = Arrangement.Center
         ) {
-          Text(
+          ResponsiveText(
             text = city.name,
             textAlign = TextAlign.Start,
             fontFamily = FontFamily.SansSerif,
             fontWeight = FontWeight.Medium,
-            fontSize = 16.sp,
-            color = MaterialTheme.colorScheme.onBackground
+            targetTextSizeHeight = 16.sp,
+            color = MaterialTheme.colorScheme.onBackground,
+            maxLines = 1
           )
-          Text(
+          ResponsiveText(
             text = temp,
             textAlign = TextAlign.Start,
             fontFamily = FontFamily.SansSerif,
             fontWeight = FontWeight.Normal,
-            fontSize = 22.sp,
-            color = MaterialTheme.colorScheme.onBackground
+            targetTextSizeHeight = 22.sp,
+            color = MaterialTheme.colorScheme.onBackground,
+            maxLines = 1
           )
         }
         Icon(
@@ -364,23 +367,26 @@ internal fun TopBar(
       horizontalArrangement = Arrangement.SpaceBetween,
       verticalAlignment = Alignment.CenterVertically
     ) {
-      Text(
+      ResponsiveText(
         text = stringResource(R.string.title_few_contents_text_favourite),
         textAlign = TextAlign.Start,
         fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.Normal,
-        fontSize = 22.sp,
-        color = MaterialTheme.colorScheme.onBackground
+        targetTextSizeHeight = 22.sp,
+        color = MaterialTheme.colorScheme.onBackground,
+        maxLines = 1
       )
-      Text(
+
+      ResponsiveText(
         modifier = Modifier
           .clickable { onDoneClicked() },
         text = stringResource(id = R.string.many_place_title_button_done),
         textAlign = TextAlign.Start,
         fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.Normal,
-        fontSize = 22.sp,
-        color = MaterialTheme.colorScheme.onBackground
+        targetTextSizeHeight = 22.sp,
+        color = MaterialTheme.colorScheme.onBackground,
+        maxLines = 1
       )
     }
   }

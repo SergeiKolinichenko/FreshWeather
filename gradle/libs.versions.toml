@@ -1,44 +1,36 @@
 [versions]
-agp = "8.5.1"
-#core-ktx-version = "1.8.1"
-kotlin = "2.0.0"
-ksp = "2.0.0-1.0.22"
+agp = "8.5.2"
+kotlin = "2.0.20"
+ksp = "2.0.20-1.0.24"
 core-ktx = "1.13.1"
 core-splashscreen = "1.0.1"
-lifecycle-runtime-ktx = "2.8.3"
-activity-compose = "1.9.0"
-compose-bom = "2024.06.00"
-mvikotlin = "4.0.0"
-decompose = "3.0.0"
-robolectric = "4.9"
+lifecycle-runtime-ktx = "2.8.4"
+activity-compose = "1.9.1"
+compose-bom = "2024.08.00"
+mvikotlin = "4.2.0"
+decompose = "3.1.0"
 room = "2.6.1"
-dagger = "2.51.1"
-glide = "1.0.0-beta01"
+dagger = "2.52"
 retrofit = "2.11.0"
 logging-interceptor = "4.12.0"
-parcelize = "1.9.23"
-org-jetbrains-kotlin-jvm = "1.9.23"
-kotlinx-coroutines-android = "1.8.0"
+kotlinx-coroutines-android = "1.8.1"
 google-gson = "2.11.0"
+#ar-core = "1.45.0"
 # for tests
 junit4 = "4.13.2"
 androidx-test-ext-junit = "1.2.1"
 mockito = "5.2.0"
-#mockitokotlin = "2.2.0"
 mockitokotlin = "4.0.0"
-coroutines-test = "1.8.0"
 androidx-core = "2.2.0"
-androidx-runner = "1.6.1"
+androidx-runner = "1.6.2"
 junit-ktx = "1.2.1"
-core = "1.44.0"
+robolectric = "4.9"
 
 [libraries]
 core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
 lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle-runtime-ktx" }
 activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activity-compose" }
 compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "compose-bom" }
-#play-core-ktx = { module = "com.google.android.play:core-ktx", version.ref = "core-ktx-version" }
-robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 ui = { group = "androidx.compose.ui", name = "ui" }
 ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
 ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
@@ -53,7 +45,7 @@ room-core = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 dagger-core = { group = "com.google.dagger", name = "dagger", version.ref = "dagger" }
 dagger-compiler = { group = "com.google.dagger", name = "dagger-compiler", version.ref = "dagger" }
-glide-compose = { group = "com.github.bumptech.glide", name = "compose", version.ref = "glide" }
+#glide-compose = { group = "com.github.bumptech.glide", name = "compose", version.ref = "glide" }
 retrofit-core = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
 retrofit-gsonConverter = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
 retrofit-logging-interceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "logging-interceptor"}
@@ -67,21 +59,21 @@ androidx-test-ext-junit = { group = "androidx.test.ext", name = "junit", version
 ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 mockito-inline = { group = "org.mockito", name = "mockito-inline", version.ref = "mockito" }
-#mockito-kotlin = { group = "com.nhaarman.mockitokotlin2", name = "mockito-kotlin", version.ref = "mockitokotlin" }
 mockito-kotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", version.ref = "mockitokotlin" }
-coroutines-test = {group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines-test"}
+coroutines-test = {group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinx-coroutines-android"}
 androidx-core = {group = "androidx.arch.core", name = "core-testing", version.ref = "androidx-core"}
 androidx-runner = {group = "androidx.test", name = "runner", version.ref = "androidx-runner"}
 androidx-junit-ktx = { group = "androidx.test.ext", name = "junit-ktx", version.ref = "junit-ktx" }
-core = { group = "com.google.ar", name = "core", version.ref = "core" }
+robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
+#ar-core = { group = "com.google.ar", name = "core", version.ref = "ar-core" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
+androidLibrary = { id = "com.android.library", version.ref = "agp" }
 kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
+org-jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "parcelize" }
-androidLibrary = { id = "com.android.library", version.ref = "agp" }
-org-jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "org-jetbrains-kotlin-jvm" }
 androidx-room = { id = "androidx.room", version.ref = "room"}
 

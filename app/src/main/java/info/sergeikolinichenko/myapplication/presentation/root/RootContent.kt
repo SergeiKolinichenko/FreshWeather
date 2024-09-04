@@ -1,5 +1,14 @@
 package info.sergeikolinichenko.myapplication.presentation.root
 
+import android.util.Log
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.Composable
 import com.arkivanov.decompose.extensions.compose.stack.Children
 import info.sergeikolinichenko.myapplication.presentation.ui.content.details.currentweather.DetailsContent
@@ -17,6 +26,42 @@ fun RootContent(component: RootComponent) {
 
   FreshWeatherTheme {
     Children(stack = component.stack) { child ->
+
+//      AnimatedContent(
+//        targetState = child.instance,
+//        transitionSpec = {
+//          if (targetState is RootComponent.Child.EditingFavourites) {
+//            Log.d("TAG", "RootContent: ${child.instance}")
+//            slideInHorizontally(
+//              initialOffsetX = { fullWidth -> fullWidth },
+//              animationSpec = tween(5000)
+//            ) togetherWith slideOutHorizontally(
+//              targetOffsetX = { fullWidth -> -fullWidth },
+//              animationSpec = tween(5000))
+//          } else {
+//            slideInHorizontally(
+//              initialOffsetX = { fullWidth -> -fullWidth },
+//              animationSpec = tween(5000)
+//            ) togetherWith slideOutHorizontally(
+//              targetOffsetX = { fullWidth -> fullWidth },
+//              animationSpec = tween(5000))
+//          }.using(
+//            // Disable clipping since the faded slide-in/out should
+//            // be displayed out of bounds.
+//            SizeTransform(clip = false))
+//        }, label = "AnimatedContent"
+//      ) { stack ->
+//        when (stack) {
+//          is RootComponent.Child.Details -> DetailsContent(component = stack.component)
+//          is RootComponent.Child.Favourite -> FavouriteContent(component = stack.component)
+//          is RootComponent.Child.Search -> SearchContent(component = stack.component)
+//          is RootComponent.Child.Settings -> SettingsContent(component = stack.component)
+//          is RootComponent.Child.Nextdays -> NextdaysContent(component = stack.component)
+//          is RootComponent.Child.EditingFavourites -> EditingContent(component = stack.component)
+//
+//        }
+//      }
+
       when (val instance = child.instance) {
         is RootComponent.Child.Details -> DetailsContent(component = instance.component)
         is RootComponent.Child.Favourite -> FavouriteContent(component = instance.component)

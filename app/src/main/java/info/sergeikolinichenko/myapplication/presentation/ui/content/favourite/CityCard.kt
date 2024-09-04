@@ -1,15 +1,20 @@
 package info.sergeikolinichenko.myapplication.presentation.ui.content.favourite
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -28,7 +33,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import info.sergeikolinichenko.myapplication.R
+import info.sergeikolinichenko.myapplication.entity.CityFs
 import info.sergeikolinichenko.myapplication.presentation.screens.favourite.store.FavouriteStore
+import info.sergeikolinichenko.myapplication.utils.ResponsiveText
 import info.sergeikolinichenko.myapplication.utils.toIconId
 
 /** Created by Sergei Kolinichenko on 13.07.2024 at 17:54 (GMT+3) **/
@@ -36,23 +43,28 @@ import info.sergeikolinichenko.myapplication.utils.toIconId
 @Composable
 internal fun CityCard(
   modifier: Modifier = Modifier,
-  item: FavouriteStore.State.CityItem,
+  city: CityFs,
+  weatherState: FavouriteStore.State.WeatherState,
   onItemClicked: () -> Unit
 ) {
+
+  if (weatherState is FavouriteStore.State.WeatherState.Initial) return
+
 
   Card(
     modifier = modifier
       .fillMaxWidth()
-      .sizeIn(minHeight = 136.dp),
+      .heightIn(min = 136.dp),
     colors = CardDefaults.cardColors(
       containerColor = MaterialTheme.colorScheme.surface
     )
   ) {
-    when (val weatherState = item.weatherLoadingState) {
-      is FavouriteStore.State.WeatherLoadingState.Error -> {
+    when (weatherState) {
 
+      FavouriteStore.State.WeatherState.Initial -> {}
+
+      is FavouriteStore.State.WeatherState.Error -> {
         // Error message
-
         Box(
           modifier = Modifier.fillMaxSize(),
           contentAlignment = Alignment.Center
@@ -64,19 +76,19 @@ internal fun CityCard(
               .align(Alignment.Center),
             text = stringResource(
               R.string.favourite_content_error_weather_for_city,
-              weatherState.codeError,
-              weatherState.cityName
+              weatherState.errorMessage,
+              city.name
             ),
             style = MaterialTheme.typography.titleMedium
           )
         }
       }
 
-      FavouriteStore.State.WeatherLoadingState.Initial -> {}
-
-      is FavouriteStore.State.WeatherLoadingState.LoadedWeatherLoading -> {
+      is FavouriteStore.State.WeatherState.Loaded -> {
 
         // Weather in city
+
+        val forecast = weatherState.listForecast.first { it.id == city.id }
 
         Column(
           modifier = Modifier
@@ -99,20 +111,28 @@ internal fun CityCard(
               horizontalAlignment = Alignment.Start,
               verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-              Text(
-                text = item.city.name,
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onBackground
+              ResponsiveText(
+                text = city.name,
+                textStyle = MaterialTheme.typography.titleLarge,
+                textAlign = TextAlign.Start,
+                color = MaterialTheme.colorScheme.onBackground,
+                maxLines = 1
               )
-              Text(
-                text = weatherState.temp,
-                style = MaterialTheme.typography.headlineMedium,
-                color = MaterialTheme.colorScheme.onBackground
+
+              ResponsiveText(
+                text = forecast.currentForecast.temp,
+                textStyle = MaterialTheme.typography.headlineMedium,
+                textAlign = TextAlign.Start,
+                color = MaterialTheme.colorScheme.onBackground,
+                maxLines = 1
               )
+
             }
             Icon(
               modifier = Modifier.size(80.dp),
-              painter = painterResource(id = weatherState.icon.toIconId()),
+              painter = painterResource(
+                id = forecast.currentForecast.icon.toIconId()
+              ),
               tint = Color.Unspecified,
               contentDescription = null
             )
@@ -121,6 +141,9 @@ internal fun CityCard(
           // Description, max and min temperature
 
           Row(
+            modifier = Modifier
+              .fillMaxWidth()
+              .height(intrinsicSize = IntrinsicSize.Max),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
           ) {
@@ -129,16 +152,16 @@ internal fun CityCard(
 
             BottomText(
               modifier = Modifier
-                .weight(2f),
-              text = weatherState.description
+                .padding(end = 8.dp)
+                .weight(1f),
+              text = forecast.currentForecast.conditions,
+              softWrap = true
             )
 
             // max and min temperature
-
             Column(
-              modifier = Modifier
-                .weight(1f),
-              horizontalAlignment = Alignment.End,
+              modifier = Modifier,
+              horizontalAlignment = Alignment.Start,
               verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
               Row(
@@ -149,7 +172,7 @@ internal fun CityCard(
                   text = stringResource(R.string.caption_max)
                 )
                 BottomText(
-                  text = weatherState.maxTemp
+                  text = forecast.upcomingDays.first().tempMax
                 )
               }
               Row(
@@ -160,7 +183,7 @@ internal fun CityCard(
                   text = stringResource(R.string.caption_min)
                 )
                 BottomText(
-                  text = weatherState.minTemp
+                  text = forecast.upcomingDays.first().tempMin
                 )
               }
             }
@@ -168,7 +191,7 @@ internal fun CityCard(
         }
       }
 
-      FavouriteStore.State.WeatherLoadingState.Loading -> {
+      FavouriteStore.State.WeatherState.Loading -> {
         Box(modifier = Modifier.fillMaxSize()) {
           CircularProgressIndicator(
             modifier = Modifier
@@ -185,16 +208,18 @@ internal fun CityCard(
 @Composable
 private fun BottomText(
   modifier: Modifier = Modifier,
-  text: String
+  text: String,
+  softWrap: Boolean = false
 ) {
-  Text(
+  ResponsiveText(
     modifier = modifier,
     text = text,
+    targetTextSizeHeight = 12.sp,
     fontFamily = FontFamily.SansSerif,
     fontWeight = FontWeight.Medium,
-    fontSize = 11.sp,
     textAlign = TextAlign.Start,
-    lineHeight = 16.sp,
-    color = MaterialTheme.colorScheme.onBackground
+    lineHeight = 14.sp,
+    color = MaterialTheme.colorScheme.onBackground,
+    softWrap = softWrap
   )
 }

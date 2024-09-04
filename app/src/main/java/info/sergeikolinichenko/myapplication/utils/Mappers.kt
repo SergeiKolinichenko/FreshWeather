@@ -31,7 +31,10 @@ internal fun CityFs.toCity() = City(
   lon = lon
 )
 
+internal fun List<CityFs>.toCityList() = map { it.toCity() }
+
 internal fun Forecast.mapToForecastScreen() = ForecastFs(
+  id = id,
   tzId = tzId,
   currentForecast = currentForecast.mapToCurrentForecastScreen(),
   upcomingDays = upcomingDays.map { it.mapToDayForecastScreen() },

@@ -9,12 +9,15 @@ import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
@@ -59,6 +62,7 @@ import info.sergeikolinichenko.myapplication.entity.HourForecastFs
 import info.sergeikolinichenko.myapplication.utils.LinearGradient.gradientHumidityChart
 import info.sergeikolinichenko.myapplication.utils.LinearGradient.gradientPressureChart
 import info.sergeikolinichenko.myapplication.utils.LinearGradient.gradientUvIndexChart
+import info.sergeikolinichenko.myapplication.utils.ResponsiveText
 import info.sergeikolinichenko.myapplication.utils.TITLE_ICON_SIZE_16
 import info.sergeikolinichenko.myapplication.utils.getTime
 import info.sergeikolinichenko.myapplication.utils.toIconId
@@ -97,7 +101,7 @@ fun Charts(
     Box(
       modifier = Modifier
         .fillMaxSize()
-        .padding(16.dp),
+        .padding(start = 8.dp, end = 8.dp, top = 16.dp, bottom = 16.dp),
     ) {
       if (list.isEmpty()) {
         Text(
@@ -122,27 +126,56 @@ fun Charts(
           horizontalArrangement = Arrangement.SpaceBetween
         ) {
 
-          val textId = when (chartsState.value.displayedItem) {
-            Displayed.UV_INDEX -> R.string.details_content_carts_title_uv_index_chart
-            Displayed.HUMIDITY -> R.string.details_content_carts_title_humidity_chart
-            Displayed.PRESSURE -> R.string.details_content_carts_title_pressure_chart
-          }
-
           Icon(
             modifier = Modifier
               .size(TITLE_ICON_SIZE_16.dp),
             imageVector = ImageVector.vectorResource(id = R.drawable.chart),
             contentDescription = stringResource(R.string.details_content_description_graph_icon)
           )
-          Text(
-            text = stringResource(textId),
-            fontFamily = FontFamily.SansSerif,
-            fontWeight = FontWeight.Medium,
-            fontSize = 12.sp,
-            lineHeight = 14.sp,
-            textAlign = TextAlign.Start,
-            color = MaterialTheme.colorScheme.onBackground
-          )
+          Column(
+            modifier = Modifier
+              .weight(1f)
+              .width(IntrinsicSize.Min)
+              .padding(start = 8.dp, end = 4.dp),
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.Center
+          ) {
+            val first = when (chartsState.value.displayedItem) {
+              Displayed.UV_INDEX -> stringResource(R.string.details_content_carts_title_uv_index_chart_first)
+              Displayed.HUMIDITY -> stringResource(R.string.details_content_carts_title_humidity_chart_first)
+              Displayed.PRESSURE -> stringResource(R.string.details_content_carts_title_pressure_chart_first)
+            }
+
+            val second = when (chartsState.value.displayedItem) {
+              Displayed.UV_INDEX -> stringResource(R.string.details_content_carts_title_uv_index_chart_second)
+              Displayed.HUMIDITY -> stringResource(R.string.details_content_carts_title_humidity_chart_second)
+              Displayed.PRESSURE -> stringResource(R.string.details_content_carts_title_pressure_chart_second)
+            }
+
+            ResponsiveText(
+              text = first,
+              targetTextSizeHeight = 12.sp,
+              lineHeight = 12.sp,
+              textAlign = TextAlign.Start,
+              color = MaterialTheme.colorScheme.onBackground,
+              fontFamily = FontFamily.SansSerif,
+              fontWeight = FontWeight.Medium,
+              softWrap = false
+            )
+            ResponsiveText(
+              text = second,
+              targetTextSizeHeight = 12.sp,
+              lineHeight = 12.sp,
+              textAlign = TextAlign.Start,
+              color = MaterialTheme.colorScheme.onBackground,
+              fontFamily = FontFamily.SansSerif,
+              fontWeight = FontWeight.Medium,
+              softWrap = false
+            )
+          }
+
+
+
           // buttons
           DisplayedValues(
             onSelect = chartsState.value.displayedItem
@@ -370,7 +403,7 @@ private fun DrawScope.drawTextHours(
         fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.Normal,
         color = color,
-        fontSize = 12.sp
+        fontSize = 10.sp
       )
     )
 

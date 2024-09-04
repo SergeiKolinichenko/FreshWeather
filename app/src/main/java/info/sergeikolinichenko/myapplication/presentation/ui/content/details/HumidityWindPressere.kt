@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -13,19 +14,17 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import info.sergeikolinichenko.myapplication.R
+import info.sergeikolinichenko.myapplication.utils.ResponsiveText
 import info.sergeikolinichenko.myapplication.utils.TITLE_ICON_SIZE_16
 import info.sergeikolinichenko.myapplication.utils.fromKphToStringId
 import info.sergeikolinichenko.myapplication.utils.toPerCentFromFloat
@@ -91,20 +90,22 @@ private fun WeatherConditionsBlock(
   value: String,
 ) {
   Card(
-    modifier = modifier.fillMaxHeight(),
+    modifier = modifier
+      .fillMaxHeight(),
     colors = CardDefaults.cardColors(
       containerColor = MaterialTheme.colorScheme.surface
     )
   ) {
     Column(
       modifier = Modifier
-        .fillMaxWidth()
-        .padding(vertical = 16.dp, horizontal = 8.dp),
+        .fillMaxSize()
+        .padding(8.dp),
       horizontalAlignment = Alignment.CenterHorizontally,
       verticalArrangement = Arrangement.Center
     ) {
       Row(
-        modifier = Modifier.padding(bottom = 4.dp),
+        modifier = Modifier
+          .padding(bottom = 4.dp),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
       ) {
@@ -116,32 +117,54 @@ private fun WeatherConditionsBlock(
           tint = MaterialTheme.colorScheme.surfaceTint,
           contentDescription = stringResource(R.string.details_content_description_current_weather_conditions_block_icon)
         )
-        Text(
+
+        ResponsiveText(
           text = textToWindBlock,
-          style = MaterialTheme.typography.labelSmall,
+          textStyle = MaterialTheme.typography.labelMedium,
           textAlign = TextAlign.Center,
-          color = MaterialTheme.colorScheme.onBackground
+          color = MaterialTheme.colorScheme.onBackground,
+          maxLines = 1
         )
       }
-      Text(
-        modifier = Modifier.padding(bottom = 4.dp),
+      ResponsiveText(
         text = title,
-        fontFamily = FontFamily.SansSerif,
-        fontWeight = FontWeight.Medium,
-        fontSize = 10.sp,
-        lineHeight = 12.sp,
+        textStyle = MaterialTheme.typography.labelMedium,
         textAlign = TextAlign.Center,
-        color = MaterialTheme.colorScheme.onBackground
-      )
-      Text(
-        text = value,
-        fontFamily = FontFamily.SansSerif,
-        fontWeight = FontWeight.Normal,
-        fontSize = 10.sp,
-        lineHeight = 12.sp,
-        textAlign = TextAlign.Center,
-        color = MaterialTheme.colorScheme.onBackground
-      )
+        color = MaterialTheme.colorScheme.onBackground,
+        maxLines = 1
+        )
+
+      Column(
+        modifier = Modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+      ) {
+
+        val textValue = value.substringBeforeLast("\n")
+
+        ResponsiveText(
+          text = textValue,
+          textStyle = MaterialTheme.typography.bodyMedium,
+          textAlign = TextAlign.Center,
+          lineHeight = MaterialTheme.typography.bodyMedium.fontSize,
+          color = MaterialTheme.colorScheme.onBackground,
+          maxLines = 1
+        )
+
+        if (title == stringResource(R.string.details_content_conditions_text_pressure)) {
+
+          val textDescription = value.substringAfterLast("\n")
+
+          ResponsiveText(
+            text = textDescription,
+            textStyle = MaterialTheme.typography.bodySmall,
+            textAlign = TextAlign.Center,
+            lineHeight = 10.sp,
+            color = MaterialTheme.colorScheme.onBackground,
+            maxLines = 1
+          )
+        }
+      }
     }
   }
 }

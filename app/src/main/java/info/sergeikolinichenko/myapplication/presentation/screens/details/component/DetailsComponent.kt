@@ -25,6 +25,8 @@ interface DetailsComponent {
   fun onDayClicked(id: Int, index: Int, forecast: ForecastFs)
   fun onSettingsClicked()
   fun reloadWeather()
+  fun onSwipeLeft()
+  fun onSwipeRight()
 }
 
 class DefaultDetailsComponent @AssistedInject constructor(
@@ -65,6 +67,14 @@ class DefaultDetailsComponent @AssistedInject constructor(
 
   override fun reloadWeather() {
     store.accept(DetailsStore.Intent.ReloadWeather)
+  }
+
+  override fun onSwipeLeft() {
+    store.accept(DetailsStore.Intent.OnSwipeLeft)
+  }
+
+  override fun onSwipeRight() {
+    store.accept(DetailsStore.Intent.OnSwipeRight)
   }
 
   @AssistedFactory

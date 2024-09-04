@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import info.sergeikolinichenko.myapplication.R
 import info.sergeikolinichenko.myapplication.entity.HourForecastFs
+import info.sergeikolinichenko.myapplication.utils.ResponsiveText
 import info.sergeikolinichenko.myapplication.utils.WEATHER_ICON_SIZE_36
 import info.sergeikolinichenko.myapplication.utils.getTime
 import info.sergeikolinichenko.myapplication.utils.toIconId
@@ -143,11 +144,12 @@ private fun HourlyWeatherItem(
     horizontalAlignment = Alignment.CenterHorizontally,
     verticalArrangement = Arrangement.SpaceBetween
   ) {
-    Text(
+    ResponsiveText(
       text = time,
-      style = MaterialTheme.typography.bodySmall,
-      textAlign = TextAlign.Unspecified,
-      color = MaterialTheme.colorScheme.onBackground
+      textStyle = MaterialTheme.typography.bodyMedium,
+      textAlign = TextAlign.Center,
+      color = MaterialTheme.colorScheme.onBackground,
+      maxLines = 1
     )
     Icon(
       modifier = Modifier.size(WEATHER_ICON_SIZE_36.dp),
@@ -156,30 +158,36 @@ private fun HourlyWeatherItem(
       contentDescription = null
     )
     if (chanceOfPrecip > 0f && precipType != null) {
-      Text(
+      ResponsiveText(
         text = precipType,
+        targetTextSizeHeight = 10.sp,
         fontFamily = FontFamily.SansSerif,
-        fontWeight = FontWeight.W500,
-        fontSize = 10.sp,
+        fontWeight = FontWeight.Medium,
         textAlign = TextAlign.Center,
         lineHeight = 10.sp,
-        color = MaterialTheme.colorScheme.onBackground
+        color = MaterialTheme.colorScheme.onSurfaceVariant
       )
-      Text(
+
+      ResponsiveText(
         text = chanceOfPrecip.toPerCentFromFloat(),
         fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.Medium,
-        fontSize = 12.sp,
+        targetTextSizeHeight = 12.sp,
         lineHeight = 12.sp,
         textAlign = TextAlign.Center,
-        color = MaterialTheme.colorScheme.onBackground
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        maxLines = 1
       )
     }
-    Text(
+    ResponsiveText(
       text = temp,
-      style = MaterialTheme.typography.titleSmall,
+      targetTextSizeHeight = 16.sp,
+      fontFamily = FontFamily.SansSerif,
+      fontWeight = FontWeight.Medium,
       textAlign = TextAlign.Center,
-      color = MaterialTheme.colorScheme.onBackground
+      lineHeight = 16.sp,
+      color = MaterialTheme.colorScheme.onBackground,
+      maxLines = 1
     )
   }
 }

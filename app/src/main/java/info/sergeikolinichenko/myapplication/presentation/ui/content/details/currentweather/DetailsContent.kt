@@ -1,6 +1,7 @@
 package info.sergeikolinichenko.myapplication.presentation.ui.content.details.currentweather
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,7 +12,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -22,6 +22,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
@@ -47,92 +48,21 @@ import java.util.Calendar
 fun DetailsContent(
   component: DetailsComponent
 ) {
-
-  Box( // it's for background
-    modifier = Modifier
-      .fillMaxSize()
-      .background(MaterialTheme.colorScheme.background)
-  ) {
-    AnimatedDetailsContent(
-      modifier = Modifier,
-      component = component
-    )
-  }
+  AnimatedDetailsContent(
+    modifier = Modifier,
+    component = component
+  )
 }
 
 @Composable
 internal fun DetailsScreen(
   modifier: Modifier = Modifier,
-  state: State<DetailsStore.State>,
-  onBackClicked: () -> Unit,
-  onChangeFavouriteStatusClicked: () -> Unit,
-  onDayClicked: (Int, Int, ForecastFs) -> Unit
-) {
-
-  var overScrollTop by remember { mutableStateOf(false) }
-  var overScrollBottom by remember { mutableStateOf(false) }
-  val scrollState = rememberScrollState()
-  val nestedScrollConnection = remember {
-    object : NestedScrollConnection {
-      override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-        val delta = available.y
-        if (delta > 0 && scrollState.value == 0) {
-          overScrollTop = true
-        } else if (delta < 0 && scrollState.value == scrollState.maxValue) {
-          overScrollBottom = true
-        }
-        return Offset.Zero
-      }
-
-      override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
-        overScrollTop = false
-        overScrollBottom = false
-        return super.onPostFling(consumed, available)
-      }
-    }
-  }
-
-  Column(
-    modifier = modifier
-      .padding(16.dp)
-      .fillMaxSize()
-      .nestedScroll(nestedScrollConnection)
-      .verticalScroll(scrollState)
-  ) {
-
-    TopBar(
-      modifier = Modifier,
-      state = state.value,
-      onBackButtonClick = {
-        onBackClicked()
-      },
-      onSettingsClicked = {
-        onChangeFavouriteStatusClicked()
-      }
-    )
-
-    MainScreen(
-      modifier = Modifier,
-      state = state.value,
-      onDayClicked = { id, index, forecast ->
-        onDayClicked(id, index, forecast)
-      }
-    )
-  }
-
-  if (overScrollBottom) {
-    val id = (state.value.citiesState as DetailsStore.State.CitiesState.Loaded).id
-    val index = 1
-    val forecast = (state.value.forecastState as DetailsStore.State.ForecastState.Loaded).forecast
-    onDayClicked(id, index, forecast)
-  }
-}
-
-@Composable
-private fun MainScreen(
-  modifier: Modifier = Modifier,
   state: DetailsStore.State,
-  onDayClicked: (Int, Int, ForecastFs) -> Unit
+  onDayClicked: (Int, Int, ForecastFs) -> Unit,
+  onBackClicked: () -> Unit,
+  onSettingsClicked: () -> Unit,
+  onSwipeLeft: () -> Unit,
+  onSwipeRight: () -> Unit
 ) {
   if (state.citiesState is DetailsStore.State.CitiesState.Loaded) {
 
@@ -144,78 +74,18 @@ private fun MainScreen(
       DetailsStore.State.ForecastState.Loading -> Loading()
 
       is DetailsStore.State.ForecastState.Loaded -> {
-
-        val forecast = forecastState.forecast
-
-        CurrentWeather(
-          modifier = modifier
-            .padding(top = 24.dp),
-          forecast = forecast,
-          city = city
-        )
-
-        // Humidity, wind, pressure
-        HumidityWindPressure(
-          modifier = Modifier
-            .padding(top = 16.dp),
-          humidity = forecast.currentForecast.humidity,
-          windDir = forecast.currentForecast.windDir,
-          windSpeed = forecast.currentForecast.windSpeed,
-          pressure = forecast.currentForecast.pressure
-        )
-
-        // UV index and cloudiness
-        UvIndexAndCloudiness(
-          modifier = Modifier
-            .padding(top = 24.dp),
-          uvIndex = forecast.currentForecast.uvIndex,
-          cloudCover = forecast.currentForecast.cloudCover,
-          precipitation = if (forecast.currentForecast.precipProb > 0) forecast.currentForecast.precip else null
-        )
-
-        // Hourly weather forecast
-        val firstIndex = forecast.upcomingHours.indexOfFirst {
-          convertLongToCalendarWithTz(it.date, forecast.tzId) >= Calendar.getInstance()
-        }
-
-        val list = if (firstIndex - 1 == WRONG_INDEX_OF_FORECAST) null
-        else forecast.upcomingHours.subList(
-          firstIndex - 1,
-          firstIndex + MAXIMUM_HOURS_HOURLY_WEATHER
-        )
-
-        AnimatingHourlyWeatherForecast(
-          modifier = Modifier
-            .padding(top = 16.dp),
-          list = list,
-          tzId = forecast.tzId
-        )
-
-        DailyWeatherForecast(
-          modifier = Modifier
-            .padding(top = 16.dp),
-          forecast = forecast,
-          onDayClicked = { index ->
-            onDayClicked(city.id, index, forecast)
-          }
-        )
-
-        SunAndMoon(
-          modifier = Modifier
-            .padding(top = 16.dp),
-          sunrise = forecast.upcomingDays.first().sunrise,
-          sunset = forecast.upcomingDays.first().sunset,
-          moonrise = forecast.upcomingDays.first().moonrise,
-          moonset = forecast.upcomingDays.first().moonset,
-          moonPhase = forecast.upcomingDays.first().moonPhase,
-          tzId = forecast.tzId
-        )
-
-        Charts(
-          modifier = Modifier
-            .padding(top = 16.dp,),
-          list = forecast.getSublistForecastHourly(),
-          tzId = forecast.tzId
+        MainScreen(
+          modifier = modifier,
+          city = city,
+          forecast = forecastState.forecast,
+          state = state,
+          onDayClicked = {
+            onDayClicked(city.id, it, forecastState.forecast)
+          },
+          onBackClicked = { onBackClicked() },
+          onSettingsClicked = { onSettingsClicked() },
+          onSwipeLeft = { onSwipeLeft() },
+          onSwipeRight = { onSwipeRight() }
         )
       }
     }
@@ -243,8 +113,11 @@ private fun Loading() {
 @Composable
 private fun Error() {
   Box(
-    modifier = Modifier.fillMaxSize(),
-    contentAlignment = Alignment.Center
+    modifier = Modifier
+      .background(MaterialTheme.colorScheme.background)
+      .padding(16.dp)
+      .fillMaxSize(),
+    contentAlignment = Alignment.Center,
   ) {
     Text(
       modifier = Modifier.padding(16.dp),
@@ -253,20 +126,3 @@ private fun Error() {
     )
   }
 }
-
-private fun ForecastFs.getSublistForecastHourly(): List<HourForecastFs> {
-
-  val now = LocalDateTime.now(ZoneId.of(this.tzId))
-
-  return this.upcomingHours.filter { item ->
-    val itemHour = LocalDateTime.ofInstant(
-      Instant.ofEpochSecond(item.date),
-      ZoneId.of(this.tzId)
-    )
-    itemHour > now.minusHours(2) && itemHour < now.plusHours(MAXIMUM_HOURS_CHART)
-  }
-}
-
-private const val MAXIMUM_HOURS_HOURLY_WEATHER = 23
-private const val MAXIMUM_HOURS_CHART = 25L
-private const val WRONG_INDEX_OF_FORECAST = -1

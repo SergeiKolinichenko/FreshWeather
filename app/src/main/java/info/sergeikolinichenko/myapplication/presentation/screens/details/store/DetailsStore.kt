@@ -28,6 +28,8 @@ interface DetailsStore : Store<Intent, State, Label> {
     data object OnBackClicked : Intent
     data object OnSettingsClicked : Intent
     data object ReloadWeather : Intent
+    data object OnSwipeLeft : Intent
+    data object OnSwipeRight : Intent
   }
 
   data class State(
@@ -88,6 +90,8 @@ class DetailsStoreFactory @Inject constructor(
     data class ForecastLoaded(val forecast: ForecastFs) : Message
     data object ForecastStartLoading : Message
     data class ForecastLoadingFailed(val referrerCode: String) : Message
+
+    data class NewCityId(val id: Int) : Message
   }
 
   private inner class BootstrapperImpl(
@@ -147,6 +151,48 @@ class DetailsStoreFactory @Inject constructor(
             }
           }
         }
+
+        Intent.OnSwipeLeft -> {
+
+          if (state().citiesState is State.CitiesState.Loaded) {
+
+            val citiesState = state().citiesState as State.CitiesState.Loaded
+
+            val cityIndex = citiesState.cities.indexOfFirst { it.id == citiesState.id }
+
+            if (cityIndex > 0) {
+              scope.launch {
+                val id = citiesState.cities[cityIndex - 1].id
+                dispatch(Message.NewCityId(id))
+                val city = citiesState.cities[cityIndex - 1]
+                loadForecast(city.toCity())
+              }
+            } else {
+              publish(Label.OnBackClicked)
+            }
+          }
+        }
+
+        Intent.OnSwipeRight -> {
+
+          if (state().citiesState is State.CitiesState.Loaded) {
+
+            val citiesState = state().citiesState as State.CitiesState.Loaded
+
+            val cityIndex = citiesState.cities.indexOfFirst { it.id == citiesState.id }
+
+            if (cityIndex < citiesState.cities.size - 1) {
+              scope.launch {
+
+                val id = citiesState.cities[cityIndex + 1].id
+                dispatch(Message.NewCityId(id))
+                val city = citiesState.cities[cityIndex + 1]
+
+                loadForecast(city.toCity())
+              }
+            }
+          }
+        }
       }
     }
 
@@ -154,22 +200,19 @@ class DetailsStoreFactory @Inject constructor(
       when (action) {
 
         is Action.CitiesLoaded -> {
-
-          dispatch(
-            Message.CitiesLoaded(
-              id = action.id,
-              cities = action.cities
-            )
-          )
-
-          val city = action.cities.find { it.id == action.id }!!
-
           scope.launch {
+            dispatch(
+              Message.CitiesLoaded(
+                id = action.id,
+                cities = action.cities
+              )
+            )
+            val city = action.cities.find { it.id == action.id }!!
             loadForecast(city.toCity())
           }
         }
 
-        Action.CitiesLoadingFailed -> dispatch(Message.ForecastLoadingFailed("666"))
+        Action.CitiesLoadingFailed -> dispatch(Message.CitiesLoadingFailed)
       }
     }
 
@@ -177,14 +220,17 @@ class DetailsStoreFactory @Inject constructor(
 
       dispatch(Message.ForecastStartLoading)
 
-      val result = getForecast(city)
+      // TODO needs to be corrected late ------------------------------------------------------------
+      val cities = listOf(city)
+
+      val result = getForecast(cities)
 
       when {
         result.isSuccess -> {
           val forecast = result.getOrNull()!!
-          dispatch(Message.ForecastLoaded(forecast.mapToForecastScreen()))
+          dispatch(Message.ForecastLoaded(forecast.first().mapToForecastScreen()))
         }
-
+        // TODO needs to be corrected late ------------------------------------------------------------
         result.isFailure -> {
           val errorCode = result.exceptionOrNull()!!.message!!
           dispatch(Message.ForecastLoadingFailed(errorCode))
@@ -211,8 +257,12 @@ class DetailsStoreFactory @Inject constructor(
         is Message.CitiesLoaded ->
           copy(citiesState = State.CitiesState.Loaded(msg.id, msg.cities))
 
-
         Message.CitiesLoadingFailed -> copy(citiesState = State.CitiesState.Error)
+
+        is Message.NewCityId -> {
+          val cities = citiesState as State.CitiesState.Loaded
+          copy(citiesState = State.CitiesState.Loaded(id = msg.id, cities = cities.cities))
+        }
       }
   }
 }

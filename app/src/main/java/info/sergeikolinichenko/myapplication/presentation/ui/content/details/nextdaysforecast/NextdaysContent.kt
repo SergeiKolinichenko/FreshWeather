@@ -1,5 +1,6 @@
 package info.sergeikolinichenko.myapplication.presentation.ui.content.details.nextdaysforecast
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -18,6 +19,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,12 +38,9 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import info.sergeikolinichenko.myapplication.R
 import info.sergeikolinichenko.myapplication.entity.HourForecastFs
 import info.sergeikolinichenko.myapplication.presentation.screens.nextdays.component.NextdaysComponent
@@ -52,6 +51,7 @@ import info.sergeikolinichenko.myapplication.presentation.ui.content.details.Hum
 import info.sergeikolinichenko.myapplication.presentation.ui.content.details.SunAndMoon
 import info.sergeikolinichenko.myapplication.presentation.ui.content.details.UvIndexAndCloudiness
 import info.sergeikolinichenko.myapplication.utils.DividingLine
+import info.sergeikolinichenko.myapplication.utils.ResponsiveText
 import info.sergeikolinichenko.myapplication.utils.toIconId
 import java.time.Instant
 import java.time.ZoneId
@@ -98,7 +98,8 @@ fun NextdaysContent(
               onCloseClicked = { component.onCloseClicked() },
               onSwipeLeft = { component.onSwipeLeft() },
               onSwipeRight = { component.onSwipeRight() },
-              onSwipeTop = { component.onSwipeTop() }
+              onSwipeTop = { component.onSwipeTop() },
+              onSwipeBottom = { component.onSwipeBottom() }
             )
           }
 
@@ -153,13 +154,14 @@ internal fun NextdaysScreen(
   onSwipeLeft: () -> Unit,
   onSwipeRight: () -> Unit,
   onSwipeTop: () -> Unit,
-  animatedDirection: (AnimatedDirection) -> Unit
+  onSwipeBottom: () -> Unit
 ) {
 
   val forecast = (state.forecast as NextdaysStore.State.ForecastState.Loaded).forecast
 
   var overScrollTop by remember { mutableStateOf(false) }
   var overScrollBottom by remember { mutableStateOf(false) }
+
   val scrollState = rememberScrollState()
   val nestedScrollConnection = remember {
     object : NestedScrollConnection {
@@ -167,6 +169,7 @@ internal fun NextdaysScreen(
         val delta = available.y
         if (delta > 0 && scrollState.value == 0) {
           overScrollTop = true
+
         } else if (delta < 0 && scrollState.value == scrollState.maxValue) {
           overScrollBottom = true
         }
@@ -184,23 +187,20 @@ internal fun NextdaysScreen(
   var swipeLeft by remember { mutableStateOf(false) }
   var swipeRight by remember { mutableStateOf(false) }
 
-  if (overScrollTop) {
-    onSwipeTop()
-  }
-  if (overScrollBottom) {
-    if (state.index < forecast.upcomingDays.size - 1) {
-      animatedDirection(AnimatedDirection.Top)
-      onDayClicked(state.index + 1)
+  LaunchedEffect(overScrollTop, overScrollBottom) {
+    if (overScrollTop) {
+      onSwipeTop()
+    }
+    if (overScrollBottom) {
+      onSwipeBottom()
     }
   }
 
   if (swipeLeft) {
-    animatedDirection(AnimatedDirection.Right)
     onSwipeLeft()
   }
 
   if (swipeRight) {
-    animatedDirection(AnimatedDirection.Left)
     onSwipeRight()
   }
 
@@ -342,15 +342,16 @@ private fun DailyWeather(
 
           val city = state.citiesState.cities.first { it.id == state.citiesState.id }
 
-          Text(
-            modifier = Modifier,
+          ResponsiveText(
+            modifier = Modifier
+              .padding(bottom = 8.dp),
             text = city.name,
-            fontFamily = FontFamily.SansSerif,
-            fontWeight = FontWeight.Normal,
-            fontSize = 32.sp,
+            textStyle = MaterialTheme.typography.headlineLarge,
             textAlign = TextAlign.Start,
-            color = MaterialTheme.colorScheme.onBackground
+            color = MaterialTheme.colorScheme.onBackground,
+            maxLines = 1
           )
+
         }
 
         Row(
@@ -380,12 +381,9 @@ private fun DailyWeather(
         contentDescription = null
       )
     }
-    Text(
-      modifier = Modifier,
+    ResponsiveText(
       text = thisDayWeather.description,
-      fontFamily = FontFamily.SansSerif,
-      fontWeight = FontWeight.Normal,
-      fontSize = 20.sp,
+      textStyle = MaterialTheme.typography.bodyMedium,
       textAlign = TextAlign.Start,
       color = MaterialTheme.colorScheme.onBackground
     )
@@ -397,12 +395,13 @@ private fun DailyWeatherTempText(
   modifier: Modifier = Modifier,
   text: String
 ) {
-  Text(
+  ResponsiveText(
     modifier = modifier,
     text = text,
-    style = MaterialTheme.typography.titleSmall,
+    textStyle = MaterialTheme.typography.titleSmall,
     textAlign = TextAlign.Start,
-    color = MaterialTheme.colorScheme.onBackground
+    color = MaterialTheme.colorScheme.onBackground,
+    maxLines = 1
   )
 }
 

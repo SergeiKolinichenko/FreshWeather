@@ -48,17 +48,19 @@ class FavouriteStoreFactoryShould : BaseUnitTestsRules() {
   )
 
   @Test
-  fun `check that when the class is created, it is executed by calling GetFavouriteCitiesUseCase`(): Unit = runTest {
-    // Arrange
-    mockSuccessResult()
-    // Act
-    SUT.create()
-    // Assert
-    verify(getFavouriteCitiesUseCase, times(1)).invoke()
-  }
+  fun `check that when the class is created, it is executed by calling GetFavouriteCitiesUseCase`(): Unit =
+    runTest {
+      // Arrange
+      mockSuccessResult()
+      // Act
+      SUT.create()
+      // Assert
+      verify(getFavouriteCitiesUseCase, times(1)).invoke()
+    }
 
   @Test
-  fun `check that when a class is created, the favourite cities are loaded from DB`(): Unit = runTest {
+  fun `check that when a class is created, the favourite cities are loaded from DB`(): Unit =
+    runTest {
       // Arrange
       mockSuccessResult()
       // Act
@@ -69,65 +71,70 @@ class FavouriteStoreFactoryShould : BaseUnitTestsRules() {
     }
 
   @Test
-  fun `check that when a class is created, the favourite cities loaded and is state is loaded`(): Unit = runTest {
+  fun `check that when a class is created, the favourite cities loaded and is state is loaded`(): Unit =
+    runTest {
       // Arrange
       mockSuccessResult()
       // Act
       val store = SUT.create()
-      val testField = store.state.listCitiesLoadedState
+      val testField = store.state.citiesState
       // Assert
-      assert(testField == FavouriteStore.State.ListCitiesLoadedState.Loaded)
+      assert(testField == FavouriteStore.State.CitiesState.Loaded)
     }
 
   @Test
-  fun `check that when a class is created, the favourite cities are not loaded from DB cities state is error`(): Unit = runTest {
+  fun `check that when a class is created, the favourite cities are not loaded from DB cities state is error`(): Unit =
+    runTest {
       // Arrange
       whenever(getFavouriteCitiesUseCase.invoke()).thenReturn(flowOf(Result.failure(exception)))
       // Act
       val store = SUT.create()
-      val testField = store.state.listCitiesLoadedState
+      val testField = store.state.citiesState
       // Assert
-      assert(testField == FavouriteStore.State.ListCitiesLoadedState.Error)
+      assert(testField == FavouriteStore.State.CitiesState.Error)
     }
 
   @Test
-  fun `check that when the class is created, it is executed by calling GetWeatherUseCase`(): Unit = runTest {
-    // Arrange
-    mockSuccessResult()
-    // Act
-    SUT.create()
-    // Assert
-    verify(getWeatherUseCase, times(1)).invoke(testCity)
-  }
+  fun `check that when the class is created, it is executed by calling GetWeatherUseCase`(): Unit =
+    runTest {
+      // Arrange
+      mockSuccessResult()
+      // Act
+      SUT.create()
+      // Assert
+      verify(getWeatherUseCase, times(1)).invoke(testCity)
+    }
 
   @Test
-  fun `check that when a class is created, the favourite cities weather are not loaded from Network`(): Unit = runTest {
-    // Arrange
-    whenever(getFavouriteCitiesUseCase.invoke()).thenReturn(flowOf(Result.success(cities)))
-    whenever(getWeatherUseCase.invoke(testCity)).thenReturn(Result.failure(exception))
-    // Act
-    val store = SUT.create()
-    val testField = store.state.cityItems.first().weatherLoadingState
-    // Assert
-    assert(testField is FavouriteStore.State.WeatherLoadingState.Error)
-  }
+  fun `check that when a class is created, the favourite cities weather are not loaded from Network`(): Unit =
+    runTest {
+      // Arrange
+      whenever(getFavouriteCitiesUseCase.invoke()).thenReturn(flowOf(Result.success(cities)))
+      whenever(getWeatherUseCase.invoke(testCity)).thenReturn(Result.failure(exception))
+      // Act
+      val store = SUT.create()
+      val testField = store.state.cityItems.first().weatherState
+      // Assert
+      assert(testField is FavouriteStore.State.WeatherState.Error)
+    }
 
   @Test
-  fun `check that when a class is created, the favourite cities weather are loaded from Network`(): Unit = runTest {
-    // Arrange
-    mockSuccessResult()
-    // Act
-    val store = SUT.create()
-    val testField =
-      store.state.cityItems.first().weatherLoadingState
-          as FavouriteStore.State.WeatherLoadingState.LoadedWeatherLoading
-    // Assert
-    assert(testField.temp == testWeather.temp)
-    assert(testField.maxTemp == testWeather.maxTemp)
-    assert(testField.minTemp == testWeather.minTemp)
-    assert(testField.description == testWeather.description)
-    assert(testField.icon == testWeather.condIconUrl)
-  }
+  fun `check that when a class is created, the favourite cities weather are loaded from Network`(): Unit =
+    runTest {
+      // Arrange
+      mockSuccessResult()
+      // Act
+      val store = SUT.create()
+      val testField =
+        store.state.cityItems.first().weatherState
+            as FavouriteStore.State.WeatherState.Loaded
+      // Assert
+      assert(testField.temp == testWeather.temp)
+      assert(testField.maxTemp == testWeather.maxTemp)
+      assert(testField.minTemp == testWeather.minTemp)
+      assert(testField.description == testWeather.description)
+      assert(testField.icon == testWeather.condIconUrl)
+    }
 
   @Test
   fun `check that when a class is created, state of dropdown menu is initial`() = runTest {
@@ -142,28 +149,30 @@ class FavouriteStoreFactoryShould : BaseUnitTestsRules() {
   }
 
   @Test
-  fun `check that when the menu button is pressed the state of the drop-down menu is open`() = runTest {
-    // Arrange
-    mockSuccessResult()
-    // Act
-    val store = SUT.create()
-    store.accept(FavouriteStore.Intent.ActionMenuClicked)
-    val testField = store.state.dropDownMenuState
-    // Assert
-    assert(testField == FavouriteStore.State.DropDownMenuState.OpenMenu)
-  }
+  fun `check that when the menu button is pressed the state of the drop-down menu is open`() =
+    runTest {
+      // Arrange
+      mockSuccessResult()
+      // Act
+      val store = SUT.create()
+      store.accept(FavouriteStore.Intent.ActionMenuClicked)
+      val testField = store.state.dropDownMenuState
+      // Assert
+      assert(testField == FavouriteStore.State.DropDownMenuState.OpenMenu)
+    }
 
   @Test
-  fun `check that when the menu button is pressed the state of the drop-down menu is closed`() = runTest {
-    // Arrange
-    mockSuccessResult()
-    // Act
-    val store = SUT.create()
-    store.accept(FavouriteStore.Intent.ClosingActionMenu)
-    val testField = store.state.dropDownMenuState
-    // Assert
-    assert(testField == FavouriteStore.State.DropDownMenuState.CloseMenu)
-  }
+  fun `check that when the menu button is pressed the state of the drop-down menu is closed`() =
+    runTest {
+      // Arrange
+      mockSuccessResult()
+      // Act
+      val store = SUT.create()
+      store.accept(FavouriteStore.Intent.ClosingActionMenu)
+      val testField = store.state.dropDownMenuState
+      // Assert
+      assert(testField == FavouriteStore.State.DropDownMenuState.CloseMenu)
+    }
 
   @Test
   fun `check that when the search menu button is pressed the label status appears`() = runTest {
@@ -178,30 +187,31 @@ class FavouriteStoreFactoryShould : BaseUnitTestsRules() {
   }
 
   @Test
-  fun `check that when the search menu button is pressed the state of the search menu is open`() = runTest {
-    // Arrange
-    mockSuccessResult()
+  fun `check that when the search menu button is pressed the state of the search menu is open`() =
+    runTest {
+      // Arrange
+      mockSuccessResult()
 
-    // Act
-    val store = SUT.create()
-    val testField = store.labels.test()
-    store.accept(FavouriteStore.Intent.ItemMenuSettingsClicked)
-
-    // Assert
-    assert(testField == listOf(FavouriteStore.Label.OnClickItemMenuSettings))
-  }
+      // Act
+      val store = SUT.create()
+      val testField = store.labels.test()
+      store.accept(FavouriteStore.Intent.ItemMenuSettingsClicked)
+      // Assert
+      assert(testField == listOf(FavouriteStore.Label.OnClickItemMenuSettings))
+    }
 
   @Test
-  fun `check that when the search menu button is pressed the state of the search menu is closed`() = runTest {
-    // Arrange
-    mockSuccessResult()
-    // Act
-    val store = SUT.create()
-    val testField = store.labels.test()
-    store.accept(FavouriteStore.Intent.ItemCityClicked(testCityFs.id))
-    // Assert
-    assert(testField == listOf(FavouriteStore.Label.OnClickCity(testCityFs.id)))
-  }
+  fun `check that when the search menu button is pressed the state of the search menu is closed`() =
+    runTest {
+      // Arrange
+      mockSuccessResult()
+      // Act
+      val store = SUT.create()
+      val testField = store.labels.test()
+      store.accept(FavouriteStore.Intent.ItemCityClicked(testCityFs.id))
+      // Assert
+      assert(testField == listOf(FavouriteStore.Label.OnClickCity(testCityFs.id)))
+    }
 
   // region helper functions
 
@@ -215,8 +225,8 @@ class FavouriteStoreFactoryShould : BaseUnitTestsRules() {
     name = name,
     region = region,
     country = country,
-    lat = 0.0,
-    lon = 0.0
+    lat = lat,
+    lon = lon
   )
   // endregion helper functions
 

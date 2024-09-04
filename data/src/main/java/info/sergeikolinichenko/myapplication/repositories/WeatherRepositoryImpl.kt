@@ -18,7 +18,6 @@ import info.sergeikolinichenko.myapplication.repositories.SettingsRepositoryImpl
 import javax.inject.Inject
 
 class WeatherRepositoryImpl @Inject constructor(
-  private val apiFactory: ApiFactory,
   private val preferences: SharedPreferences
 ) : WeatherRepository {
 
@@ -26,9 +25,9 @@ class WeatherRepositoryImpl @Inject constructor(
   override suspend fun getWeather(city: City): Result<Weather> {
 
     val location = "${city.lat}, ${city.lon}"
-    val response = apiFactory.getVisualcrossingApi().getCurrentWeather(
+    val response = ApiFactory.apiServiceForVisualcrossing.getCurrentWeather(
       location = location,
-      date1 = ONE_DAY_FORECAST
+      days = ONE_DAY_FORECAST
     )
 
     return if (response.isSuccessful)
@@ -37,24 +36,25 @@ class WeatherRepositoryImpl @Inject constructor(
       Result.failure(Exception(response.code().toString()))
   }
 
-  override suspend fun getForecast(city: City) : Result<Forecast> {
+  override suspend fun getForecast(cities: List<City>): Result<List<Forecast>> =
+    runCatching {
+      val days = preferences.getInt(DAYS_OF_WEATHER_KEY, SEVEN_DAYS_FORECAST).toString()
+      val settings = getMySettings()
 
-    val location = "${city.lat}, ${city.lon}"
+      cities.map { city ->
+        val location = "${city.lat}, ${city.lon}"
 
-    val days = preferences.getInt(DAYS_OF_WEATHER_KEY, 7)
+        val response = ApiFactory.apiServiceForVisualcrossing.getCurrentWeather(
+          location = location,
+          days = days
+        )
 
-    val response = apiFactory.getVisualcrossingApi().getCurrentWeather(
-      location = location,
-      date1 = days.toString()
-    )
+        if (response.isSuccessful) response.body()!!.mapToForecast(city.id, settings)
+        else throw Exception(response.code().toString())
+      }
+    }
 
-    return if (response.isSuccessful)
-      Result.success(response.body()!!.mapToForecast(getMySettings()))
-    else
-      Result.failure(Exception(response.code().toString()))
-  }
-
-  private fun getMySettings(): Settings {
+  internal fun getMySettings(): Settings {
 
     val jsonObject = preferences.getString(SETTINGS_KEY, null)
 
@@ -70,5 +70,6 @@ class WeatherRepositoryImpl @Inject constructor(
 
   companion object {
     private const val ONE_DAY_FORECAST = "1"
+    private const val SEVEN_DAYS_FORECAST = 7
   }
 }

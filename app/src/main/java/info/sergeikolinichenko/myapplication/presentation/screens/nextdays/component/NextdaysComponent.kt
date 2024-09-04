@@ -25,6 +25,7 @@ interface NextdaysComponent {
   fun onSwipeLeft()
   fun onSwipeRight()
   fun onSwipeTop()
+  fun onSwipeBottom()
   fun onDayClicked(index: Int)
 }
 
@@ -49,7 +50,7 @@ class DefaultNextdaysComponent @AssistedInject constructor(
     scope.launch {
       store.labels.collect{
         when(it){
-          is NextdaysStore.Label.OnSwipedTop -> onSwipedTop()
+          is NextdaysStore.Label.GoBack -> onSwipedTop()
           is NextdaysStore.Label.OnClickedClose -> onClickedClose()
         }
       }
@@ -75,6 +76,10 @@ class DefaultNextdaysComponent @AssistedInject constructor(
 
   override fun onSwipeTop() {
     store.accept(NextdaysStore.Intent.OnSwipeTop)
+  }
+
+  override fun onSwipeBottom() {
+    store.accept(NextdaysStore.Intent.OnSwipeBottom)
   }
 
   override fun onDayClicked(index: Int) {

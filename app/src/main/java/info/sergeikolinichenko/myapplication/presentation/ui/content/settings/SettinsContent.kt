@@ -17,7 +17,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
@@ -33,6 +32,7 @@ import info.sergeikolinichenko.domain.entity.PRESSURE
 import info.sergeikolinichenko.domain.entity.TEMPERATURE
 import info.sergeikolinichenko.myapplication.R
 import info.sergeikolinichenko.myapplication.presentation.screens.settings.component.SettingsComponent
+import info.sergeikolinichenko.myapplication.utils.ResponsiveText
 
 /** Created by Sergei Kolinichenko on 14.07.2024 at 18:16 (GMT+3) **/
 
@@ -113,7 +113,7 @@ private fun SettingsScreen(
 
     RadioButtonsUnit(
       radioButtonClicked = pressureButtonClicked,
-      unitTitle = R.string.settings_content_unit_titile_pressure,
+      unitTitle = R.string.settings_content_unit_title_pressure,
       topButtonTitle = R.string.settings_content_unit_title_pressure_mmhg,
       bottomButtonTitle = R.string.settings_content_unit_title_pressure_hpa,
       onClickTopButton = { component.setPressureType(type = PRESSURE.MMHG) },
@@ -165,25 +165,26 @@ private fun ScreenTopBar(
         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
         contentDescription = stringResource(id = R.string.settings_content_description_text_back_button)
       )
-      Text(
+      ResponsiveText(
         modifier = Modifier
           .padding(start = 20.dp),
         text = stringResource(R.string.settings_content_title_settings),
+        targetTextSizeHeight = 22.sp,
         fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.Normal,
-        fontSize = 22.sp,
         textAlign = TextAlign.Start,
-        color = MaterialTheme.colorScheme.onBackground
+        color = MaterialTheme.colorScheme.onBackground,
+        maxLines = 1
       )
     }
-    Text(
+    ResponsiveText(
       modifier = Modifier
         .align(Alignment.CenterEnd)
         .clickable { onClickedSaveSettings() },
       text = stringResource(R.string.many_place_title_button_done),
       fontFamily = FontFamily.SansSerif,
       fontWeight = FontWeight.Medium,
-      fontSize = 16.sp,
+      targetTextSizeHeight = 16.sp,
       textAlign = TextAlign.Start,
       color = MaterialTheme.colorScheme.onBackground
     )

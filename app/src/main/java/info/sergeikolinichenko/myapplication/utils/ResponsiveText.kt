@@ -1,5 +1,6 @@
 package info.sergeikolinichenko.myapplication.utils
 
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -10,6 +11,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
@@ -18,13 +22,18 @@ import androidx.compose.ui.unit.TextUnit
 
 @Composable
 fun ResponsiveText(
-  modifier: Modifier = Modifier,
   text: String,
-  color: Color = MaterialTheme.colorScheme.onBackground,
-  textAlign: TextAlign = TextAlign.Center,
-  textStyle: TextStyle,
+  modifier: Modifier = Modifier,
+  fontStyle: FontStyle? = null,
+  fontWeight: FontWeight? = null,
+  fontFamily: FontFamily? = null,
+  color: Color = Color.Unspecified,
+  lineHeight: TextUnit = TextUnit.Unspecified,
+  textAlign: TextAlign? = null,
+  textStyle: TextStyle = LocalTextStyle.current,
   targetTextSizeHeight: TextUnit = textStyle.fontSize,
-  maxLines: Int = 1,
+  maxLines: Int = Int.MAX_VALUE,
+  softWrap: Boolean = true
 ) {
   var textSize by remember { mutableStateOf(targetTextSizeHeight) }
 
@@ -34,12 +43,14 @@ fun ResponsiveText(
     color = color,
     textAlign = textAlign,
     fontSize = textSize,
-    fontFamily = textStyle.fontFamily,
-    fontStyle = textStyle.fontStyle,
-    fontWeight = textStyle.fontWeight,
-    lineHeight = textStyle.lineHeight,
+    fontFamily = fontFamily,
+    fontStyle = fontStyle,
+    fontWeight = fontWeight,
+    lineHeight = lineHeight,
     maxLines = maxLines,
     overflow = TextOverflow.Ellipsis,
+    style = textStyle,
+    softWrap = softWrap,
     onTextLayout = { textLayoutResult ->
       val maxCurrentLineIndex: Int = textLayoutResult.lineCount - 1
 
@@ -49,5 +60,4 @@ fun ResponsiveText(
     },
   )
 }
-
 private const val TEXT_SCALE_REDUCTION_INTERVAL = 0.9f

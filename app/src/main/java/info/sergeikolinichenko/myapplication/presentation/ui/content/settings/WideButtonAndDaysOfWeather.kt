@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -22,7 +21,6 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -49,7 +47,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import info.sergeikolinichenko.myapplication.R
 import info.sergeikolinichenko.myapplication.presentation.screens.settings.store.SettingsStore
+import info.sergeikolinichenko.myapplication.utils.ResponsiveText
 
 /** Created by Sergei Kolinichenko on 17.07.2024 at 14:15 (GMT+3) **/
 
@@ -68,15 +68,16 @@ internal fun WideButton(
       .fillMaxWidth()
       .clickable { onClick(context) },
   ) {
-    Text(
+
+    ResponsiveText(
       modifier = Modifier
         .padding(start = 16.dp)
         .align(Alignment.CenterStart)
         .fillMaxWidth(),
       text = stringResource(textId),
+      targetTextSizeHeight = 16.sp,
       fontFamily = FontFamily.SansSerif,
       fontWeight = FontWeight.Medium,
-      fontSize = 16.sp,
       textAlign = TextAlign.Start,
       color = MaterialTheme.colorScheme.onBackground
     )
@@ -98,17 +99,18 @@ internal fun DaysOfWeather(
     modifier = modifier
       .fillMaxWidth()
   ) {
-    Text(
+    ResponsiveText(
       modifier = Modifier
-        .wrapContentWidth()
         .padding(16.dp),
-      text = "Forecast",
+      text = stringResource(R.string.settings_content_unit_title_forecast),
+      targetTextSizeHeight = 16.sp,
       fontFamily = FontFamily.SansSerif,
       fontWeight = FontWeight.Medium,
-      fontSize = 16.sp,
       textAlign = TextAlign.Start,
-      color = MaterialTheme.colorScheme.onBackground
+      color = MaterialTheme.colorScheme.onBackground,
+      maxLines = 1
     )
+
     Spacer(modifier = Modifier.height(2.dp))
     Row(
       modifier = modifier
@@ -122,18 +124,19 @@ internal fun DaysOfWeather(
       verticalAlignment = Alignment.CenterVertically
     ) {
 
-      Text(
+      ResponsiveText(
         modifier = Modifier
-          .width(220.dp)
+          .weight(1f)
           .padding(start = 16.dp),
-        text = "Number of forecast days",
+        text = stringResource(R.string.settings_content_number_of_forecast_days),
+        targetTextSizeHeight = 16.sp,
+        lineHeight = 18.sp,
         fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.Normal,
-        fontSize = 16.sp,
-        lineHeight = 18.sp,
         textAlign = TextAlign.Start,
-        color = MaterialTheme.colorScheme.onBackground
+        color = MaterialTheme.colorScheme.onBackground,
       )
+
       TextField(
         modifier = Modifier
           .width(140.dp),

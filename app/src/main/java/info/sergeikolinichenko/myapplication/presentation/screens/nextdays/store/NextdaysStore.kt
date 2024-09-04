@@ -1,5 +1,6 @@
 package info.sergeikolinichenko.myapplication.presentation.screens.nextdays.store
 
+import android.util.Log
 import com.arkivanov.mvikotlin.core.store.Reducer
 import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.core.store.StoreFactory
@@ -24,6 +25,7 @@ import javax.inject.Inject
 interface NextdaysStore : Store<Intent, State, Label> {
   sealed interface Intent {
     data object OnSwipeTop : Intent
+    data object OnSwipeBottom : Intent
     data object OnSwipeLeft : Intent
     data object OnSwipeRight : Intent
     data object OnClickClose : Intent
@@ -54,7 +56,7 @@ interface NextdaysStore : Store<Intent, State, Label> {
   }
 
   sealed interface Label {
-    data object OnSwipedTop : Label
+    data object GoBack : Label
     data object OnClickedClose : Label
   }
 }
@@ -88,9 +90,7 @@ class NextdaysStoreFactory @Inject constructor(
     data object CitiesLoadingFailed : Message
     data class OnDayClicked(val index: Int) : Message
 
-    // -----------
     data class NewCityId(val id: Int) : Message
-
 
     data class ForecastLoaded(val forecast: ForecastFs) : Message
     data object ForecastStartLoading : Message
@@ -121,19 +121,44 @@ class NextdaysStoreFactory @Inject constructor(
 
       when (intent) {
 
-        is Intent.OnSwipeTop -> publish(Label.OnSwipedTop)
+        is Intent.OnSwipeTop -> {
+          if (state().citiesState is State.CitiesState.Loaded &&
+            state().forecast is State.ForecastState.Loaded
+          ) {
+            val index = state().index
+            if (index > 1) {
+              dispatch(Message.OnDayClicked(index - 1))
+            } else {
+              publish(Label.GoBack)
+            }
+          }
+        }
+
+        is Intent.OnSwipeBottom -> {
+          if (state().citiesState is State.CitiesState.Loaded &&
+            state().forecast is State.ForecastState.Loaded
+          ) {
+            val index = state().index
+            val days = (state().forecast as State.ForecastState.Loaded).forecast.upcomingDays.size
+            if (index < days - 1) {
+              dispatch(Message.OnDayClicked(index + 1))
+            }
+          }
+        }
 
         is Intent.OnDayClicked -> {
-          dispatch(Message.OnDayClicked(intent.index))}
+          dispatch(Message.OnDayClicked(intent.index))
+        }
 
         Intent.OnSwipeLeft -> {
+
           if (state().citiesState is State.CitiesState.Loaded) {
 
             val citiesState = state().citiesState as State.CitiesState.Loaded
 
             val cityIndex = citiesState.cities.indexOfFirst { it.id == citiesState.id }
-            if (cityIndex > 0) {
 
+            if (cityIndex > 0) {
               val id = citiesState.cities[cityIndex - 1].id
 
               dispatch(Message.NewCityId(id))
@@ -149,12 +174,10 @@ class NextdaysStoreFactory @Inject constructor(
         Intent.OnSwipeRight -> {
 
           if (state().citiesState is State.CitiesState.Loaded) {
-
             val citiesState = state().citiesState as State.CitiesState.Loaded
             val cityIndex = citiesState.cities.indexOfFirst { it.id == citiesState.id }
 
             if (cityIndex < citiesState.cities.size - 1) {
-
               val id = citiesState.cities[cityIndex + 1].id
 
               dispatch(Message.NewCityId(id))
@@ -185,18 +208,23 @@ class NextdaysStoreFactory @Inject constructor(
         Action.CitiesLoadingFailed -> dispatch(Message.CitiesLoadingFailed)
       }
     }
+
     private fun loadForecast(city: City) {
       scope.launch {
 
-        val result = getForecast(city)
+        // TODO needs to be corrected late ------------------------------------------------------------
+        val cities = listOf(city)
+
+        val result = getForecast(cities)
         if (result.isSuccess) {
           val forecast = result.getOrNull()!!
-          dispatch(Message.ForecastLoaded(forecast.mapToForecastScreen()))
+          dispatch(Message.ForecastLoaded(forecast.first().mapToForecastScreen()))
         } else {
           val errorCode = result.exceptionOrNull()!!.message!!
           dispatch(Message.ForecastLoadingFailed(errorCode))
         }
       }
+      // TODO needs to be corrected late ------------------------------------------------------------
     }
   }
 

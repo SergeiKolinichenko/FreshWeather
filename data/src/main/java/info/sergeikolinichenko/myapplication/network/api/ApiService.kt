@@ -19,7 +19,7 @@ interface ApiService {
   @GET("{location}/next{days}days?unitGroup=metric&iconSet=icons2&elements=datetime,datetimeEpoch,name,address,resolvedAddress,latitude,longitude,tempmax,tempmin,temp,feelslike,humidity,precip,precipprob,preciptype,windspeed,winddir,pressure,uvindex,moonphase,sunriseEpoch,sunsetEpoch,moonriseEpoch,moonsetEpoch,conditions,description,icon,cloudcover&include=current,days,hours,fcst")
   suspend fun getCurrentWeather(
     @Path("location") location: String,
-    @Path("days") date1: String,
+    @Path("days") days: String,
   ): Response<ForecastDto>
 
 }

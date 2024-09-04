@@ -36,6 +36,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import info.sergeikolinichenko.myapplication.R
+import info.sergeikolinichenko.myapplication.utils.ResponsiveText
 import info.sergeikolinichenko.myapplication.utils.TITLE_ICON_SIZE_16
 import info.sergeikolinichenko.myapplication.utils.WEATHER_ICON_SIZE_36
 import info.sergeikolinichenko.myapplication.utils.durationBetweenTwoTimes
@@ -89,19 +90,19 @@ internal fun SunAndMoon(
           imageVector = ImageVector.vectorResource(id = R.drawable.sun_moon),
           contentDescription = stringResource(R.string.details_content_description_sun_and_moon_icon)
         )
-        Text(
+        ResponsiveText(
           modifier = Modifier.padding(start = 4.dp),
           text = stringResource(R.string.details_content_title_card_sun_and_moon),
-          style = MaterialTheme.typography.labelMedium,
+          textStyle = MaterialTheme.typography.labelMedium,
           textAlign = TextAlign.Start,
-          color = MaterialTheme.colorScheme.onBackground
+          color = MaterialTheme.colorScheme.onBackground,
+          maxLines = 1
         )
       }
 
       Row(
         modifier = Modifier
-          .fillMaxWidth()
-          .padding(top = 16.dp),
+          .fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
       ) {

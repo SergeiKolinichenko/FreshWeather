@@ -1,4 +1,3 @@
-@Suppress("DSL_SCOPE_VIOLATION") // TODO: Remove once KTIJ-19369 is fixed
 plugins {
   alias(libs.plugins.androidLibrary)
   alias(libs.plugins.kotlinAndroid)
@@ -30,7 +29,7 @@ android {
 
   buildTypes {
     release {
-      isMinifyEnabled = true
+      isMinifyEnabled = false
       proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
     }
   }
@@ -40,6 +39,9 @@ android {
   }
   kotlinOptions {
     jvmTarget = "17"
+    freeCompilerArgs = listOf(
+      "-Xstring-concat=inline"
+    )
   }
   buildFeatures {
     buildConfig = true
@@ -50,7 +52,6 @@ dependencies {
   implementation(project(":domain"))
 
   implementation(libs.dagger.core)
-  implementation(libs.androidx.junit.ktx)
   ksp(libs.dagger.compiler)
 
   implementation(libs.room.core)
@@ -72,4 +73,6 @@ dependencies {
   testImplementation(libs.androidx.core)
 
   testImplementation(libs.robolectric)
+
+  testImplementation(libs.androidx.junit.ktx)
 }

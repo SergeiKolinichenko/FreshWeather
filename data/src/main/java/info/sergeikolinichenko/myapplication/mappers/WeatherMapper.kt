@@ -35,11 +35,12 @@ internal fun ForecastDto.mapForecastDtoToWeather(settings: Settings) = Weather(
     TEMPERATURE.CELSIUS -> this.daysForecast.first().tempMin.toCelsiusString()
     TEMPERATURE.FAHRENHEIT -> this.daysForecast.first().tempMin.toFahrenheitString()
   },
-  description = this.description,
+  description = "something",
   condIconUrl = this.daysForecast.first().icon
 )
 
-internal fun ForecastDto.mapToForecast(settings: Settings) = Forecast(
+internal fun ForecastDto.mapToForecast(id: Int, settings: Settings) = Forecast(
+  id = id,
   tzId = this.timeZone,
   currentForecast = this.mapToForecastCurrent(settings),
   upcomingDays = this.mapToDaysForecast(settings),
@@ -71,7 +72,7 @@ private fun ForecastDto.mapToForecastCurrent(settings: Settings) = CurrentForeca
   },
   uvIndex = this.currentWeatherDto.uvIndex,
   cloudCover = this.currentWeatherDto.cloudCover,
-  conditions = this.daysForecast.first().description,
+  conditions = this.currentWeatherDto.conditions,
   icon = this.currentWeatherDto.icon
 )
 

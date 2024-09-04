@@ -4,8 +4,9 @@ import com.arkivanov.decompose.DefaultComponentContext
 import com.arkivanov.essenty.lifecycle.LifecycleRegistry
 import com.arkivanov.mvikotlin.core.utils.isAssertOnMainThreadEnabled
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
-import com.nhaarman.mockitokotlin2.mock
+import info.sergeikolinichenko.domain.usecases.favourite.ChangeFavouriteStateUseCase
 import info.sergeikolinichenko.domain.usecases.favourite.GetFavouriteCitiesUseCase
+import info.sergeikolinichenko.domain.usecases.search.SearchCitiesUseCase
 import info.sergeikolinichenko.domain.usecases.weather.GetWeatherUseCase
 import info.sergeikolinichenko.myapplication.presentation.screens.favourite.component.DefaultFavouriteComponent
 import info.sergeikolinichenko.myapplication.presentation.screens.favourite.store.FavouriteStore
@@ -17,6 +18,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.mockito.kotlin.mock
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -35,13 +37,17 @@ class DefaultFavouriteComponentShould: BaseUnitTestsRules(
   private val lifecycle = LifecycleRegistry()
   private val getFavouriteCities = mock<GetFavouriteCitiesUseCase>()
   private val getWeatherUseCase = mock<GetWeatherUseCase>()
+  private val changeFavouriteStateUseCase = mock<ChangeFavouriteStateUseCase>()
+  private val searchCities = mock<SearchCitiesUseCase>()
 
   private val componentContext = DefaultComponentContext(lifecycle)
 
   private val storeFactory = FavouriteStoreFactory(
     storeFactory = DefaultStoreFactory(),
     getFavouriteCities = getFavouriteCities,
-    getWeatherUseCase = getWeatherUseCase
+    getWeatherUseCase = getWeatherUseCase,
+    changeFavouriteStateUseCase = changeFavouriteStateUseCase,
+    searchCities = searchCities
   )
 //private val store = componentContext.instanceKeeper.getStore { storeFactory.create() }
   // endregion constants
@@ -54,9 +60,10 @@ class DefaultFavouriteComponentShould: BaseUnitTestsRules(
 //    ),
     componentContext = componentContext,
     storeFactory = storeFactory,
-    onSearchClicked = {},
+    onClickedSearch= {},
     onClickItemMenuSettings = {},
-    onItemClicked = { _, _ -> }
+    onClickedItem = { _ -> },
+    onClickItemMenuEditing = { _ -> }
   )
 
   @Before

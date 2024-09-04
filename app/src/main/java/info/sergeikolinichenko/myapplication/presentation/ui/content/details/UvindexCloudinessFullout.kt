@@ -15,7 +15,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,9 +28,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import info.sergeikolinichenko.myapplication.R
 import info.sergeikolinichenko.myapplication.utils.LinearGradient
+import info.sergeikolinichenko.myapplication.utils.ResponsiveText
 import info.sergeikolinichenko.myapplication.utils.TITLE_ICON_SIZE_16
 import info.sergeikolinichenko.myapplication.utils.toPerCentFromFloat
 import info.sergeikolinichenko.myapplication.utils.toUvToStringId
@@ -86,6 +85,7 @@ private fun WeatherConditionsBlock(
   ) {
     Column(
       modifier = Modifier
+        .fillMaxHeight()
         .padding(16.dp),
       verticalArrangement = Arrangement.Top,
       horizontalAlignment = Alignment.Start
@@ -108,32 +108,36 @@ private fun WeatherConditionsBlock(
             .size(TITLE_ICON_SIZE_16.dp),
           imageVector = ImageVector.vectorResource(id = iconId),
           tint = MaterialTheme.colorScheme.surfaceTint,
-          contentDescription = stringResource(R.string.details_cintent_description_uv_index_icon)
+          contentDescription = stringResource(R.string.details_content_description_uv_index_icon)
         )
-        Text(
-          modifier = Modifier.padding(start = 8.dp),
+        ResponsiveText(
+          modifier = Modifier
+            .padding(start = 8.dp),
           text = stringResource(titleId),
-          style = MaterialTheme.typography.labelMedium,
-          textAlign = TextAlign.Unspecified,
-          color = MaterialTheme.colorScheme.onBackground
+          textStyle = MaterialTheme.typography.labelMedium,
+          textAlign = TextAlign.Start,
+          color = MaterialTheme.colorScheme.onBackground,
+          maxLines = 1
         )
       }
-      Text(
-        modifier = Modifier,
+      ResponsiveText(
         text = uvIndex?.toString() ?: cloudiness ?: "",
-        style = MaterialTheme.typography.headlineMedium,
-        textAlign = TextAlign.Unspecified,
-        color = MaterialTheme.colorScheme.onBackground
+        textStyle = MaterialTheme.typography.headlineMedium,
+        textAlign = TextAlign.Start,
+        color = MaterialTheme.colorScheme.onBackground,
+        maxLines = 1
       )
+
       if (uvIndex != null) {
-        Text(
-          modifier = Modifier,
+
+        ResponsiveText(
           text = stringResource(id = uvIndex.toUvToStringId()),
-          style = MaterialTheme.typography.titleMedium,
+          textStyle = MaterialTheme.typography.titleMedium,
           textAlign = TextAlign.Start,
-          lineHeight = 13.sp,
-          color = MaterialTheme.colorScheme.onBackground
+          color = MaterialTheme.colorScheme.onBackground,
+          maxLines = 1
         )
+
         LineOfUvIndex(
           modifier = Modifier
             .fillMaxSize()
@@ -153,22 +157,24 @@ private fun WeatherConditionsBlock(
               .size(TITLE_ICON_SIZE_16.dp),
             imageVector = ImageVector.vectorResource(id = R.drawable.horly_rain),
             tint = MaterialTheme.colorScheme.surfaceTint,
-            contentDescription = stringResource(R.string.details_cintent_description_uv_index_icon)
+            contentDescription = stringResource(R.string.details_content_description_uv_index_icon)
           )
-          Text(
-            modifier = Modifier.padding(start = 8.dp),
+          ResponsiveText(
+            modifier = Modifier
+              .padding(start = 8.dp),
             text = stringResource(R.string.details_content_title_block_precipitation),
-            style = MaterialTheme.typography.labelMedium,
-            textAlign = TextAlign.Unspecified,
-            color = MaterialTheme.colorScheme.onBackground
+            textStyle = MaterialTheme.typography.labelMedium,
+            textAlign = TextAlign.Start,
+            color = MaterialTheme.colorScheme.onBackground,
+            maxLines = 1
           )
         }
-        Text(
-          modifier = Modifier,
+        ResponsiveText(
           text = precipitation,
-          style = MaterialTheme.typography.headlineMedium,
-          textAlign = TextAlign.Unspecified,
-          color = MaterialTheme.colorScheme.onBackground
+          textStyle = MaterialTheme.typography.headlineMedium,
+          textAlign = TextAlign.Start,
+          color = MaterialTheme.colorScheme.onBackground,
+          maxLines = 1
         )
       }
     }

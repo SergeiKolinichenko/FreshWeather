@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import info.sergeikolinichenko.myapplication.R
 import info.sergeikolinichenko.myapplication.presentation.screens.nextdays.store.NextdaysStore
+import info.sergeikolinichenko.myapplication.utils.ResponsiveText
 import info.sergeikolinichenko.myapplication.utils.getNumberDayOfMonth
 import info.sergeikolinichenko.myapplication.utils.getTwoLettersDayOfTheWeek
 
@@ -45,14 +46,16 @@ internal fun ControlPanel(
       .fillMaxWidth()
       .padding(start = 16.dp, end = 16.dp, top = 12.dp)
   ) {
-    Text(
-      modifier = Modifier.align(Alignment.Center),
+    ResponsiveText(
+      modifier = Modifier
+        .align(Alignment.Center),
       text = stringResource(R.string.nextdays_title_text_weather_conditions),
+      targetTextSizeHeight = 22.sp,
       fontFamily = FontFamily.SansSerif,
       fontWeight = FontWeight.Normal,
-      fontSize = 22.sp,
       textAlign = TextAlign.Center,
-      color = MaterialTheme.colorScheme.onBackground
+      color = MaterialTheme.colorScheme.onBackground,
+      maxLines = 1
     )
     Icon(
       modifier = Modifier
@@ -163,7 +166,7 @@ private fun DayForOneLine(
   onDayClicked: (Int) -> Unit
 ) {
   Column(
-    modifier = modifier.clickable { onDayClicked(index) },
+    modifier = modifier,
     horizontalAlignment = Alignment.CenterHorizontally
   ) {
 
@@ -180,7 +183,8 @@ private fun DayForOneLine(
       modifier = Modifier
         .size(50.dp)
         .clip(shape = CircleShape)
-        .background(backgroundColor),
+        .background(backgroundColor)
+        .clickable { onDayClicked(index) },
     ) {
       Text(
         modifier = Modifier.align(Alignment.Center),

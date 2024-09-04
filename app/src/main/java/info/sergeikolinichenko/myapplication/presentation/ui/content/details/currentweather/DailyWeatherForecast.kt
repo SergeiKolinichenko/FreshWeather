@@ -31,6 +31,7 @@ import androidx.compose.ui.util.fastForEachIndexed
 import info.sergeikolinichenko.myapplication.R
 import info.sergeikolinichenko.myapplication.entity.ForecastFs
 import info.sergeikolinichenko.myapplication.utils.DividingLine
+import info.sergeikolinichenko.myapplication.utils.ResponsiveText
 import info.sergeikolinichenko.myapplication.utils.TITLE_ICON_SIZE_16
 import info.sergeikolinichenko.myapplication.utils.WEATHER_ICON_SIZE_36
 import info.sergeikolinichenko.myapplication.utils.convertLongToCalendarWithTz
@@ -102,13 +103,17 @@ private fun TittleDailyWeatherForecast(
       imageVector = ImageVector.vectorResource(id = R.drawable.calendar),
       contentDescription = stringResource(R.string.details_content_description_icon_calendar)
     )
-    Text(
-      text = stringResource(R.string.details_content_title_text_next_days_forecast, forecast.upcomingDays.size -1),
+    ResponsiveText(
+      text = stringResource(
+        R.string.details_content_title_text_next_days_forecast,
+        forecast.upcomingDays.size - 1
+      ),
+      targetTextSizeHeight = 12.sp,
+      textAlign = TextAlign.Start,
+      color = MaterialTheme.colorScheme.onBackground,
       fontFamily = FontFamily.SansSerif,
       fontWeight = FontWeight.Medium,
-      fontSize = 12.sp,
-      textAlign = TextAlign.Start,
-      color = MaterialTheme.colorScheme.onBackground
+      maxLines = 1
     )
   }
 }
@@ -151,74 +156,81 @@ private fun DailyWeatherItem(
       modifier = Modifier,
       horizontalAlignment = Alignment.Start
     ) {
-      Text(
+      ResponsiveText(
         text = weekday,
-        fontFamily = FontFamily.SansSerif,
-        fontWeight = FontWeight.W500,
-        fontSize = 12.sp,
+        textStyle = MaterialTheme.typography.bodyLarge,
         textAlign = TextAlign.Start,
-        color = MaterialTheme.colorScheme.onBackground
+        color = MaterialTheme.colorScheme.onBackground,
+        maxLines = 1
       )
-      Text(
+      ResponsiveText(
         text = date,
-        fontFamily = FontFamily.SansSerif,
-        fontWeight = FontWeight.Normal,
-        fontSize = 12.sp,
+        textStyle = MaterialTheme.typography.bodySmall,
         textAlign = TextAlign.Start,
-        color = MaterialTheme.colorScheme.onBackground
+        color = MaterialTheme.colorScheme.secondary,
+        maxLines = 1
       )
     }
-
-    Icon(
-      modifier = Modifier.size(WEATHER_ICON_SIZE_36.dp),
-      painter = painterResource(id = icon.toIconId()),
-      tint = Color.Unspecified,
-      contentDescription = stringResource(R.string.details_content_text_description_weather_condition)
-    )
-
-    if (chanceOfPrecip > 0f && precipType != null) {
-      Column(
-        modifier = Modifier,
-        horizontalAlignment = Alignment.CenterHorizontally
-      ) {
-
-        Text(
+    Column(
+      modifier = Modifier,
+      verticalArrangement = Arrangement.SpaceAround,
+      horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+      Icon(
+        modifier = Modifier.size(WEATHER_ICON_SIZE_36.dp),
+        painter = painterResource(id = icon.toIconId()),
+        tint = Color.Unspecified,
+        contentDescription = stringResource(R.string.details_content_text_description_weather_condition)
+      )
+      if (chanceOfPrecip > 0f && precipType != null) {
+        ResponsiveText(
           text = precipType,
+          targetTextSizeHeight = 10.sp,
           fontFamily = FontFamily.SansSerif,
-          fontWeight = FontWeight.W500,
-          fontSize = 10.sp,
+          fontWeight = FontWeight.Medium,
           textAlign = TextAlign.Center,
-          color = MaterialTheme.colorScheme.onBackground
+          lineHeight = 10.sp,
+          color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        Text(
+
+        ResponsiveText(
           text = chanceOfPrecip.toPerCentFromFloat(),
           fontFamily = FontFamily.SansSerif,
           fontWeight = FontWeight.Medium,
-          fontSize = 12.sp,
-          textAlign = TextAlign.Start,
-          color = MaterialTheme.colorScheme.onBackground
+          targetTextSizeHeight = 12.sp,
+          lineHeight = 12.sp,
+          textAlign = TextAlign.Center,
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
+          maxLines = 1
         )
       }
     }
-
     Row(
       modifier = Modifier,
       verticalAlignment = Alignment.Bottom,
       horizontalArrangement = Arrangement.End
     ) {
 
-      Text(
-        modifier = Modifier.padding(end = 4.dp),
+      ResponsiveText(
         text = maxTemp,
-        style = MaterialTheme.typography.bodyMedium,
-        color = MaterialTheme.colorScheme.onBackground
+        textStyle = MaterialTheme.typography.titleMedium,
+        textAlign = TextAlign.Center,
+        color = MaterialTheme.colorScheme.onBackground,
+        maxLines = 1
       )
-
-      Text(
-        modifier = modifier,
+      ResponsiveText(
+        text = "/",
+        textStyle = MaterialTheme.typography.titleSmall,
+        textAlign = TextAlign.Center,
+        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
+        maxLines = 1
+      )
+      ResponsiveText(
         text = minTemp,
-        style = MaterialTheme.typography.bodySmall,
-        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
+        textStyle = MaterialTheme.typography.titleSmall,
+        textAlign = TextAlign.Center,
+        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
+        maxLines = 1
       )
     }
   }

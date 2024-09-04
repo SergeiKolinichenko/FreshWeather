@@ -16,7 +16,8 @@ private var testHourForecastDto = HourForecastDto(
   humidity = 13.0f,
   pressure = 14.0f,
   uvIndex = 15,
-  icon = "sunny-day"
+  icon = "sunny-day",
+  precipType = listOf("rain", "snow")
 )
 
 // test field DayForecastDto

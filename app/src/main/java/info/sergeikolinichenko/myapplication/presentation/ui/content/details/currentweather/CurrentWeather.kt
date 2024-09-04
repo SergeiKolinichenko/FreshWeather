@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,6 +22,7 @@ import androidx.compose.ui.unit.sp
 import info.sergeikolinichenko.myapplication.R
 import info.sergeikolinichenko.myapplication.entity.CityFs
 import info.sergeikolinichenko.myapplication.entity.ForecastFs
+import info.sergeikolinichenko.myapplication.utils.ResponsiveText
 import info.sergeikolinichenko.myapplication.utils.toIconId
 
 /** Created by Sergei Kolinichenko on 04.08.2024 at 10:51 (GMT+3) **/
@@ -46,37 +46,42 @@ internal fun CurrentWeather(
       verticalAlignment = Alignment.CenterVertically
     ) {
       Column {
-        Text(
+
+        ResponsiveText(
           modifier = Modifier
             .padding(bottom = 8.dp),
-          text = city.name,
-          style = MaterialTheme.typography.headlineLarge,
+          text =city.name,
+          textStyle = MaterialTheme.typography.headlineLarge,
           textAlign = TextAlign.Start,
-          color = MaterialTheme.colorScheme.onBackground
+          color = MaterialTheme.colorScheme.onBackground,
+          maxLines = 1
         )
 
         Row(
           verticalAlignment = Alignment.CenterVertically,
           horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-          Text(
+
+          ResponsiveText(
             text = forecast.currentForecast.temp,
+            targetTextSizeHeight = 80.sp,
             fontFamily = FontFamily.SansSerif,
             fontWeight = FontWeight.Normal,
-            fontSize = 80.sp,
             textAlign = TextAlign.Start,
-            color = MaterialTheme.colorScheme.onBackground
+            color = MaterialTheme.colorScheme.onBackground,
+            maxLines = 1
           )
         }
 
-        Text(
+        ResponsiveText(
           text = stringResource(
             R.string.details_content_current_weather_text_feels_like,
             forecast.currentForecast.feelsLike
           ),
-          style = MaterialTheme.typography.bodyMedium,
+          textStyle = MaterialTheme.typography.bodyMedium,
           textAlign = TextAlign.Start,
-          color = MaterialTheme.colorScheme.onBackground
+          color = MaterialTheme.colorScheme.onBackground,
+          maxLines = 1
         )
 
       }
@@ -87,9 +92,10 @@ internal fun CurrentWeather(
         contentDescription = null
       )
     }
-    Text(
-      text = forecast.currentForecast.conditions,
-      style = MaterialTheme.typography.bodyMedium,
+
+    ResponsiveText(
+      text = forecast.upcomingDays.first().description,
+      textStyle = MaterialTheme.typography.bodyMedium,
       textAlign = TextAlign.Start,
       color = MaterialTheme.colorScheme.onBackground
     )

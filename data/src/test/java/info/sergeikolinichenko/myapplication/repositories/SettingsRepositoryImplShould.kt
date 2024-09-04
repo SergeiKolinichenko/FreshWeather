@@ -25,7 +25,7 @@ import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [Build.VERSION_CODES.O_MR1], manifest = Config.NONE)
-class SettingsRepositoryImplShould : BaseUnitTestsRules() {
+class SettingsRepositoryImplShould {
 
   private val preferences = mock(SharedPreferences::class.java)
   private val editor = mock(SharedPreferences.Editor::class.java)

@@ -9,9 +9,7 @@ data class ForecastDto(
   @SerializedName("timezone")
   val timeZone: String,
 
-  val description: String,
   @SerializedName("currentConditions")
-
   val currentWeatherDto: CurrentWeatherDto,
 
   @SerializedName("days")
@@ -22,6 +20,7 @@ data class CurrentWeatherDto(
   @SerializedName("datetimeEpoch")
   val datetimeEpoch: Long,
 
+  @SerializedName("temp")
   val temp: Float,
 
   @SerializedName("feelslike")
@@ -43,6 +42,7 @@ data class CurrentWeatherDto(
   @SerializedName("winddir")
   val windDir: Float,
 
+  @SerializedName("pressure")
   val pressure: Float,
 
   @SerializedName("uvindex")
@@ -51,8 +51,10 @@ data class CurrentWeatherDto(
   @SerializedName("cloudcover")
   val cloudCover: Float,
 
+  @SerializedName("conditions")
   val conditions: String,
 
+  @SerializedName("icon")
   val icon: String,
 )
 
@@ -60,6 +62,7 @@ data class DayForecastDto(
   @SerializedName("datetimeEpoch")
   val datetimeEpoch: Long,
 
+  @SerializedName("temp")
   val temp: Float,
 
   @SerializedName("tempmax")
@@ -68,6 +71,7 @@ data class DayForecastDto(
   @SerializedName("tempmin")
   val tempMin: Float,
 
+  @SerializedName("humidity")
   val humidity: Float,
 
   @SerializedName("windspeed")
@@ -76,6 +80,7 @@ data class DayForecastDto(
   @SerializedName("winddir")
   val windDir: Float,
 
+  @SerializedName("pressure")
   val pressure: Float,
 
   @SerializedName("uvindex")
@@ -87,13 +92,16 @@ data class DayForecastDto(
   @SerializedName("precipprob")
   val precipProb: Float,
 
+  @SerializedName("precip")
   val precip: Float,
 
   @SerializedName("preciptype")
   val precipType: List<String>?,
 
+  @SerializedName("description")
   val description: String,
 
+  @SerializedName("icon")
   val icon: String,
 
   @SerializedName("sunriseEpoch")
@@ -119,6 +127,7 @@ data class HourForecastDto(
   @SerializedName("datetimeEpoch")
   val datetimeEpoch: Long,
 
+  @SerializedName("temp")
   val temp: Float,
 
   @SerializedName("precipprob")
@@ -127,12 +136,15 @@ data class HourForecastDto(
   @SerializedName("preciptype")
   val precipType: List<String>?,
 
+  @SerializedName("humidity")
   val humidity: Float,
 
+  @SerializedName("pressure")
   val pressure: Float,
 
   @SerializedName("uvindex")
   val uvIndex: Int,
 
+  @SerializedName("icon")
   val icon: String,
 )

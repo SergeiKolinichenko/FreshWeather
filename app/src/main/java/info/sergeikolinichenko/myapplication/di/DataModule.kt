@@ -20,28 +20,34 @@ import info.sergeikolinichenko.myapplication.repositories.SettingsRepositoryImpl
 /** Created by Sergei Kolinichenko on 23.02.2024 at 22:47 (GMT+3) **/
 @Module
 interface DataModule {
-  @[ApplicationScope Binds]
+
+  @Binds
+  @ApplicationScope
   fun bindFavouriteRepository(impl: FavouriteRepositoryImpl): FavouriteRepository
-  @[ApplicationScope Binds]
+
+  @Binds
+  @ApplicationScope
   fun bindWeatherRepository(impl: WeatherRepositoryImpl): WeatherRepository
-  @[ApplicationScope Binds]
+
+  @Binds
+  @ApplicationScope
   fun bindSearchRepository(impl: SearchRepositoryImpl): SearchRepository
-  @[ApplicationScope Binds]
+
+  @Binds
+  @ApplicationScope
   fun bindSettingsRepository(impl: SettingsRepositoryImpl): SettingsRepository
-  @[ApplicationScope Binds]
-  fun bindSharedPreferences(preferences: FreshWeatherPreferences): FreshWeatherPreferences
 
   companion object {
 
-    @[ApplicationScope Provides]
-    fun provideApiFactory() = ApiFactory()
-    @[ApplicationScope Provides]
-    fun provideCitiesDatabase(context: Context)
-    = FreshWeatherDatabase.getInstance(context)
-    @[ApplicationScope Provides]
+    @Provides
+    @ApplicationScope
+    fun provideFreshWeatherDatabase(context: Context) = FreshWeatherDatabase.getInstance(context)
+
+    @Provides
+    @ApplicationScope
     fun provideCitiesDao(database: FreshWeatherDatabase): FreshWeatherDao = database.citiesDao()
-    @[ApplicationScope Provides]
-    fun provideSharedPreferences(context: Context) =
-      FreshWeatherPreferences.getInstance(context)
-  }
+
+    @Provides
+    @ApplicationScope
+    fun provideSharedPreferences(context: Context) = FreshWeatherPreferences.getInstance(context) }
 }

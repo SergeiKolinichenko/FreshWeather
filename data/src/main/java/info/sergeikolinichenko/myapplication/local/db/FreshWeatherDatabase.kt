@@ -22,7 +22,7 @@ import info.sergeikolinichenko.myapplication.local.models.CityDbModel
     AutoMigration(from = 3, to = 4)
   ]
 )
-  abstract class FreshWeatherDatabase : RoomDatabase() {
+abstract class FreshWeatherDatabase : RoomDatabase() {
   abstract fun citiesDao(): FreshWeatherDao
 
   companion object {

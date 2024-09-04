@@ -10,5 +10,5 @@ import javax.inject.Inject
 class GetForecastUseCase @Inject constructor(
   private val repository: WeatherRepository
 ){
-  suspend operator fun invoke(city: City) = repository.getForecast(city)
+  suspend operator fun invoke(cities: List<City>) = repository.getForecast(cities)
 }

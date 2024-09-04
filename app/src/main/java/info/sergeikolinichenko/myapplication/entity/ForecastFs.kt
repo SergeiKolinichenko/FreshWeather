@@ -7,6 +7,7 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class ForecastFs(
+  val id: Int,
   val tzId: String,
   val currentForecast: CurrentForecastFs,
   val upcomingDays: List<DayForecastFs>,

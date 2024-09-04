@@ -7,6 +7,7 @@ import android.app.Application
 class WeatherApp: Application(){
 
   lateinit var appComponent: ApplicationComponent
+
   override fun onCreate() {
     super.onCreate()
     appComponent = DaggerApplicationComponent.factory().create(this)

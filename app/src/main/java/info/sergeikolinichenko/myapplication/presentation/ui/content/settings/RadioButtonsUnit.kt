@@ -25,6 +25,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import info.sergeikolinichenko.myapplication.utils.ResponsiveText
 
 /** Created by Sergei Kolinichenko on 17.07.2024 at 14:16 (GMT+3) **/
 
@@ -42,24 +43,23 @@ internal fun RadioButtonsUnit(
     modifier = modifier
       .fillMaxWidth()
   ) {
-    Text(
+    ResponsiveText(
       modifier = Modifier
         .padding(16.dp),
       text = stringResource(unitTitle),
+      targetTextSizeHeight = 16.sp,
       fontFamily = FontFamily.SansSerif,
       fontWeight = FontWeight.Medium,
-      fontSize = 16.sp,
       textAlign = TextAlign.Start,
-      color = MaterialTheme.colorScheme.onBackground
+      color = MaterialTheme.colorScheme.onBackground,
+      maxLines = 1
     )
 
     // Top Button
     RadioButtonUnit(
       radioButtonClicked = radioButtonClicked == RadioButtonClicked.TOP_BUTTON_CLICKED,
       shapesRadioButtonUnit = ShapesRadioButtonUnit(10.dp, 10.dp, 0.dp, 0.dp),
-      buttonTitle = topButtonTitle) {
-      onClickTopButton()
-    }
+      buttonTitle = topButtonTitle) { onClickTopButton() }
 
     Spacer(modifier = Modifier.height(2.dp))
 
@@ -67,9 +67,7 @@ internal fun RadioButtonsUnit(
     RadioButtonUnit(
       radioButtonClicked = radioButtonClicked == RadioButtonClicked.BOTTOM_BUTTON_CLICKED,
       shapesRadioButtonUnit = ShapesRadioButtonUnit(0.dp, 0.dp, 10.dp, 10.dp),
-      buttonTitle = bottomButtonTitle) {
-      onClickBottomButton()
-    }
+      buttonTitle = bottomButtonTitle) { onClickBottomButton() }
 
   }
 }
@@ -85,29 +83,31 @@ private fun RadioButtonUnit(
     modifier = modifier
       .fillMaxWidth()
       .height(62.dp)
-      .clip(shape = RoundedCornerShape(
-        topStart = shapesRadioButtonUnit.topStart,
-        topEnd = shapesRadioButtonUnit.topEnd,
-        bottomStart = shapesRadioButtonUnit.bottomStart,
-        bottomEnd = shapesRadioButtonUnit.bottomEnd
-      )
+      .clip(
+        shape = RoundedCornerShape(
+          topStart = shapesRadioButtonUnit.topStart,
+          topEnd = shapesRadioButtonUnit.topEnd,
+          bottomStart = shapesRadioButtonUnit.bottomStart,
+          bottomEnd = shapesRadioButtonUnit.bottomEnd
+        )
       )
       .background(MaterialTheme.colorScheme.surface),
     horizontalArrangement = Arrangement.SpaceBetween,
     verticalAlignment = Alignment.CenterVertically
   ) {
-    Text(
+
+    ResponsiveText(
       modifier = Modifier
-        .width(292.dp)
         .padding(start = 16.dp),
       text = stringResource(buttonTitle),
+      targetTextSizeHeight = 16.sp,
+      lineHeight = 18.sp,
       fontFamily = FontFamily.SansSerif,
       fontWeight = FontWeight.Normal,
-      fontSize = 16.sp,
-      lineHeight = 18.sp,
       textAlign = TextAlign.Start,
-      color = MaterialTheme.colorScheme.onBackground
+      color = MaterialTheme.colorScheme.onBackground,
     )
+
     RadioButton(
       modifier = Modifier.testTag(stringResource(buttonTitle)),
       selected = radioButtonClicked,

@@ -7,6 +7,7 @@ import com.arkivanov.essenty.instancekeeper.InstanceKeeper
 import com.arkivanov.mvikotlin.core.store.Store
 import info.sergeikolinichenko.domain.entity.City
 import info.sergeikolinichenko.myapplication.entity.CityFs
+import info.sergeikolinichenko.myapplication.entity.ForecastFs
 import info.sergeikolinichenko.myapplication.presentation.screens.editing.store.EditingFavouritesStore
 import info.sergeikolinichenko.myapplication.presentation.screens.favourite.store.FavouriteStore.Intent
 import info.sergeikolinichenko.myapplication.presentation.screens.favourite.store.FavouriteStore.Label
@@ -22,58 +23,46 @@ interface FavouriteStore : Store<Intent, State, Label> {
     data object ItemMenuSettingsClicked : Intent
     data object ItemMenuEditingClicked : Intent
     data object ReloadCities: Intent
-    data class ReloadWeather(val cities: List<City>) : Intent
+    data object ReloadWeather : Intent
     data class ItemCityClicked(val id: Int) : Intent
   }
 
   @Parcelize
   data class State(
-    val cityItems: List<CityItem>,
-    val listCitiesLoadedState: ListCitiesLoadedState = ListCitiesLoadedState.Initial,
+    val citiesState: CitiesState = CitiesState.Initial,
+    val weatherState: WeatherState = WeatherState.Initial,
     val dropDownMenuState: DropDownMenuState = DropDownMenuState.Initial
   ) : Parcelable, InstanceKeeper.Instance {
 
     @Parcelize
-    data class CityItem(
-      val city: CityFs,
-      val weatherLoadingState: WeatherLoadingState,
-    ) : Parcelable
-
-    @Parcelize
-    sealed interface ListCitiesLoadedState : Parcelable {
+    sealed interface CitiesState : Parcelable {
       @Parcelize
-      data object Initial : ListCitiesLoadedState
+      data object Initial : CitiesState
 
       @Parcelize
-      data object Loaded : ListCitiesLoadedState
+      data object Loading : CitiesState
 
       @Parcelize
-      data object Error : ListCitiesLoadedState
+      data class Loaded(val listCities: List<CityFs>) : CitiesState
+
+      @Parcelize
+      data object Error : CitiesState
     }
 
     @Parcelize
-    sealed interface WeatherLoadingState : Parcelable {
-      @Parcelize
-      data object Initial : WeatherLoadingState
+    sealed interface WeatherState : Parcelable {
 
       @Parcelize
-      data object Loading : WeatherLoadingState
+      data object Initial : WeatherState
 
       @Parcelize
-      data class Error(
-        val cityName: String,
-        val codeError: String
-      ) : WeatherLoadingState
+      data object Loading : WeatherState
 
       @Parcelize
-      data class LoadedWeatherLoading(
-        val temp: String,
-        val maxTemp: String,
-        val minTemp: String,
-        val description: String,
-        val icon: String
-      ) : WeatherLoadingState
+      data class Error(val errorMessage: String) : WeatherState
 
+      @Parcelize
+      data class Loaded(val listForecast: List<ForecastFs>) : WeatherState
     }
 
     @Parcelize

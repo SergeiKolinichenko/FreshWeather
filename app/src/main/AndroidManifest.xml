@@ -8,13 +8,13 @@
       android:name=".di.WeatherApp"
       android:allowBackup="true"
       android:dataExtractionRules="@xml/data_extraction_rules"
-      android:enableOnBackInvokedCallback="true"
       android:fullBackupContent="@xml/backup_rules"
       android:icon="@drawable/icon_weather"
       android:label="@string/app_name"
       android:roundIcon="@drawable/icon_weather"
       android:supportsRtl="true"
       android:theme="@style/Theme.FreshWeather"
+      android:enableOnBackInvokedCallback="true"
       tools:targetApi="tiramisu">
     <!-- TODO In the future it is necessary to fix the last line and to add screen orientation handling.-->
     <activity

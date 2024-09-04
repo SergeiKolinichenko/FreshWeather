@@ -1,4 +1,5 @@
-@Suppress("DSL_SCOPE_VIOLATION") // TODO: Remove once KTIJ-19369 is fixed
+import org.jetbrains.kotlin.compose.compiler.gradle.ComposeFeatureFlag
+
 plugins {
   alias(libs.plugins.androidApplication)
   alias(libs.plugins.kotlinAndroid)
@@ -15,13 +16,11 @@ android {
     applicationId = "info.sergeikolinichenko.myapplication"
     minSdk = 26
     targetSdk = 34
-    versionCode = 7
-    versionName = "1.8"
+    versionCode = 8
+    versionName = "2.0.0"
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-    vectorDrawables {
-      useSupportLibrary = true
-    }
+    vectorDrawables { useSupportLibrary = true }
     signingConfig = signingConfigs.getByName("debug")
   }
 
@@ -35,30 +34,37 @@ android {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
   }
+
   kotlinOptions {
     jvmTarget = "17"
+    freeCompilerArgs = listOf(
+      "-Xstring-concat=inline"
+    )
   }
-  buildFeatures {
-    compose = true
-  }
-//  composeOptions {
-//    kotlinCompilerExtensionVersion = "1.5.11"
-//  }
+
+  buildFeatures { compose = true }
+
   packaging {
-    resources {
-      excludes += "/META-INF/{AL2.0,LGPL2.1}"
-    }
+    resources { excludes += "/META-INF/{AL2.0,LGPL2.1}" }
   }
+
   @Suppress("UnstableApiUsage")
   testOptions {
     unitTests.isReturnDefaultValues = true
   }
+
+  composeOptions {
+    kotlinCompilerExtensionVersion = libs.versions.compose.bom.get()
+  }
+
 }
 composeCompiler {
-  enableStrongSkippingMode = true
-
+  featureFlags = setOf(
+    ComposeFeatureFlag.StrongSkipping.disabled(),
+    ComposeFeatureFlag.OptimizeNonSkippingGroups
+  )
   reportsDestination = layout.buildDirectory.dir("compose_compiler")
-//  stabilityConfigurationFile = rootProject.layout.projectDirectory.file("stability_config.conf")
+  stabilityConfigurationFile = rootProject.layout.projectDirectory.file("stability_config.conf")
 }
 
 dependencies {
@@ -85,14 +91,10 @@ dependencies {
 
   // Dagger 2
   implementation(libs.dagger.core)
-  implementation(libs.core)
-  implementation(libs.androidx.junit.ktx)
   ksp(libs.dagger.compiler)
 
   implementation(libs.room.core)
   ksp(libs.room.compiler)
-
-  implementation(libs.glide.compose)
 
   implementation(libs.icons)
 
@@ -115,4 +117,6 @@ dependencies {
   androidTestImplementation(libs.ui.test.junit4)
   debugImplementation(libs.ui.tooling)
   debugImplementation(libs.ui.test.manifest)
+
+  testImplementation(libs.androidx.junit.ktx)
 }

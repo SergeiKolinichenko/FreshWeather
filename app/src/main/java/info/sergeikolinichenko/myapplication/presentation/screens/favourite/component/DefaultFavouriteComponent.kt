@@ -63,10 +63,7 @@ class DefaultFavouriteComponent @AssistedInject constructor(
   }
 
   override fun reloadWeather() {
-
-    val list: List<City> = store.state.cityItems.map { it.city.toCity() }
-
-    store.accept(FavouriteStore.Intent.ReloadWeather(list))
+    store.accept(FavouriteStore.Intent.ReloadWeather)
   }
 
   override fun reloadCities() {
