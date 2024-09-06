@@ -11,8 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.IntOffset
 import info.sergeikolinichenko.myapplication.presentation.screens.nextdays.store.NextdaysStore
@@ -20,7 +18,7 @@ import info.sergeikolinichenko.myapplication.presentation.screens.nextdays.store
 /** Created by Sergei Kolinichenko on 14.08.2024 at 10:12 (GMT+3) **/
 
 @Composable
-internal fun AnimatedNextdaysScreen(
+internal fun ScreenAnimation(
   modifier: Modifier = Modifier,
   state: NextdaysStore.State,
   onDayClicked: (Int) -> Unit,
@@ -33,10 +31,9 @@ internal fun AnimatedNextdaysScreen(
 
   val animState = remember { MutableTransitionState(false) }
 
-  animState.targetState = state.forecast is NextdaysStore.State.ForecastState.Loaded
-  val scope = rememberCoroutineScope()
+  animState.targetState = state.forecastState is NextdaysStore.State.ForecastState.Loaded
 
-  var animatedDirection by remember { mutableStateOf(AnimatedDirection.Bottom) }
+  val animatedDirection by remember { mutableStateOf(AnimatedDirection.Bottom) }
 
   AnimatedVisibility(
     visibleState = animState,
@@ -44,7 +41,7 @@ internal fun AnimatedNextdaysScreen(
     exit = animatedDirection.directExit(),
   ) {
 
-    NextdaysScreen(
+    MainScreen(
       modifier = modifier,
       state = state,
       onDayClicked = {
@@ -61,8 +58,14 @@ internal fun AnimatedNextdaysScreen(
         onSwipeTop()
       },
       onSwipeBottom = {
-        if (state.index < (state.forecast as NextdaysStore.State.ForecastState.Loaded).forecast.upcomingDays.size - 1) {
-          onSwipeBottom()
+        if (state.forecastState is NextdaysStore.State.ForecastState.Loaded) {
+
+          val id = (state.citiesState as NextdaysStore.State.CitiesState.Loaded).id
+          val forecast = state.forecastState.forecasts.find { it.id == id } ?: state.forecastState.forecasts.first()
+
+          if (state.index < forecast.upcomingDays.size - 1) {
+            onSwipeBottom()
+          }
         }
       }
     )

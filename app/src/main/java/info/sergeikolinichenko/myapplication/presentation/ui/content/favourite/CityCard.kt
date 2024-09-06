@@ -1,20 +1,17 @@
 package info.sergeikolinichenko.myapplication.presentation.ui.content.favourite
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -44,12 +41,11 @@ import info.sergeikolinichenko.myapplication.utils.toIconId
 internal fun CityCard(
   modifier: Modifier = Modifier,
   city: CityFs,
-  weatherState: FavouriteStore.State.WeatherState,
+  forecastState: FavouriteStore.State.ForecastState,
   onItemClicked: () -> Unit
 ) {
 
-  if (weatherState is FavouriteStore.State.WeatherState.Initial) return
-
+  if (forecastState is FavouriteStore.State.ForecastState.Initial) return
 
   Card(
     modifier = modifier
@@ -59,12 +55,13 @@ internal fun CityCard(
       containerColor = MaterialTheme.colorScheme.surface
     )
   ) {
-    when (weatherState) {
 
-      FavouriteStore.State.WeatherState.Initial -> {}
+    when (forecastState) {
 
-      is FavouriteStore.State.WeatherState.Error -> {
-        // Error message
+      FavouriteStore.State.ForecastState.Initial -> {}
+
+      is FavouriteStore.State.ForecastState.Error -> {
+        // Failed message
         Box(
           modifier = Modifier.fillMaxSize(),
           contentAlignment = Alignment.Center
@@ -76,7 +73,7 @@ internal fun CityCard(
               .align(Alignment.Center),
             text = stringResource(
               R.string.favourite_content_error_weather_for_city,
-              weatherState.errorMessage,
+              forecastState.errorMessage,
               city.name
             ),
             style = MaterialTheme.typography.titleMedium
@@ -84,11 +81,10 @@ internal fun CityCard(
         }
       }
 
-      is FavouriteStore.State.WeatherState.Loaded -> {
-
+      is FavouriteStore.State.ForecastState.Loaded -> {
         // Weather in city
 
-        val forecast = weatherState.listForecast.first { it.id == city.id }
+        val forecast = forecastState.listForecast.first { it.id == city.id }
 
         Column(
           modifier = Modifier
@@ -191,7 +187,7 @@ internal fun CityCard(
         }
       }
 
-      FavouriteStore.State.WeatherState.Loading -> {
+      FavouriteStore.State.ForecastState.Loading -> {
         Box(modifier = Modifier.fillMaxSize()) {
           CircularProgressIndicator(
             modifier = Modifier

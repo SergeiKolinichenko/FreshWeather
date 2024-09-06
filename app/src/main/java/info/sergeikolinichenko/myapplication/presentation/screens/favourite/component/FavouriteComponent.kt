@@ -15,7 +15,7 @@ interface FavouriteComponent {
 
   fun onClosingActionMenu()
 
-  fun reloadWeather()
+  fun reloadForecast()
 
   fun reloadCities()
 

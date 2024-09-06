@@ -13,21 +13,21 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.IntOffset
-import info.sergeikolinichenko.myapplication.presentation.screens.editing.component.EditingFavouritesComponent
-import info.sergeikolinichenko.myapplication.presentation.screens.editing.store.EditingFavouritesStore
+import info.sergeikolinichenko.myapplication.presentation.screens.editing.component.EditingComponent
+import info.sergeikolinichenko.myapplication.presentation.screens.editing.store.EditingStore
 
 /** Created by Sergei Kolinichenko on 18.08.2024 at 19:11 (GMT+3) **/
 
 @Composable
 internal fun AnimatedEditingContent(
-  component: EditingFavouritesComponent,
+  component: EditingComponent,
   modifier: Modifier = Modifier
 ) {
 
   val state by component.model.collectAsState()
 
   val animState = remember { MutableTransitionState(false) }
-  animState.targetState = state.cities is EditingFavouritesStore.State.CitiesStatus.CitiesLoaded
+  animState.targetState = state.cities is EditingStore.State.CitiesStatus.CitiesLoaded
 
   AnimatedVisibility(
     modifier = modifier,
@@ -39,15 +39,13 @@ internal fun AnimatedEditingContent(
         slideOut(animationSpec = tween(300),
           targetOffset = { IntOffset(-it.width, 0) }),
   ) {
+
     EditingScreen(
       state = state,
-      onCloseClicked = {
-        component.onBackClicked()
-      },
-      onDoneClicked = {
-        component.onDoneClicked(it)
-      },
-      onSwipeRight = {component.onBackClicked()}
+      onCloseClicked = { component.onBackClicked() },
+      onSwipeRight = {component.onBackClicked()},
+      onDoneClicked = { component.onDoneClicked() },
+      changedListCities = { component.listOfCitiesChanged(it) }
     )
   }
 

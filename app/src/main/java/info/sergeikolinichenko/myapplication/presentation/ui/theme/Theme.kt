@@ -32,7 +32,11 @@ private val DarkColorScheme = darkColorScheme(
   onBackground = Color(0xFFF4FBF8),
   onSurface = Color(0xFFF4FBF8),
   outline = Color(0xFF050C1A),
-  onSurfaceVariant = Color(0xFF7DC3F5)
+  onSurfaceVariant = Color(0xFF7DC3F5),
+  surfaceContainerLowest = Color(0xFF3E619C),
+  surfaceContainerLow = Color(0xFF5D92D6),
+  surfaceContainerHigh = Color(0xFF7DC3F5),
+  surfaceContainerHighest = Color(0xFF9BD4FB)
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -52,7 +56,11 @@ private val LightColorScheme = lightColorScheme(
   onBackground = Color(0xFF091933),
   onSurface = Color(0xFF091933),
   outline = Color(0xFFD9E4F9),
-  onSurfaceVariant = Color(0xFF5FAEE8)
+  onSurfaceVariant = Color(0xFF5FAEE8),
+  surfaceContainerLowest = Color(0xFF9BD4FB),
+  surfaceContainerLow = Color(0xFF7DC3F5),
+  surfaceContainerHigh = Color(0xFF5D92D6),
+  surfaceContainerHighest = Color(0xFF3E619C)
   )
 
 @Composable

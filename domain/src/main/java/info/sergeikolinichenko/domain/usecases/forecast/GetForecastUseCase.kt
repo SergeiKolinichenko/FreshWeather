@@ -1,14 +1,14 @@
-package info.sergeikolinichenko.domain.usecases.weather
+package info.sergeikolinichenko.domain.usecases.forecast
 
 import info.sergeikolinichenko.domain.entity.City
-import info.sergeikolinichenko.domain.repositories.WeatherRepository
+import info.sergeikolinichenko.domain.repositories.ForecastRepository
 import javax.inject.Inject
 
 /** Created by Sergei Kolinichenko on 21.02.2024 at 17:18 (GMT+3) **/
 
 // UseCase for getting forecast by city id
 class GetForecastUseCase @Inject constructor(
-  private val repository: WeatherRepository
+  private val repository: ForecastRepository
 ){
   suspend operator fun invoke(cities: List<City>) = repository.getForecast(cities)
 }

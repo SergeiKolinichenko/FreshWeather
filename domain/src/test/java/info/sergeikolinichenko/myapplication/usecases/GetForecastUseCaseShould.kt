@@ -2,8 +2,8 @@ package info.sergeikolinichenko.myapplication.usecases
 
 import info.sergeikolinichenko.domain.entity.City
 import info.sergeikolinichenko.domain.entity.Forecast
-import info.sergeikolinichenko.domain.repositories.WeatherRepository
-import info.sergeikolinichenko.domain.usecases.weather.GetForecastUseCase
+import info.sergeikolinichenko.domain.repositories.ForecastRepository
+import info.sergeikolinichenko.domain.usecases.forecast.GetForecastUseCase
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -17,9 +17,9 @@ import org.mockito.kotlin.whenever
 class GetForecastUseCaseShould {
 
   // region constants
-  private val repository = mock<WeatherRepository>()
-  private val forecast = mock<Forecast>()
-  private val city = mock<City>()
+  private val repository = mock<ForecastRepository>()
+  private val forecasts = mock<List<Forecast>>()
+  private val cities = mock<List<City>>()
   private val exception = Exception("Something went wrong")
   // endregion constants
 
@@ -29,27 +29,27 @@ class GetForecastUseCaseShould {
   @Test
   fun `get forecast from repository`(): Unit = runTest {
     // Act
-    SUT.invoke(city)
+    SUT.invoke(cities)
     // Assert
-    verify(repository, times(1)).getForecast(city)
+    verify(repository, times(1)).getForecast(cities)
   }
 
   @Test
   fun `return forecast from repository`(): Unit = runTest {
     // Arrange
-    whenever(repository.getForecast(city)).thenReturn(Result.success(forecast))
+    whenever(repository.getForecast(cities)).thenReturn(Result.success(forecasts))
     // Act
-    val result = SUT.invoke(city).getOrNull()
+    val result = SUT.invoke(cities).getOrNull()
     // Assert
-    assertEquals(result, forecast)
+    assertEquals(result, forecasts)
   }
 
   @Test
   fun `return error from repository`(): Unit = runTest {
     // Arrange
-    whenever(repository.getForecast(city)).thenReturn(Result.failure(exception))
+    whenever(repository.getForecast(cities)).thenReturn(Result.failure(exception))
     // Act
-    val result = SUT.invoke(city).exceptionOrNull()?.message
+    val result = SUT.invoke(cities).exceptionOrNull()?.message
     // Assert
     assertEquals(result, exception.message)
   }

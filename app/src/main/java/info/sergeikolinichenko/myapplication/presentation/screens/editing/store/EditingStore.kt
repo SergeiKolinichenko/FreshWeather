@@ -11,19 +11,19 @@ import info.sergeikolinichenko.domain.usecases.favourite.ChangeFavouriteStateUse
 import info.sergeikolinichenko.domain.usecases.favourite.GetFavouriteCitiesUseCase
 import info.sergeikolinichenko.domain.usecases.favourite.SetOrderCitiesViewedUseCase
 import info.sergeikolinichenko.myapplication.entity.CityFs
-import info.sergeikolinichenko.myapplication.presentation.screens.editing.store.EditingFavouritesStore.Intent
-import info.sergeikolinichenko.myapplication.presentation.screens.editing.store.EditingFavouritesStore.Label
-import info.sergeikolinichenko.myapplication.presentation.screens.editing.store.EditingFavouritesStore.State
-import info.sergeikolinichenko.myapplication.utils.ORDER_LIST_CITIES_CHANGED
-import info.sergeikolinichenko.myapplication.utils.ORDER_LIST_CITIES_NOT_CHANGED
-import info.sergeikolinichenko.myapplication.utils.toCityScreen
+import info.sergeikolinichenko.myapplication.presentation.screens.editing.store.EditingStore.Intent
+import info.sergeikolinichenko.myapplication.presentation.screens.editing.store.EditingStore.Label
+import info.sergeikolinichenko.myapplication.presentation.screens.editing.store.EditingStore.State
+import info.sergeikolinichenko.myapplication.utils.mapToCityFs
+import info.sergeikolinichenko.myapplication.utils.toCityList
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
 import javax.inject.Inject
 
 /** Created by Sergei Kolinichenko on 14.08.2024 at 11:36 (GMT+3) **/
 
-interface EditingFavouritesStore : Store<Intent, State, Label> {
+interface EditingStore : Store<Intent, State, Label> {
 
   @Parcelize
   data class State(
@@ -51,26 +51,27 @@ interface EditingFavouritesStore : Store<Intent, State, Label> {
   }
 
   sealed interface Intent {
-    data class OnDoneClicked(val cities: List<CityFs>) : Intent
+    data class ListOfCitiesChanged(val cities: List<CityFs>) : Intent
+    data object OnDoneClicked : Intent
     data object OnBackClicked : Intent
   }
 
   sealed interface Label {
-    data class OnDoneClicked(val orderChanged: Boolean) : Label
+    data object OnDoneClicked : Label
     data object OnBackClicked : Label
   }
 }
 
-class EditingFavouritesStoreFactory @Inject constructor(
+class EditingStoreFactory @Inject constructor(
   private val storeFactory: StoreFactory,
   private val getFavouriteCities: GetFavouriteCitiesUseCase,
   private val setOrderCitiesViewed: SetOrderCitiesViewedUseCase,
   private val changeFavouriteStateUseCase: ChangeFavouriteStateUseCase
 ) {
 
-  fun create(cityItems: List<State.CityItem>): EditingFavouritesStore =
-    object : EditingFavouritesStore, Store<Intent, State, Label> by storeFactory.create(
-      name = "EditingFavouritesStore",
+  fun create(cityItems: List<State.CityItem>): EditingStore =
+    object : EditingStore, Store<Intent, State, Label> by storeFactory.create(
+      name = "EditingStore",
       bootstrapper = BootstrapperImpl(),
       initialState = State(cities = State.CitiesStatus.CitiesInitial, cityItems = cityItems),
       executorFactory = ::ExecutorImpl,
@@ -85,6 +86,7 @@ class EditingFavouritesStoreFactory @Inject constructor(
   private sealed interface Message {
     data class FavoriteCitiesLoaded(val cities: List<City>) : Message
     data object FavouriteCitiesLoadingError : Message
+    data class ListOfCitiesChanged(val cities: List<CityFs>) : Message
   }
 
   private inner class BootstrapperImpl : CoroutineBootstrapper<Action>() {
@@ -114,32 +116,28 @@ class EditingFavouritesStoreFactory @Inject constructor(
       when (intent) {
         Intent.OnBackClicked -> publish(Label.OnBackClicked)
 
+        is Intent.ListOfCitiesChanged -> dispatch(Message.ListOfCitiesChanged(intent.cities))
+
         is Intent.OnDoneClicked -> {
 
           scope.launch {
 
-            val citiesFromScreen = intent.cities
-            val citiesFromDb = (state().cities as? State.CitiesStatus.CitiesLoaded)?.cities
-            var orderChanged = ORDER_LIST_CITIES_NOT_CHANGED
+            if (state().cities is State.CitiesStatus.CitiesLoaded) {
 
-            setOrderCitiesViewed(citiesFromScreen.map { it.id })
+              val citiesFromScreen = (state().cities as State.CitiesStatus.CitiesLoaded).cities
+              val citiesFromDb = getFavouriteCities.invoke().first().getOrNull()
 
-            citiesFromDb?.let { cityDb ->
-              if (citiesFromScreen.size == cityDb.size) return@let
-              else {
-                val citiesInCitiesFromScreen = citiesFromScreen.toMutableSet()
+              setOrderCitiesViewed(citiesFromScreen.map { it.id })
 
-                val citiesForDeletion = citiesFromDb.filterNot {
-                  citiesInCitiesFromScreen.contains(it)
-                }
-
-                citiesForDeletion.forEach { city ->
-                  changeFavouriteStateUseCase.removeFromFavourite(city.id)
-                }
-                orderChanged = ORDER_LIST_CITIES_CHANGED
+              if (citiesFromScreen == citiesFromDb) return@launch
+              val citiesForDeletion = citiesFromDb?.filterNot {
+                citiesFromScreen.toCityList().contains(it)
+              }
+              citiesForDeletion?.forEach { city ->
+                changeFavouriteStateUseCase.removeFromFavourite(city.id)
               }
             }
-            publish(Label.OnDoneClicked(orderChanged))
+            publish(Label.OnDoneClicked)
           }
         }
       }
@@ -161,8 +159,9 @@ class EditingFavouritesStoreFactory @Inject constructor(
   private object ReducerImpl : Reducer<State, Message> {
     override fun State.reduce(msg: Message): State =
       when (msg) {
-        is Message.FavoriteCitiesLoaded -> copy(cities = State.CitiesStatus.CitiesLoaded(msg.cities.map { city -> city.toCityScreen() }))
+        is Message.FavoriteCitiesLoaded -> copy(cities = State.CitiesStatus.CitiesLoaded(msg.cities.map { city -> city.mapToCityFs() }))
         Message.FavouriteCitiesLoadingError -> copy(cities = State.CitiesStatus.CitiesLoadingError)
+        is Message.ListOfCitiesChanged -> copy(cities = State.CitiesStatus.CitiesLoaded(msg.cities))
       }
   }
 }

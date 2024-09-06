@@ -4,61 +4,29 @@ import info.sergeikolinichenko.domain.entity.PRECIPITATION
 import info.sergeikolinichenko.domain.entity.PRESSURE
 import info.sergeikolinichenko.domain.entity.Settings
 import info.sergeikolinichenko.domain.entity.TEMPERATURE
-import info.sergeikolinichenko.domain.entity.Weather
-import info.sergeikolinichenko.myapplication.network.dto.ForecastDto
 import info.sergeikolinichenko.myapplication.utils.testForecastDto
 import info.sergeikolinichenko.myapplication.utils.toCelsiusString
 import info.sergeikolinichenko.myapplication.utils.toFahrenheitString
 import info.sergeikolinichenko.myapplication.utils.toHpaString
 import info.sergeikolinichenko.myapplication.utils.toMmHgString
 import org.junit.Test
-import org.mockito.Mockito.mock
-import org.mockito.kotlin.whenever
 
 /** Created by Sergei Kolinichenko on 17.06.2024 at 18:14 (GMT+3) **/
 class WeatherMapperShould {
 
   @Test
-  fun `map ForecastDto to Weather with Celsius`() {
-    // Arrange
-    val settings = mock<Settings>()
-    whenever(settings.temperature).thenReturn(TEMPERATURE.CELSIUS)
-    // Act
-    val result = testForecastDto.  mapToWeather(settings)
-    // Assert
-    assert(result.condIconUrl == testForecastDto.currentWeatherDto.icon)
-    assert(result.description == testForecastDto.description)
-    assert(result.temp == testForecastDto.currentWeatherDto.temp.toCelsiusString())
-    assert(result.maxTemp == testForecastDto.daysForecast.first().tempMax.toCelsiusString())
-    assert(result.minTemp == testForecastDto.daysForecast.first().tempMin.toCelsiusString())
-  }
-
-  @Test
-  fun `map ForecastDto to Weather with Fahrenheit`() {
-    // Arrange
-    val settings = mock<Settings>()
-    whenever(settings.temperature).thenReturn(TEMPERATURE.FAHRENHEIT)
-    // Act
-    val result = testForecastDto.mapToWeather(settings)
-    // Assert
-    assert(result.condIconUrl == testForecastDto.currentWeatherDto.icon)
-    assert(result.description == testForecastDto.description)
-    assert(result.temp == testForecastDto.currentWeatherDto.temp.toFahrenheitString())
-    assert(result.maxTemp == testForecastDto.daysForecast.first().tempMax.toFahrenheitString())
-    assert(result.minTemp == testForecastDto.daysForecast.first().tempMin.toFahrenheitString())
-  }
-
-  @Test
   fun `map WeatherDto to toForecast with Celsius anf Hpa`() {
-    // Arrange
+    //
+    val id = 101
     val settings = Settings(
       temperature = TEMPERATURE.CELSIUS,
       pressure = PRESSURE.HPA,
       precipitation = PRECIPITATION.MM
     )
     // Act
-    val result = testForecastDto.mapToForecast(settings)
+    val result = testForecastDto.mapToForecast(id = id, settings = settings)
     // Assert
+    assert(result.id == id)
     assert(result.tzId == testForecastDto.timeZone)
     // currentForecast
     assert(result.currentForecast.temp == testForecastDto.currentWeatherDto.temp.toCelsiusString())
@@ -103,14 +71,16 @@ class WeatherMapperShould {
   @Test
   fun `map WeatherDto to toForecast with Fahrenheit anf Mmhg`() {
     // Arrange
+    val id = 101
     val settings = Settings(
       temperature = TEMPERATURE.FAHRENHEIT,
       pressure = PRESSURE.MMHG,
       precipitation = PRECIPITATION.MM
     )
     // Act
-    val result = testForecastDto.mapToForecast(settings)
+    val result = testForecastDto.mapToForecast(id = id, settings = settings)
     // Assert
+    assert(result.id == id)
     assert(result.tzId == testForecastDto.timeZone)
     // currentForecast
     assert(result.currentForecast.temp == testForecastDto.currentWeatherDto.temp.toFahrenheitString())
@@ -151,24 +121,5 @@ class WeatherMapperShould {
     assert(result.upcomingHours.first().uvIndex == testForecastDto.daysForecast.first().hoursForecast.first().uvIndex)
     assert(result.upcomingHours.first().precipProb == testForecastDto.daysForecast.first().hoursForecast.first().precipProb)
   }
-
-  // help methods
-  private fun ForecastDto.mapToWeather(settings: Settings) = Weather(
-    temp = when(settings.temperature) {
-      TEMPERATURE.CELSIUS -> this.currentWeatherDto.temp.toCelsiusString()
-      TEMPERATURE.FAHRENHEIT -> this.currentWeatherDto.temp.toFahrenheitString()
-    },
-    maxTemp = when (settings.temperature) {
-      TEMPERATURE.CELSIUS -> this.daysForecast.first().tempMax.toCelsiusString()
-      TEMPERATURE.FAHRENHEIT -> this.daysForecast.first().tempMax.toFahrenheitString()
-    },
-    minTemp = when (settings.temperature) {
-      TEMPERATURE.CELSIUS -> this.daysForecast.first().tempMin.toCelsiusString()
-      TEMPERATURE.FAHRENHEIT -> this.daysForecast.first().tempMin.toFahrenheitString()
-    },
-    description = this.description,
-    condIconUrl = this.currentWeatherDto.icon
-  )
-
 
 }

@@ -40,6 +40,7 @@ import info.sergeikolinichenko.myapplication.entity.HourForecastFs
 import info.sergeikolinichenko.myapplication.utils.ResponsiveText
 import info.sergeikolinichenko.myapplication.utils.WEATHER_ICON_SIZE_36
 import info.sergeikolinichenko.myapplication.utils.getTime
+import info.sergeikolinichenko.myapplication.utils.precipitationToColour
 import info.sergeikolinichenko.myapplication.utils.toIconId
 import info.sergeikolinichenko.myapplication.utils.toPerCentFromFloat
 import info.sergeikolinichenko.myapplication.utils.toPrecipitationTypeString
@@ -153,7 +154,7 @@ private fun HourlyWeatherItem(
     )
     Icon(
       modifier = Modifier.size(WEATHER_ICON_SIZE_36.dp),
-      painter = painterResource(id = icon.toIconId()), //
+      painter = painterResource(id = icon.toIconId()),
       tint = Color.Unspecified,
       contentDescription = null
     )
@@ -165,7 +166,7 @@ private fun HourlyWeatherItem(
         fontWeight = FontWeight.Medium,
         textAlign = TextAlign.Center,
         lineHeight = 10.sp,
-        color = MaterialTheme.colorScheme.onSurfaceVariant
+        color = chanceOfPrecip.precipitationToColour()
       )
 
       ResponsiveText(
@@ -175,7 +176,7 @@ private fun HourlyWeatherItem(
         targetTextSizeHeight = 12.sp,
         lineHeight = 12.sp,
         textAlign = TextAlign.Center,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        color = chanceOfPrecip.precipitationToColour(),
         maxLines = 1
       )
     }

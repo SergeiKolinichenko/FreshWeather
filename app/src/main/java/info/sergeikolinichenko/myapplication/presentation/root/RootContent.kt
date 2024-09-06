@@ -1,14 +1,5 @@
 package info.sergeikolinichenko.myapplication.presentation.root
 
-import android.util.Log
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.SizeTransform
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.Composable
 import com.arkivanov.decompose.extensions.compose.stack.Children
 import info.sergeikolinichenko.myapplication.presentation.ui.content.details.currentweather.DetailsContent
@@ -30,7 +21,7 @@ fun RootContent(component: RootComponent) {
 //      AnimatedContent(
 //        targetState = child.instance,
 //        transitionSpec = {
-//          if (targetState is RootComponent.Child.EditingFavourites) {
+//          if (targetState is RootComponent.Child.Editing) {
 //            Log.d("TAG", "RootContent: ${child.instance}")
 //            slideInHorizontally(
 //              initialOffsetX = { fullWidth -> fullWidth },
@@ -57,7 +48,7 @@ fun RootContent(component: RootComponent) {
 //          is RootComponent.Child.Search -> SearchContent(component = stack.component)
 //          is RootComponent.Child.Settings -> SettingsContent(component = stack.component)
 //          is RootComponent.Child.Nextdays -> NextdaysContent(component = stack.component)
-//          is RootComponent.Child.EditingFavourites -> EditingContent(component = stack.component)
+//          is RootComponent.Child.Editing -> EditingContent(component = stack.component)
 //
 //        }
 //      }

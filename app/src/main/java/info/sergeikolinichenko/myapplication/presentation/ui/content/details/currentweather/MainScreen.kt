@@ -9,6 +9,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -21,7 +22,6 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
-import info.sergeikolinichenko.myapplication.entity.CityFs
 import info.sergeikolinichenko.myapplication.entity.ForecastFs
 import info.sergeikolinichenko.myapplication.entity.HourForecastFs
 import info.sergeikolinichenko.myapplication.presentation.screens.details.store.DetailsStore
@@ -42,8 +42,6 @@ import java.util.Calendar
 internal fun MainScreen(
   modifier: Modifier = Modifier,
   state: DetailsStore.State,
-  forecast: ForecastFs,
-  city: CityFs,
   onDayClicked: (Int) -> Unit,
   onBackClicked: () -> Unit,
   onSettingsClicked: () -> Unit,
@@ -86,113 +84,128 @@ internal fun MainScreen(
       .nestedScroll(nestedScrollConnection)
       .verticalScroll(scrollState)
       .pointerInput(Unit) {
-        detectHorizontalDragGestures { change, dragAmount ->
-          if (dragAmount > 0) {
-            swipeLeft = true
-            swipeRight = false
-          } else if (dragAmount < 0) {
-            swipeRight = true
+        detectHorizontalDragGestures(
+          onDragEnd = {
             swipeLeft = false
+            swipeRight = false
+          },
+          onHorizontalDrag = { change, dragAmount ->
+            if (dragAmount > 0) {
+              swipeLeft = true
+            } else if (dragAmount < 0) {
+              swipeRight = true
+            }
+            change.consume()
           }
-          change.consume()
-        }
+        )
       }
   ) {
-//    val forecast = forecast
-    TopBar(
-      modifier = Modifier,
-      state = state,
-      onBackButtonClick = {
-        onBackClicked()
-      },
-      onSettingsClicked = {
-        onSettingsClicked()
+
+    if (state.citiesState is DetailsStore.State.CitiesState.Loaded) {
+
+      val city = state.citiesState.cities.first { it.id == state.citiesState.id }
+
+      if (state.forecastState is DetailsStore.State.ForecastsState.Loaded) {
+
+        val forecast = state.forecastState.forecasts.first { it.id == city.id }
+
+        TopBar(
+          modifier = Modifier,
+          state = state,
+          onBackButtonClick = {
+            onBackClicked()
+          },
+          onSettingsClicked = {
+            onSettingsClicked()
+          }
+        )
+
+        CurrentWeather(
+          modifier = modifier
+            .padding(top = 24.dp),
+          forecast = forecast,
+          city = city
+        )
+
+        // Humidity, wind, pressure
+        HumidityWindPressure(
+          modifier = Modifier
+            .padding(top = 16.dp),
+          humidity = forecast.currentForecast.humidity,
+          windDir = forecast.currentForecast.windDir,
+          windSpeed = forecast.currentForecast.windSpeed,
+          pressure = forecast.currentForecast.pressure
+        )
+
+        // UV index and cloudiness
+        UvIndexAndCloudiness(
+          modifier = Modifier
+            .padding(top = 24.dp),
+          uvIndex = forecast.currentForecast.uvIndex,
+          cloudCover = forecast.currentForecast.cloudCover,
+          precipitation = if (forecast.currentForecast.precipProb > 0) forecast.currentForecast.precip else null
+        )
+
+        // Hourly weather forecast
+        val firstIndex = forecast.upcomingHours.indexOfFirst {
+          convertLongToCalendarWithTz(it.date, forecast.tzId) >= Calendar.getInstance()
+        }
+
+        val list = if (firstIndex - 1 == WRONG_INDEX_OF_FORECAST) null
+        else forecast.upcomingHours.subList(
+          firstIndex - 1,
+          firstIndex + MAXIMUM_HOURS_HOURLY_WEATHER
+        )
+
+        AnimatingHourlyWeatherForecast(
+          modifier = Modifier
+            .padding(top = 16.dp),
+          list = list,
+          tzId = forecast.tzId
+        )
+
+        DailyWeatherForecast(
+          modifier = Modifier
+            .padding(top = 16.dp),
+          forecast = forecast,
+          onDayClicked = { onDayClicked(it) }
+        )
+
+        SunAndMoon(
+          modifier = Modifier
+            .padding(top = 16.dp),
+          sunrise = forecast.upcomingDays.first().sunrise,
+          sunset = forecast.upcomingDays.first().sunset,
+          moonrise = forecast.upcomingDays.first().moonrise,
+          moonset = forecast.upcomingDays.first().moonset,
+          moonPhase = forecast.upcomingDays.first().moonPhase,
+          tzId = forecast.tzId
+        )
+
+        Charts(
+          modifier = Modifier
+            .padding(top = 16.dp),
+          list = forecast.getSublistForecastHourly(),
+          tzId = forecast.tzId
+        )
       }
-    )
-
-    CurrentWeather(
-      modifier = modifier
-        .padding(top = 24.dp),
-      forecast = forecast,
-      city = city
-    )
-
-    // Humidity, wind, pressure
-    HumidityWindPressure(
-      modifier = Modifier
-        .padding(top = 16.dp),
-      humidity = forecast.currentForecast.humidity,
-      windDir = forecast.currentForecast.windDir,
-      windSpeed = forecast.currentForecast.windSpeed,
-      pressure = forecast.currentForecast.pressure
-    )
-
-    // UV index and cloudiness
-    UvIndexAndCloudiness(
-      modifier = Modifier
-        .padding(top = 24.dp),
-      uvIndex = forecast.currentForecast.uvIndex,
-      cloudCover = forecast.currentForecast.cloudCover,
-      precipitation = if (forecast.currentForecast.precipProb > 0) forecast.currentForecast.precip else null
-    )
-
-    // Hourly weather forecast
-    val firstIndex = forecast.upcomingHours.indexOfFirst {
-      convertLongToCalendarWithTz(it.date, forecast.tzId) >= Calendar.getInstance()
     }
-
-    val list = if (firstIndex - 1 == WRONG_INDEX_OF_FORECAST) null
-    else forecast.upcomingHours.subList(
-      firstIndex - 1,
-      firstIndex + MAXIMUM_HOURS_HOURLY_WEATHER
-    )
-
-    AnimatingHourlyWeatherForecast(
-      modifier = Modifier
-        .padding(top = 16.dp),
-      list = list,
-      tzId = forecast.tzId
-    )
-
-    DailyWeatherForecast(
-      modifier = Modifier
-        .padding(top = 16.dp),
-      forecast = forecast,
-      onDayClicked = {
-        onDayClicked(it)
-      }
-    )
-
-    SunAndMoon(
-      modifier = Modifier
-        .padding(top = 16.dp),
-      sunrise = forecast.upcomingDays.first().sunrise,
-      sunset = forecast.upcomingDays.first().sunset,
-      moonrise = forecast.upcomingDays.first().moonrise,
-      moonset = forecast.upcomingDays.first().moonset,
-      moonPhase = forecast.upcomingDays.first().moonPhase,
-      tzId = forecast.tzId
-    )
-
-    Charts(
-      modifier = Modifier
-        .padding(top = 16.dp),
-      list = forecast.getSublistForecastHourly(),
-      tzId = forecast.tzId
-    )
   }
 
   if (overScrollBottom) {
     onDayClicked(INDEX_OF_TOMORROW)
   }
 
-  if (swipeLeft) {
-    onSwipeLeft()
+  LaunchedEffect(swipeLeft, swipeRight) {
+
+    if (swipeLeft) {
+      onSwipeLeft()
+    }
+    if (swipeRight) {
+      onSwipeRight()
+    }
   }
 
-  if (swipeRight) {
-    onSwipeRight()
-  }
 }
 
 private fun ForecastFs.getSublistForecastHourly(): List<HourForecastFs> {

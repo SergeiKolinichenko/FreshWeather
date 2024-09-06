@@ -7,14 +7,13 @@ import dagger.Provides
 import info.sergeikolinichenko.myapplication.local.db.FreshWeatherDao
 import info.sergeikolinichenko.myapplication.local.db.FreshWeatherDatabase
 import info.sergeikolinichenko.myapplication.local.preferences.FreshWeatherPreferences
-import info.sergeikolinichenko.myapplication.network.api.ApiFactory
 import info.sergeikolinichenko.myapplication.repositories.FavouriteRepositoryImpl
 import info.sergeikolinichenko.myapplication.repositories.SearchRepositoryImpl
-import info.sergeikolinichenko.myapplication.repositories.WeatherRepositoryImpl
+import info.sergeikolinichenko.myapplication.repositories.ForecastRepositoryImpl
 import info.sergeikolinichenko.domain.repositories.FavouriteRepository
 import info.sergeikolinichenko.domain.repositories.SearchRepository
 import info.sergeikolinichenko.domain.repositories.SettingsRepository
-import info.sergeikolinichenko.domain.repositories.WeatherRepository
+import info.sergeikolinichenko.domain.repositories.ForecastRepository
 import info.sergeikolinichenko.myapplication.repositories.SettingsRepositoryImpl
 
 /** Created by Sergei Kolinichenko on 23.02.2024 at 22:47 (GMT+3) **/
@@ -27,7 +26,7 @@ interface DataModule {
 
   @Binds
   @ApplicationScope
-  fun bindWeatherRepository(impl: WeatherRepositoryImpl): WeatherRepository
+  fun bindWeatherRepository(impl: ForecastRepositoryImpl): ForecastRepository
 
   @Binds
   @ApplicationScope

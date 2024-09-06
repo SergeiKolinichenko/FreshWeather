@@ -175,7 +175,6 @@ fun Charts(
           }
 
 
-
           // buttons
           DisplayedValues(
             onSelect = chartsState.value.displayedItem
@@ -211,7 +210,7 @@ private fun Chart(
 
   val icon = when (chartState.displayedItem) {
     Displayed.HUMIDITY -> resizeBitmapImage(R.mipmap.ic_chart_humidity, LocalContext.current)
-    Displayed.PRESSURE -> resizeBitmapImage(R.mipmap.ic_chart_pressure, LocalContext.current)
+    Displayed.PRESSURE -> resizeBitmapImage(R.mipmap.ic_barometer, LocalContext.current)
     else -> null
   }
 
@@ -530,7 +529,7 @@ private fun DrawScope.drawImage(
         image = img,
         topLeft = androidx.compose.ui.geometry.Offset(
           x = offsetX,
-          y = size.height - (pxPerPoint * value) - 40.dp.toPx() - footer,
+          y = size.height - (pxPerPoint * value) - 30.dp.toPx() - footer,
         ),
       )
     }
@@ -555,7 +554,7 @@ private fun DisplayedValues(
       val iconId = when (displayed) {
         Displayed.UV_INDEX -> R.drawable.sun_max
         Displayed.HUMIDITY -> R.drawable.humidity
-        Displayed.PRESSURE -> R.drawable.thermostat
+        Displayed.PRESSURE -> R.drawable.barometer
       }
 
       val isDisplayed = displayed == onSelect

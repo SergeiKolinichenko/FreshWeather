@@ -13,7 +13,7 @@ import info.sergeikolinichenko.myapplication.entity.HourForecastFs
 
 /** Created by Sergei Kolinichenko on 11.08.2024 at 17:33 (GMT+3) **/
 
-internal fun City.toCityScreen() = CityFs(
+internal fun City.mapToCityFs() = CityFs(
   id = id,
   name = name,
   region = region,
@@ -21,6 +21,8 @@ internal fun City.toCityScreen() = CityFs(
   lat = lat,
   lon = lon
 )
+
+internal fun List<City>.mapToCityFsList() = map { it.mapToCityFs() }
 
 internal fun CityFs.toCity() = City(
   id = id,
@@ -40,6 +42,8 @@ internal fun Forecast.mapToForecastScreen() = ForecastFs(
   upcomingDays = upcomingDays.map { it.mapToDayForecastScreen() },
   upcomingHours = upcomingHours.map { it.mapToHourForecastScreen() }
 )
+
+internal fun List<Forecast>.mapToForecastScreenList() = map { it.mapToForecastScreen() }
 
 private fun HourForecast.mapToHourForecastScreen() = HourForecastFs(
   date = date,

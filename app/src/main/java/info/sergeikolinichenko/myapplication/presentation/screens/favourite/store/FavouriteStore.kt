@@ -5,10 +5,9 @@ package info.sergeikolinichenko.myapplication.presentation.screens.favourite.sto
 import android.os.Parcelable
 import com.arkivanov.essenty.instancekeeper.InstanceKeeper
 import com.arkivanov.mvikotlin.core.store.Store
-import info.sergeikolinichenko.domain.entity.City
 import info.sergeikolinichenko.myapplication.entity.CityFs
 import info.sergeikolinichenko.myapplication.entity.ForecastFs
-import info.sergeikolinichenko.myapplication.presentation.screens.editing.store.EditingFavouritesStore
+import info.sergeikolinichenko.myapplication.presentation.screens.editing.store.EditingStore
 import info.sergeikolinichenko.myapplication.presentation.screens.favourite.store.FavouriteStore.Intent
 import info.sergeikolinichenko.myapplication.presentation.screens.favourite.store.FavouriteStore.Label
 import info.sergeikolinichenko.myapplication.presentation.screens.favourite.store.FavouriteStore.State
@@ -30,7 +29,7 @@ interface FavouriteStore : Store<Intent, State, Label> {
   @Parcelize
   data class State(
     val citiesState: CitiesState = CitiesState.Initial,
-    val weatherState: WeatherState = WeatherState.Initial,
+    val forecastState: ForecastState = ForecastState.Initial,
     val dropDownMenuState: DropDownMenuState = DropDownMenuState.Initial
   ) : Parcelable, InstanceKeeper.Instance {
 
@@ -50,19 +49,19 @@ interface FavouriteStore : Store<Intent, State, Label> {
     }
 
     @Parcelize
-    sealed interface WeatherState : Parcelable {
+    sealed interface ForecastState : Parcelable {
 
       @Parcelize
-      data object Initial : WeatherState
+      data object Initial : ForecastState
 
       @Parcelize
-      data object Loading : WeatherState
+      data object Loading : ForecastState
 
       @Parcelize
-      data class Error(val errorMessage: String) : WeatherState
+      data class Error(val errorMessage: String) : ForecastState
 
       @Parcelize
-      data class Loaded(val listForecast: List<ForecastFs>) : WeatherState
+      data class Loaded(val listForecast: List<ForecastFs>) : ForecastState
     }
 
     @Parcelize
@@ -81,13 +80,14 @@ interface FavouriteStore : Store<Intent, State, Label> {
 
   sealed interface Label {
 
-    data object OnClickSearch : Label
+    data object OnSearchClicked : Label
 
-    data object OnClickItemMenuSettings : Label
+    data object OnItemMenuSettingsClicked : Label
 
-    data class OnClickItemMenuEditing(val cities: List<EditingFavouritesStore.State.CityItem>) :
-      Label
+    data class OnItemMenuEditingClicked(
+      val cities: List<EditingStore.State.CityItem>
+    ) : Label
 
-    data class OnClickCity(val id: Int) : Label
+    data class OnItemClicked(val id: Int, val forecasts: List<ForecastFs>) : Label
   }
 }

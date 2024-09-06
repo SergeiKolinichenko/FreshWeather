@@ -66,7 +66,6 @@ private val testCurrentWeatherDto: CurrentWeatherDto = CurrentWeatherDto(
 // test field ForecastDto
 internal val testForecastDto  = ForecastDto(
   timeZone = "Bulgaria/Sofia",
-  description = "sunny and cloudy",
   currentWeatherDto = testCurrentWeatherDto,
   daysForecast = listOf(testDayForecastDto)
 )

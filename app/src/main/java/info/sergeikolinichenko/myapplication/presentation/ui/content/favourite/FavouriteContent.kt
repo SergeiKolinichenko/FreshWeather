@@ -182,7 +182,6 @@ private fun LazyGridScope.cityGridContent(
 
     is FavouriteStore.State.CitiesState.Loaded -> {
 
-
       itemsIndexed(
         items = citiesState.listCities,
         key = { _, item -> item.id }
@@ -196,7 +195,7 @@ private fun LazyGridScope.cityGridContent(
           modifier = Modifier
             .graphicsLayer(alpha = alpha, scaleX = scale, scaleY = scale),
           city = item,
-          weatherState = state.value.weatherState,
+          forecastState = state.value.forecastState,
           onItemClicked = { onItemClicked(item.id) }
         )
       }

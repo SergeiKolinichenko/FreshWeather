@@ -51,6 +51,14 @@ internal fun convertLongToCalendarWithTz(timeInMillis: Long, zone: String): Cale
   return calendar
 }
 
+@Composable
+internal fun Float.precipitationToColour() = when {
+  this < 25f -> MaterialTheme.colorScheme.surfaceContainerLowest
+  this in 25f..50f -> MaterialTheme.colorScheme.surfaceContainerLow
+  this in 50f..75f -> MaterialTheme.colorScheme.surfaceContainerHigh
+  else -> MaterialTheme.colorScheme.surfaceContainerHighest
+}
+
 internal fun Int.toUvToStringId() = when {
   this < 3 -> R.string.details_content_text_designation_of_uv_index_low
   this in 3..5 -> R.string.details_content_text_designation_of_uv_index_moderate
@@ -83,14 +91,6 @@ internal fun getDayOfWeekName(date: Long, tzId: String): String {
   return dayOfWeek.getDisplayName(TextStyle.FULL, Locale.getDefault())
 }
 
-fun getMonthAbbreviation(date: Long, tzId: String): String {
-  val instant = Instant.ofEpochSecond(date)
-  val zoneId = ZoneId.of(tzId)
-  val zonedDateTime = ZonedDateTime.ofInstant(instant, zoneId)
-  val monthName = zonedDateTime.month.getDisplayName(TextStyle.SHORT, Locale.getDefault())
-  return " $monthName"
-}
-
 fun getTime(date: Long, tzId: String): String {
   val instant = Instant.ofEpochSecond(date)
   val zoneId = ZoneId.of(tzId)
@@ -117,6 +117,12 @@ internal fun isTodayOrTomorrow(date: Long, tzId: String): Int {
     now.plusDays(1) -> R.string.details_content_tittle_sun_moon_block_tomorrow
     else -> R.string.details_content_nothing
   }
+}
+
+fun getMinutesDifferenceFromNow(epochMillis: Long, tzId: String): Long {
+  val now = ZonedDateTime.now()
+  val date = ZonedDateTime.ofInstant(Instant.ofEpochMilli(epochMillis), ZoneId.of(tzId))
+  return Duration.between(date, now).toMinutes()
 }
 
 internal fun durationBetweenTwoTimes(

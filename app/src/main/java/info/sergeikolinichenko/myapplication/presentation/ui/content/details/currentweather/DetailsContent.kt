@@ -1,46 +1,29 @@
 package info.sergeikolinichenko.myapplication.presentation.ui.content.details.currentweather
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource
-import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import info.sergeikolinichenko.myapplication.R
-import info.sergeikolinichenko.myapplication.entity.ForecastFs
-import info.sergeikolinichenko.myapplication.entity.HourForecastFs
 import info.sergeikolinichenko.myapplication.presentation.screens.details.component.DetailsComponent
 import info.sergeikolinichenko.myapplication.presentation.screens.details.store.DetailsStore
-import info.sergeikolinichenko.myapplication.presentation.ui.content.details.AnimatingHourlyWeatherForecast
-import info.sergeikolinichenko.myapplication.presentation.ui.content.details.Charts
-import info.sergeikolinichenko.myapplication.presentation.ui.content.details.HumidityWindPressure
-import info.sergeikolinichenko.myapplication.presentation.ui.content.details.SunAndMoon
-import info.sergeikolinichenko.myapplication.presentation.ui.content.details.UvIndexAndCloudiness
-import info.sergeikolinichenko.myapplication.utils.convertLongToCalendarWithTz
-import java.time.Instant
-import java.time.LocalDateTime
-import java.time.ZoneId
-import java.util.Calendar
 
 /** Created by Sergei Kolinichenko on 21.02.2024 at 15:57 (GMT+3) **/
 
@@ -48,17 +31,71 @@ import java.util.Calendar
 fun DetailsContent(
   component: DetailsComponent
 ) {
-  AnimatedDetailsContent(
-    modifier = Modifier,
-    component = component
-  )
+  Box(
+    modifier = Modifier
+      .background(MaterialTheme.colorScheme.surfaceBright)
+      .fillMaxSize()
+  ) {
+    AnimatedDetailsContent(
+      modifier = Modifier,
+      component = component
+    )
+  }
 }
 
 @Composable
-internal fun DetailsScreen(
+private fun AnimatedDetailsContent(
+  modifier: Modifier = Modifier,
+  component: DetailsComponent,
+) {
+
+  val state = component.model.collectAsState()
+
+  val animState = remember { MutableTransitionState(false) }.apply {
+    targetState = state.value.forecastState is DetailsStore.State.ForecastsState.Loaded
+  }
+
+//  animState.targetState = state.value.forecastState is DetailsStore.State.ForecastsState.Success
+
+  AnimatedVisibility(
+    visibleState = animState,
+    enter = fadeIn(animationSpec = tween(300)) +
+        scaleIn(animationSpec = tween(300),
+          initialScale = 0.5f),
+
+    exit = fadeOut(
+      animationSpec = tween(300)
+    ) + scaleOut(
+      animationSpec = tween(300),
+      targetScale = 0.5f),
+  ) {
+    DetailsScreen(
+      modifier = modifier,
+      state = state.value,
+      onDayClicked = { id, index ->
+        component.onDayClicked(id, index)
+      },
+      onSwipeLeft = {
+        component.onSwipeLeft()
+      },
+      onSwipeRight = {
+        component.onSwipeRight()
+      },
+      onBackClicked = {
+        component.onBackClicked()
+      },
+      onSettingsClicked = {
+        component.onSettingsClicked()
+      }
+    )
+  }
+}
+
+@Composable
+private fun DetailsScreen(
   modifier: Modifier = Modifier,
   state: DetailsStore.State,
-  onDayClicked: (Int, Int, ForecastFs) -> Unit,
+  onDayClicked: (Int, Int) -> Unit,
   onBackClicked: () -> Unit,
   onSettingsClicked: () -> Unit,
   onSwipeLeft: () -> Unit,
@@ -68,35 +105,26 @@ internal fun DetailsScreen(
 
     val city = state.citiesState.cities.first { it.id == state.citiesState.id }
 
-    when (val forecastState = state.forecastState) {
-      DetailsStore.State.ForecastState.Error -> Error()
-      DetailsStore.State.ForecastState.Initial -> Initial()
-      DetailsStore.State.ForecastState.Loading -> Loading()
+    when (state.forecastState) {
+      DetailsStore.State.ForecastsState.Failed -> Error()
+      DetailsStore.State.ForecastsState.Loading -> Loading()
 
-      is DetailsStore.State.ForecastState.Loaded -> {
-        MainScreen(
-          modifier = modifier,
-          city = city,
-          forecast = forecastState.forecast,
-          state = state,
-          onDayClicked = {
-            onDayClicked(city.id, it, forecastState.forecast)
-          },
-          onBackClicked = { onBackClicked() },
-          onSettingsClicked = { onSettingsClicked() },
-          onSwipeLeft = { onSwipeLeft() },
-          onSwipeRight = { onSwipeRight() }
-        )
+      is DetailsStore.State.ForecastsState.Loaded -> {
+
+          MainScreen(
+            modifier = modifier,
+            state = state,
+            onDayClicked = { dayNumber -> onDayClicked(city.id, dayNumber) },
+            onBackClicked = { onBackClicked() },
+            onSettingsClicked = { onSettingsClicked() },
+            onSwipeLeft = { onSwipeLeft() },
+            onSwipeRight = { onSwipeRight() }
+          )
       }
     }
   }
 }
 
-
-@Composable
-private fun Initial() {
-  Loading()
-}
 
 @Composable
 private fun Loading() {

@@ -12,7 +12,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,6 +36,7 @@ import info.sergeikolinichenko.myapplication.utils.WEATHER_ICON_SIZE_36
 import info.sergeikolinichenko.myapplication.utils.convertLongToCalendarWithTz
 import info.sergeikolinichenko.myapplication.utils.getDayAndMonthName
 import info.sergeikolinichenko.myapplication.utils.getDayOfWeekName
+import info.sergeikolinichenko.myapplication.utils.precipitationToColour
 import info.sergeikolinichenko.myapplication.utils.toIconId
 import info.sergeikolinichenko.myapplication.utils.toPerCentFromFloat
 import info.sergeikolinichenko.myapplication.utils.toPrecipitationTypeString
@@ -190,7 +190,7 @@ private fun DailyWeatherItem(
           fontWeight = FontWeight.Medium,
           textAlign = TextAlign.Center,
           lineHeight = 10.sp,
-          color = MaterialTheme.colorScheme.onSurfaceVariant
+          color = chanceOfPrecip.precipitationToColour(),
         )
 
         ResponsiveText(
@@ -200,7 +200,7 @@ private fun DailyWeatherItem(
           targetTextSizeHeight = 12.sp,
           lineHeight = 12.sp,
           textAlign = TextAlign.Center,
-          color = MaterialTheme.colorScheme.onSurfaceVariant,
+          color = chanceOfPrecip.precipitationToColour(),
           maxLines = 1
         )
       }

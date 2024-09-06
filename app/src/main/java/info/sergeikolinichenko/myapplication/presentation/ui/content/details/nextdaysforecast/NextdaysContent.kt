@@ -1,8 +1,6 @@
 package info.sergeikolinichenko.myapplication.presentation.ui.content.details.nextdaysforecast
 
-import android.util.Log
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,48 +9,25 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource
-import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import info.sergeikolinichenko.myapplication.R
 import info.sergeikolinichenko.myapplication.entity.HourForecastFs
 import info.sergeikolinichenko.myapplication.presentation.screens.nextdays.component.NextdaysComponent
 import info.sergeikolinichenko.myapplication.presentation.screens.nextdays.store.NextdaysStore
-import info.sergeikolinichenko.myapplication.presentation.ui.content.details.AnimatingHourlyWeatherForecast
-import info.sergeikolinichenko.myapplication.presentation.ui.content.details.Charts
-import info.sergeikolinichenko.myapplication.presentation.ui.content.details.HumidityWindPressure
-import info.sergeikolinichenko.myapplication.presentation.ui.content.details.SunAndMoon
-import info.sergeikolinichenko.myapplication.presentation.ui.content.details.UvIndexAndCloudiness
-import info.sergeikolinichenko.myapplication.utils.DividingLine
-import info.sergeikolinichenko.myapplication.utils.ResponsiveText
-import info.sergeikolinichenko.myapplication.utils.toIconId
 import java.time.Instant
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit
@@ -77,21 +52,21 @@ fun NextdaysContent(
     )
 
     when (state.citiesState) {
-      NextdaysStore.State.CitiesState.Error -> NextdaysErrorScreen(
+      NextdaysStore.State.CitiesState.Error -> ErrorScreen(
         text = stringResource(R.string.error_loading_favourite_cities_please_inform_the_developers_about_the_problem)
       )
 
       NextdaysStore.State.CitiesState.Initial -> {}
       is NextdaysStore.State.CitiesState.Loaded -> {
-        when (state.forecast) {
-          NextdaysStore.State.ForecastState.Error -> NextdaysErrorScreen(
+        when (state.forecastState) {
+          NextdaysStore.State.ForecastState.Error -> ErrorScreen(
             text = stringResource(R.string.error_receiving_weather_forecast_please_try_again_later_if_the_error_occurs_again_please_notify_the_developers)
           )
 
           NextdaysStore.State.ForecastState.Initial -> {}
           is NextdaysStore.State.ForecastState.Loaded -> {
 
-            AnimatedNextdaysScreen(
+            ScreenAnimation(
               modifier = Modifier.weight(1f),
               state = state,
               onDayClicked = { component.onDayClicked(it) },
@@ -103,7 +78,7 @@ fun NextdaysContent(
             )
           }
 
-          NextdaysStore.State.ForecastState.Loading -> NextdaysLoadingScreen()
+          NextdaysStore.State.ForecastState.Loading -> LoadingScreen()
         }
       }
     }
@@ -111,7 +86,7 @@ fun NextdaysContent(
 }
 
 @Composable
-private fun NextdaysErrorScreen(
+private fun ErrorScreen(
   modifier: Modifier = Modifier,
   text: String
 ) {
@@ -131,7 +106,7 @@ private fun NextdaysErrorScreen(
 }
 
 @Composable
-private fun NextdaysLoadingScreen(
+private fun LoadingScreen(
   modifier: Modifier = Modifier
 ) {
   Box(
@@ -143,266 +118,6 @@ private fun NextdaysLoadingScreen(
       modifier = Modifier.align(Alignment.Center)
     )
   }
-}
-
-@Composable
-internal fun NextdaysScreen(
-  modifier: Modifier = Modifier,
-  state: NextdaysStore.State,
-  onDayClicked: (Int) -> Unit,
-  onCloseClicked: () -> Unit,
-  onSwipeLeft: () -> Unit,
-  onSwipeRight: () -> Unit,
-  onSwipeTop: () -> Unit,
-  onSwipeBottom: () -> Unit
-) {
-
-  val forecast = (state.forecast as NextdaysStore.State.ForecastState.Loaded).forecast
-
-  var overScrollTop by remember { mutableStateOf(false) }
-  var overScrollBottom by remember { mutableStateOf(false) }
-
-  val scrollState = rememberScrollState()
-  val nestedScrollConnection = remember {
-    object : NestedScrollConnection {
-      override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-        val delta = available.y
-        if (delta > 0 && scrollState.value == 0) {
-          overScrollTop = true
-
-        } else if (delta < 0 && scrollState.value == scrollState.maxValue) {
-          overScrollBottom = true
-        }
-        return Offset.Zero
-      }
-
-      override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
-        overScrollTop = false
-        overScrollBottom = false
-        return super.onPostFling(consumed, available)
-      }
-    }
-  }
-
-  var swipeLeft by remember { mutableStateOf(false) }
-  var swipeRight by remember { mutableStateOf(false) }
-
-  LaunchedEffect(overScrollTop, overScrollBottom) {
-    if (overScrollTop) {
-      onSwipeTop()
-    }
-    if (overScrollBottom) {
-      onSwipeBottom()
-    }
-  }
-
-  if (swipeLeft) {
-    onSwipeLeft()
-  }
-
-  if (swipeRight) {
-    onSwipeRight()
-  }
-
-  Column(
-    modifier = modifier
-      .fillMaxWidth()
-      .clip(shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
-      .background(MaterialTheme.colorScheme.background)
-      .nestedScroll(nestedScrollConnection)
-      .verticalScroll(scrollState)
-      .pointerInput(Unit) {
-        detectHorizontalDragGestures { change, dragAmount ->
-          if (dragAmount > 0) {
-            swipeLeft = true
-            swipeRight = false
-          } else if (dragAmount < 0) {
-            swipeRight = true
-            swipeLeft = false
-          }
-          change.consume()
-        }
-      },
-  ) {
-
-    ControlPanel(
-      state = state,
-      onDayClicked = { onDayClicked(it) },
-      onCloseClicked = { onCloseClicked() }
-    )
-
-    DividingLine()
-
-    DailyWeather(state = state)
-
-    val dayForecast =
-      forecast.upcomingDays[state.index] //forecast.upcomingDays.first { it.date == state.index }
-
-    HumidityWindPressure(
-      modifier = Modifier
-        .padding(
-          top = 24.dp,
-          start = 16.dp,
-          end = 16.dp
-        ),
-      humidity = dayForecast.humidity,
-      windSpeed = dayForecast.windSpeed,
-      windDir = dayForecast.windDir,
-      pressure = dayForecast.pressure
-    )
-
-    val list = getHoursForDay(
-      hours = forecast.upcomingHours,
-      dayEpoch = forecast.upcomingDays[state.index].date,
-      tz = forecast.tzId
-    )
-
-    AnimatingHourlyWeatherForecast(
-      modifier = Modifier
-        .padding(
-          top = 16.dp,
-          start = 16.dp,
-          end = 16.dp
-        ),
-      list = list,
-      tzId = forecast.tzId
-    )
-
-    UvIndexAndCloudiness(
-      modifier = Modifier
-        .padding(
-          top = 16.dp,
-          start = 16.dp,
-          end = 16.dp
-        ),
-      uvIndex = dayForecast.uvIndex,
-      cloudCover = dayForecast.cloudCover,
-      precipitation = if (dayForecast.precipProb > 0) dayForecast.precip else null
-    )
-
-    SunAndMoon(
-      modifier = Modifier
-        .padding(
-          top = 16.dp,
-          start = 16.dp,
-          end = 16.dp
-        ),
-      sunrise = dayForecast.sunrise,
-      sunset = dayForecast.sunset,
-      moonrise = dayForecast.moonrise,
-      moonset = dayForecast.moonset,
-      moonPhase = dayForecast.moonPhase,
-      tzId = forecast.tzId
-    )
-
-    Charts(
-      modifier = Modifier
-        .padding(
-          top = 16.dp,
-          start = 16.dp,
-          end = 16.dp
-        ),
-      list = list,
-      tzId = forecast.tzId
-    )
-  }
-}
-
-@Composable
-private fun DailyWeather(
-  modifier: Modifier = Modifier,
-  state: NextdaysStore.State,
-) {
-
-  val forecast = (state.forecast as NextdaysStore.State.ForecastState.Loaded).forecast
-
-  val thisDayWeather =
-    forecast.upcomingDays[state.index] //forecast.upcomingDays.first { it.date == state.index }
-
-  Column(
-    modifier = modifier
-      .fillMaxWidth()
-      .padding(start = 16.dp, end = 16.dp, top = 16.dp),
-    horizontalAlignment = Alignment.Start,
-    verticalArrangement = Arrangement.spacedBy(4.dp)
-  ) {
-    Row(
-      modifier = modifier
-        .fillMaxWidth(),
-      horizontalArrangement = Arrangement.SpaceBetween,
-      verticalAlignment = Alignment.CenterVertically
-    ) {
-      Column(
-        modifier = Modifier.weight(1f),
-        horizontalAlignment = Alignment.Start,
-        verticalArrangement = Arrangement.spacedBy(4.dp)
-      ) {
-
-        if (state.citiesState is NextdaysStore.State.CitiesState.Loaded) {
-
-          val city = state.citiesState.cities.first { it.id == state.citiesState.id }
-
-          ResponsiveText(
-            modifier = Modifier
-              .padding(bottom = 8.dp),
-            text = city.name,
-            textStyle = MaterialTheme.typography.headlineLarge,
-            textAlign = TextAlign.Start,
-            color = MaterialTheme.colorScheme.onBackground,
-            maxLines = 1
-          )
-
-        }
-
-        Row(
-          horizontalArrangement = Arrangement.Start,
-          verticalAlignment = Alignment.CenterVertically
-        ) {
-          DailyWeatherTempText(
-            modifier = Modifier.padding(end = 4.dp),
-            text = stringResource(R.string.caption_max)
-          )
-          DailyWeatherTempText(
-            modifier = Modifier.padding(end = 8.dp),
-            text = thisDayWeather.tempMax
-          )
-          DailyWeatherTempText(
-            modifier = Modifier.padding(end = 4.dp),
-            text = stringResource(R.string.caption_min)
-          )
-          DailyWeatherTempText(text = thisDayWeather.tempMin)
-        }
-      }
-      Icon(
-        modifier = Modifier
-          .size(80.dp),
-        painter = painterResource(id = thisDayWeather.icon.toIconId()),
-        tint = Color.Unspecified,
-        contentDescription = null
-      )
-    }
-    ResponsiveText(
-      text = thisDayWeather.description,
-      textStyle = MaterialTheme.typography.bodyMedium,
-      textAlign = TextAlign.Start,
-      color = MaterialTheme.colorScheme.onBackground
-    )
-  }
-}
-
-@Composable
-private fun DailyWeatherTempText(
-  modifier: Modifier = Modifier,
-  text: String
-) {
-  ResponsiveText(
-    modifier = modifier,
-    text = text,
-    textStyle = MaterialTheme.typography.titleSmall,
-    textAlign = TextAlign.Start,
-    color = MaterialTheme.colorScheme.onBackground,
-    maxLines = 1
-  )
 }
 
 @Composable

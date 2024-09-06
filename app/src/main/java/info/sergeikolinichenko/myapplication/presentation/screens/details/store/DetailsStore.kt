@@ -2,6 +2,7 @@ package info.sergeikolinichenko.myapplication.presentation.screens.details.store
 
 /** Created by Sergei Kolinichenko on 21.02.2024 at 15:26 (GMT+3) **/
 
+import android.util.Log
 import com.arkivanov.mvikotlin.core.store.Reducer
 import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.core.store.StoreFactory
@@ -9,22 +10,24 @@ import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineBootstrapper
 import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineExecutor
 import info.sergeikolinichenko.domain.entity.City
 import info.sergeikolinichenko.domain.usecases.favourite.GetFavouriteCitiesUseCase
-import info.sergeikolinichenko.domain.usecases.weather.GetForecastUseCase
+import info.sergeikolinichenko.domain.usecases.forecast.GetForecastUseCase
 import info.sergeikolinichenko.myapplication.entity.CityFs
 import info.sergeikolinichenko.myapplication.entity.ForecastFs
 import info.sergeikolinichenko.myapplication.presentation.screens.details.store.DetailsStore.Intent
 import info.sergeikolinichenko.myapplication.presentation.screens.details.store.DetailsStore.Label
 import info.sergeikolinichenko.myapplication.presentation.screens.details.store.DetailsStore.State
-import info.sergeikolinichenko.myapplication.utils.mapToForecastScreen
-import info.sergeikolinichenko.myapplication.utils.toCity
-import info.sergeikolinichenko.myapplication.utils.toCityScreen
+import info.sergeikolinichenko.myapplication.utils.DURATION_OF_FORECAST_LIFE_MINUTES
+import info.sergeikolinichenko.myapplication.utils.getMinutesDifferenceFromNow
+import info.sergeikolinichenko.myapplication.utils.mapToForecastScreenList
+import info.sergeikolinichenko.myapplication.utils.mapToCityFs
+import info.sergeikolinichenko.myapplication.utils.toCityList
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 interface DetailsStore : Store<Intent, State, Label> {
 
   sealed interface Intent {
-    data class OnDayClicked(val id: Int, val index: Int, val forecast: ForecastFs) : Intent
+    data class OnDayClicked(val id: Int, val index: Int) : Intent
     data object OnBackClicked : Intent
     data object OnSettingsClicked : Intent
     data object ReloadWeather : Intent
@@ -34,22 +37,18 @@ interface DetailsStore : Store<Intent, State, Label> {
 
   data class State(
     val citiesState: CitiesState,
-    val forecastState: ForecastState
+    val forecastState: ForecastsState,
   ) {
-    sealed interface ForecastState {
-      data object Initial : ForecastState
-      data object Loading : ForecastState
-      data class Loaded(val forecast: ForecastFs) : ForecastState
-      data object Error : ForecastState
+
+    sealed interface ForecastsState {
+      data object Loading : ForecastsState
+      data class Loaded(val forecasts: List<ForecastFs>) : ForecastsState
+      data object Failed : ForecastsState
     }
 
     sealed interface CitiesState {
       data object Initial : CitiesState
-      data class Loaded(
-        val id: Int,
-        val cities: List<CityFs>
-      ) : CitiesState
-
+      data class Loaded(val id: Int, val cities: List<CityFs>) : CitiesState
       data object Error : CitiesState
     }
   }
@@ -57,7 +56,7 @@ interface DetailsStore : Store<Intent, State, Label> {
   sealed interface Label {
     data object OnBackClicked : Label
     data object OnSettingsClicked : Label
-    data class OnDayClicked(val id: Int, val index: Int, val forecast: ForecastFs) : Label
+    data class OnDayClicked(val id: Int, val index: Int, val forecasts: List<ForecastFs>) : Label
   }
 }
 
@@ -67,12 +66,12 @@ class DetailsStoreFactory @Inject constructor(
   private val getFavouriteCities: GetFavouriteCitiesUseCase
 ) {
 
-  fun create(id: Int): DetailsStore =
+  fun create(id: Int, forecasts: List<ForecastFs>): DetailsStore =
     object : DetailsStore, Store<Intent, State, Label> by storeFactory.create(
       name = "DetailsStore",
       initialState = State(
         citiesState = State.CitiesState.Initial,
-        forecastState = State.ForecastState.Initial
+        forecastState = State.ForecastsState.Loaded(forecasts = forecasts)
       ),
       bootstrapper = BootstrapperImpl(id),
       executorFactory = ::ExecutorImpl,
@@ -87,7 +86,7 @@ class DetailsStoreFactory @Inject constructor(
   private sealed interface Message {
     data class CitiesLoaded(val id: Int, val cities: List<CityFs>) : Message
     data object CitiesLoadingFailed : Message
-    data class ForecastLoaded(val forecast: ForecastFs) : Message
+    data class ForecastLoaded(val forecasts: List<ForecastFs>) : Message
     data object ForecastStartLoading : Message
     data class ForecastLoadingFailed(val referrerCode: String) : Message
 
@@ -109,7 +108,7 @@ class DetailsStoreFactory @Inject constructor(
               dispatch(
                 Action.CitiesLoaded(
                   id = id,
-                  cities = it.getOrNull()!!.map { city -> city.toCityScreen() })
+                  cities = it.getOrNull()!!.map { city -> city.mapToCityFs() })
               )
             }
 
@@ -131,23 +130,28 @@ class DetailsStoreFactory @Inject constructor(
           publish(Label.OnBackClicked)
         }
 
-        is Intent.OnDayClicked -> publish(
-          Label.OnDayClicked(
-            id = intent.id,
-            forecast = intent.forecast,
-            index = intent.index
-          )
-        )
+        is Intent.OnDayClicked -> {
+          if (state().forecastState is State.ForecastsState.Loaded) {
+            publish(
+              Label.OnDayClicked(
+                id = intent.id,
+                forecasts = (state().forecastState as State.ForecastsState.Loaded).forecasts,
+                index = intent.index
+              )
+            )
+          }
+        }
+
 
         Intent.OnSettingsClicked -> publish(Label.OnSettingsClicked)
 
         Intent.ReloadWeather -> {
           if (state().citiesState is State.CitiesState.Loaded) {
+
+            val citiesState = state().citiesState as State.CitiesState.Loaded
+
             scope.launch {
-              val id = (state().citiesState as State.CitiesState.Loaded).id
-              val cities = (state().citiesState as State.CitiesState.Loaded).cities
-              val city = cities.find { it.id == id }!!
-              loadForecast(city.toCity())
+              loadForecast(citiesState.cities.toCityList())
             }
           }
         }
@@ -160,12 +164,12 @@ class DetailsStoreFactory @Inject constructor(
 
             val cityIndex = citiesState.cities.indexOfFirst { it.id == citiesState.id }
 
+            Log.d("TAG", "cityIndex: $cityIndex")
+
             if (cityIndex > 0) {
               scope.launch {
                 val id = citiesState.cities[cityIndex - 1].id
                 dispatch(Message.NewCityId(id))
-                val city = citiesState.cities[cityIndex - 1]
-                loadForecast(city.toCity())
               }
             } else {
               publish(Label.OnBackClicked)
@@ -183,12 +187,8 @@ class DetailsStoreFactory @Inject constructor(
 
             if (cityIndex < citiesState.cities.size - 1) {
               scope.launch {
-
                 val id = citiesState.cities[cityIndex + 1].id
                 dispatch(Message.NewCityId(id))
-                val city = citiesState.cities[cityIndex + 1]
-
-                loadForecast(city.toCity())
               }
             }
           }
@@ -197,18 +197,26 @@ class DetailsStoreFactory @Inject constructor(
     }
 
     override fun executeAction(action: Action) {
+
       when (action) {
 
         is Action.CitiesLoaded -> {
-          scope.launch {
-            dispatch(
-              Message.CitiesLoaded(
-                id = action.id,
-                cities = action.cities
-              )
-            )
-            val city = action.cities.find { it.id == action.id }!!
-            loadForecast(city.toCity())
+
+          dispatch(Message.CitiesLoaded(id = action.id, cities = action.cities))
+
+          if (state().forecastState is State.ForecastsState.Loaded) {
+
+            val forecasts = (state().forecastState as State.ForecastsState.Loaded).forecasts
+            val forecast = forecasts.find { it.id == action.id } ?: forecasts.first()
+
+            val minuteDifference =
+              getMinutesDifferenceFromNow(forecast.currentForecast.date, forecast.tzId)
+
+            if (minuteDifference > DURATION_OF_FORECAST_LIFE_MINUTES) {
+              scope.launch {
+                loadForecast(action.cities.toCityList())
+              }
+            }
           }
         }
 
@@ -216,21 +224,18 @@ class DetailsStoreFactory @Inject constructor(
       }
     }
 
-    private suspend fun loadForecast(city: City) {
+    private suspend fun loadForecast(cities: List<City>) {
 
       dispatch(Message.ForecastStartLoading)
-
-      // TODO needs to be corrected late ------------------------------------------------------------
-      val cities = listOf(city)
 
       val result = getForecast(cities)
 
       when {
         result.isSuccess -> {
           val forecast = result.getOrNull()!!
-          dispatch(Message.ForecastLoaded(forecast.first().mapToForecastScreen()))
+          dispatch(Message.ForecastLoaded(forecast.mapToForecastScreenList()))
         }
-        // TODO needs to be corrected late ------------------------------------------------------------
+
         result.isFailure -> {
           val errorCode = result.exceptionOrNull()!!.message!!
           dispatch(Message.ForecastLoadingFailed(errorCode))
@@ -246,13 +251,13 @@ class DetailsStoreFactory @Inject constructor(
       when (msg) {
 
         is Message.ForecastLoaded ->
-          copy(forecastState = State.ForecastState.Loaded(msg.forecast))
+          copy(forecastState = State.ForecastsState.Loaded(msg.forecasts))
 
         is Message.ForecastStartLoading ->
-          copy(forecastState = State.ForecastState.Loading)
+          copy(forecastState = State.ForecastsState.Loading)
 
         is Message.ForecastLoadingFailed ->
-          copy(forecastState = State.ForecastState.Error)
+          copy(forecastState = State.ForecastsState.Failed)
 
         is Message.CitiesLoaded ->
           copy(citiesState = State.CitiesState.Loaded(msg.id, msg.cities))

@@ -27,7 +27,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import info.sergeikolinichenko.myapplication.R
-import info.sergeikolinichenko.myapplication.presentation.screens.nextdays.store.NextdaysStore
+import info.sergeikolinichenko.myapplication.entity.ForecastFs
 import info.sergeikolinichenko.myapplication.utils.ResponsiveText
 import info.sergeikolinichenko.myapplication.utils.getNumberDayOfMonth
 import info.sergeikolinichenko.myapplication.utils.getTwoLettersDayOfTheWeek
@@ -37,7 +37,8 @@ import info.sergeikolinichenko.myapplication.utils.getTwoLettersDayOfTheWeek
 @Composable
 internal fun ControlPanel(
   modifier: Modifier = Modifier,
-  state: NextdaysStore.State,
+  index: Int,
+  forecast: ForecastFs,
   onDayClicked: (Int) -> Unit,
   onCloseClicked: () -> Unit
 ) {
@@ -67,8 +68,6 @@ internal fun ControlPanel(
     )
   }
 
-  val forecast = (state.forecast as NextdaysStore.State.ForecastState.Loaded).forecast
-
   if (forecast.upcomingDays.drop(1).size <= DAYS_ROR_ONE_LINE) {
 
     Row(
@@ -79,10 +78,10 @@ internal fun ControlPanel(
       verticalAlignment = Alignment.CenterVertically
     ) {
 
-      forecast.upcomingDays.drop(1).forEachIndexed { index, day ->
+      forecast.upcomingDays.drop(1).forEachIndexed { ind, day ->
 
         val color =
-          if (index == state.index - 1) MaterialTheme.colorScheme.tertiary
+          if (ind == index - 1) MaterialTheme.colorScheme.tertiary
           else MaterialTheme.colorScheme.background
 
         DayForOneLine(
@@ -91,7 +90,7 @@ internal fun ControlPanel(
           titleTopText = getTwoLettersDayOfTheWeek(day.date, forecast.tzId),
           titleBottomText = getNumberDayOfMonth(day.date, forecast.tzId),
           backgroundColor = color,
-          index = index,
+          index = ind,
           onDayClicked = { onDayClicked(it + 1) }
         )
       }
@@ -112,10 +111,10 @@ internal fun ControlPanel(
       verticalAlignment = Alignment.CenterVertically
     ) {
 
-      topLine.forEachIndexed { index, day ->
+      topLine.forEachIndexed { ind, day ->
 
         val color =
-          if (index == state.index - 1) MaterialTheme.colorScheme.tertiary
+          if (ind == index - 1) MaterialTheme.colorScheme.tertiary
           else MaterialTheme.colorScheme.background
 
         DayForTwoLines(
@@ -123,7 +122,7 @@ internal fun ControlPanel(
             .weight(1f),
           titleBottomText = getNumberDayOfMonth(day.date, forecast.tzId),
           backgroundColor = color,
-          index = index,
+          index = ind,
           onDayClicked = { onDayClicked(it + 1) }
         )
       }
@@ -137,10 +136,10 @@ internal fun ControlPanel(
       verticalAlignment = Alignment.CenterVertically
     ) {
 
-      bottomLine.forEachIndexed { index, day ->
+      bottomLine.forEachIndexed { ind, day ->
 
         val color =
-          if (index + sizeTopLine == state.index - 1) MaterialTheme.colorScheme.tertiary
+          if (ind + sizeTopLine == index - 1) MaterialTheme.colorScheme.tertiary
           else MaterialTheme.colorScheme.background
 
         DayForTwoLines(
@@ -148,7 +147,7 @@ internal fun ControlPanel(
             .weight(1f),
           titleBottomText = getNumberDayOfMonth(day.date, forecast.tzId),
           backgroundColor = color,
-          index = index,
+          index = ind,
           onDayClicked = { onDayClicked(it + sizeTopLine + 1) }
         )
       }

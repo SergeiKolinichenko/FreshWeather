@@ -74,7 +74,7 @@ internal fun HumidityWindPressure(
       modifier = Modifier
         .weight(1f)
         .align(Alignment.CenterVertically),
-      icon = ImageVector.vectorResource(id = R.drawable.thermostat),
+      icon = ImageVector.vectorResource(id = R.drawable.barometer),
       title = stringResource(R.string.details_content_conditions_text_pressure),
       value = pressure
     )

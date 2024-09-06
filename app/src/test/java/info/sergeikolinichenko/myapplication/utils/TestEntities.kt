@@ -1,14 +1,10 @@
 package info.sergeikolinichenko.myapplication.utils
 
 import info.sergeikolinichenko.domain.entity.City
+import info.sergeikolinichenko.domain.entity.CurrentForecast
 import info.sergeikolinichenko.domain.entity.DayForecast
 import info.sergeikolinichenko.domain.entity.Forecast
 import info.sergeikolinichenko.domain.entity.HourForecast
-import info.sergeikolinichenko.domain.entity.PRECIPITATION
-import info.sergeikolinichenko.domain.entity.PRESSURE
-import info.sergeikolinichenko.domain.entity.Settings
-import info.sergeikolinichenko.domain.entity.TEMPERATURE
-import info.sergeikolinichenko.domain.entity.Weather
 import info.sergeikolinichenko.myapplication.entity.CityFs
 
 /** Created by Sergei Kolinichenko on 06.07.2024 at 18:39 (GMT+3) **/
@@ -30,16 +26,8 @@ internal val testCityFs = CityFs(
   lon = 23.514722
 )
 
-internal val testWeather = Weather(
-  temp = "25°C",
-  maxTemp = "30°C",
-  minTemp = "15°C",
-  description = "Sunny",
-  condIconUrl = "//cdn.weatherapi.com/weather/64x64/day/116.png"
-)
-
 private val testCurrentForecast = CurrentForecast(
-  date = 15555411L,
+  date = System.currentTimeMillis(),
   temp = "25°C",
   feelsLike = "25°C",
   cloudCover = 255.0f,
@@ -90,14 +78,9 @@ private val testHourForecast = HourForecast(
 )
 
 internal val testForecast = Forecast(
-  tzId = "tzId",
+  id = 1,
+  tzId = "Europe/Sofia",
   currentForecast = testCurrentForecast,
   upcomingDays = listOf(testDayForecast),
   upcomingHours = listOf(testHourForecast)
-)
-
-internal val testSettings = Settings(
-  temperature = TEMPERATURE.CELSIUS,
-  precipitation = PRECIPITATION.MM,
-  pressure = PRESSURE.HPA
 )

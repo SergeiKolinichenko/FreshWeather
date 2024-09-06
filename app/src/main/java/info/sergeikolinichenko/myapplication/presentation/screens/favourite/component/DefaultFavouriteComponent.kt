@@ -7,21 +7,20 @@ import com.arkivanov.mvikotlin.extensions.coroutines.stateFlow
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import info.sergeikolinichenko.domain.entity.City
-import info.sergeikolinichenko.myapplication.presentation.screens.editing.store.EditingFavouritesStore
+import info.sergeikolinichenko.myapplication.entity.ForecastFs
+import info.sergeikolinichenko.myapplication.presentation.screens.editing.store.EditingStore
 import info.sergeikolinichenko.myapplication.presentation.screens.favourite.store.FavouriteStore
 import info.sergeikolinichenko.myapplication.presentation.screens.favourite.store.FavouriteStoreFactory
 import info.sergeikolinichenko.myapplication.utils.componentScope
-import info.sergeikolinichenko.myapplication.utils.toCity
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class DefaultFavouriteComponent @AssistedInject constructor(
   @Assisted("onSearchClicked") private val onClickedSearch: () -> Unit,
-  @Assisted("onItemClicked") private val onClickedItem: (Int) -> Unit,
+  @Assisted("onItemClicked") private val onClickedItem: (Int, List<ForecastFs>) -> Unit,
   @Assisted("onClickItemMenuSettings") private val onClickItemMenuSettings: () -> Unit,
-  @Assisted("onClickItemMenuEditing") private val onClickItemMenuEditing: (List<EditingFavouritesStore.State.CityItem>) -> Unit,
+  @Assisted("onClickItemMenuEditing") private val onClickItemMenuEditing: (List<EditingStore.State.CityItem>) -> Unit,
   @Assisted("componentContext") private val componentContext: ComponentContext,
   private val storeFactory: FavouriteStoreFactory
 ) : FavouriteComponent, ComponentContext by componentContext {
@@ -33,14 +32,16 @@ class DefaultFavouriteComponent @AssistedInject constructor(
     scope.launch {
       store.labels.collect { label ->
         when (label) {
-          FavouriteStore.Label.OnClickSearch -> {
+          FavouriteStore.Label.OnSearchClicked -> {
             onClickedSearch()
           }
-          is FavouriteStore.Label.OnClickCity -> {
-            onClickedItem(label.id)
+          is FavouriteStore.Label.OnItemClicked -> {
+            onClickedItem(label.id, label.forecasts)
           }
-          FavouriteStore.Label.OnClickItemMenuSettings -> onClickItemMenuSettings()
-          is FavouriteStore.Label.OnClickItemMenuEditing ->
+          FavouriteStore.Label.OnItemMenuSettingsClicked ->
+            onClickItemMenuSettings()
+
+          is FavouriteStore.Label.OnItemMenuEditingClicked ->
             onClickItemMenuEditing(label.cities)
         }
       }
@@ -62,7 +63,7 @@ class DefaultFavouriteComponent @AssistedInject constructor(
     store.accept(FavouriteStore.Intent.ClosingActionMenu)
   }
 
-  override fun reloadWeather() {
+  override fun reloadForecast() {
     store.accept(FavouriteStore.Intent.ReloadWeather)
   }
 
@@ -85,9 +86,9 @@ class DefaultFavouriteComponent @AssistedInject constructor(
   interface Factory {
     fun create(
       @Assisted("onSearchClicked") onSearchClick: () -> Unit,
-      @Assisted("onItemClicked") onItemClick: (Int) -> Unit,
+      @Assisted("onItemClicked") onItemClick: (Int, List<ForecastFs>) -> Unit,
       @Assisted("onClickItemMenuSettings") onClickItemMenuSettings: () -> Unit,
-      @Assisted("onClickItemMenuEditing") onClickItemMenuEditing: (List<EditingFavouritesStore.State.CityItem>) -> Unit,
+      @Assisted("onClickItemMenuEditing") onClickItemMenuEditing: (List<EditingStore.State.CityItem>) -> Unit,
       @Assisted("componentContext") componentContext: ComponentContext
     ): DefaultFavouriteComponent
   }

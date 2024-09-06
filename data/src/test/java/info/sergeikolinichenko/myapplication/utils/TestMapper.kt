@@ -1,4 +1,4 @@
-package info.sergeikolinichenko.myapplication.mappers
+package info.sergeikolinichenko.myapplication.utils
 
 import info.sergeikolinichenko.domain.entity.CurrentForecast
 import info.sergeikolinichenko.domain.entity.DayForecast
@@ -8,38 +8,13 @@ import info.sergeikolinichenko.domain.entity.PRECIPITATION
 import info.sergeikolinichenko.domain.entity.PRESSURE
 import info.sergeikolinichenko.domain.entity.Settings
 import info.sergeikolinichenko.domain.entity.TEMPERATURE
-import info.sergeikolinichenko.domain.entity.Weather
 import info.sergeikolinichenko.myapplication.network.dto.DayForecastDto
 import info.sergeikolinichenko.myapplication.network.dto.ForecastDto
 import info.sergeikolinichenko.myapplication.network.dto.HourForecastDto
-import info.sergeikolinichenko.myapplication.utils.tiInchString
-import info.sergeikolinichenko.myapplication.utils.toCelsiusString
-import info.sergeikolinichenko.myapplication.utils.toFahrenheitString
-import info.sergeikolinichenko.myapplication.utils.toHpaString
-import info.sergeikolinichenko.myapplication.utils.toMmHgString
-import info.sergeikolinichenko.myapplication.utils.toMmsString
 
-/** Created by Sergei Kolinichenko on 29.07.2024 at 17:36 (GMT+3) **/
+/** Created by Sergei Kolinichenko on 06.09.2024 at 18:22 (GMT+3) **/
 
-//fun ForecastDto.toForecast()
-internal fun ForecastDto.mapForecastDtoToWeather(settings: Settings) = Weather(
-  temp = when (settings.temperature) {
-    TEMPERATURE.CELSIUS -> this.currentWeatherDto.temp.toCelsiusString()
-    TEMPERATURE.FAHRENHEIT -> this.currentWeatherDto.temp.toFahrenheitString()
-  },
-  maxTemp = when (settings.temperature) {
-    TEMPERATURE.CELSIUS -> this.daysForecast.first().tempMax.toCelsiusString()
-    TEMPERATURE.FAHRENHEIT -> this.daysForecast.first().tempMax.toFahrenheitString()
-  },
-  minTemp = when (settings.temperature) {
-    TEMPERATURE.CELSIUS -> this.daysForecast.first().tempMin.toCelsiusString()
-    TEMPERATURE.FAHRENHEIT -> this.daysForecast.first().tempMin.toFahrenheitString()
-  },
-  description = "something",
-  condIconUrl = this.daysForecast.first().icon
-)
-
-internal fun ForecastDto.mapToForecast(id: Int, settings: Settings) = Forecast(
+internal fun ForecastDto.mapToForecastForTest(id: Int, settings: Settings) = Forecast(
   id = id,
   tzId = this.timeZone,
   currentForecast = this.mapToForecastCurrent(settings),

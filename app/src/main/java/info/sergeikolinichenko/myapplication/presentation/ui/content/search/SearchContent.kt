@@ -21,7 +21,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -43,7 +42,7 @@ import info.sergeikolinichenko.myapplication.R
 import info.sergeikolinichenko.myapplication.presentation.screens.search.component.SearchComponent
 import info.sergeikolinichenko.myapplication.presentation.screens.search.store.SearchStore
 import info.sergeikolinichenko.myapplication.utils.ResponsiveText
-import info.sergeikolinichenko.myapplication.utils.toCityScreen
+import info.sergeikolinichenko.myapplication.utils.mapToCityFs
 
 const val TEST_SEARCHBAR_TAG = "test_searchbar_tag"
 const val TEST_SEARCH_TEXT_TAG = "test_search_text_tag"
@@ -173,7 +172,7 @@ private fun SearchScreen(
               modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.Start)
-                .clickable { component.onItemClicked(city = item.toCityScreen()) }
+                .clickable { component.onItemClicked(city = item.mapToCityFs()) }
                 .testTag(TEST_SEARCH_TEXT_TAG),
               text = item.name + ", " + item.region + ", " + item.country,
               fontFamily = FontFamily.SansSerif,

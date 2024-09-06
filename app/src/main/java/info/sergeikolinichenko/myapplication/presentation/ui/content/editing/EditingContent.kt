@@ -25,7 +25,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -52,8 +51,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import info.sergeikolinichenko.myapplication.R
 import info.sergeikolinichenko.myapplication.entity.CityFs
-import info.sergeikolinichenko.myapplication.presentation.screens.editing.component.EditingFavouritesComponent
-import info.sergeikolinichenko.myapplication.presentation.screens.editing.store.EditingFavouritesStore
+import info.sergeikolinichenko.myapplication.presentation.screens.editing.component.EditingComponent
+import info.sergeikolinichenko.myapplication.presentation.screens.editing.store.EditingStore
 import info.sergeikolinichenko.myapplication.utils.ResponsiveText
 import info.sergeikolinichenko.myapplication.utils.SYS_ICON_SIZE_24
 import info.sergeikolinichenko.myapplication.utils.toIconId
@@ -63,24 +62,28 @@ import kotlinx.coroutines.launch
 /** Created by Sergei Kolinichenko on 14.08.2024 at 18:00 (GMT+3) **/
 
 @Composable
-internal fun EditingContent(component: EditingFavouritesComponent) {
-
-  AnimatedEditingContent(
-    modifier = Modifier.fillMaxSize(),
-    component = component,
-  )
+internal fun EditingContent(component: EditingComponent) {
+  Box(
+    modifier = Modifier
+      .background(MaterialTheme.colorScheme.background)
+      .fillMaxSize()
+  ) {
+    AnimatedEditingContent(
+      modifier = Modifier.fillMaxSize(),
+      component = component,
+    )
+  }
 }
 
 @Composable
 internal fun EditingScreen(
   modifier: Modifier = Modifier,
-  state: EditingFavouritesStore.State,
+  state: EditingStore.State,
+  changedListCities: (cities: List<CityFs>) -> Unit,
   onCloseClicked: () -> Unit,
-  onDoneClicked: (cities: List<CityFs>) -> Unit,
+  onDoneClicked: () -> Unit,
   onSwipeRight: () -> Unit
 ) {
-
-  var listCity: List<CityFs>? = null
 
   var swipeRight by remember { mutableStateOf(false) }
 
@@ -100,12 +103,12 @@ internal fun EditingScreen(
     TopBar(
       modifier = Modifier,
       onCloseClicked = { onCloseClicked() },
-      onDoneClicked = { listCity?.let { onDoneClicked(it) } }
+      onDoneClicked = { onDoneClicked() }
     )
     MainScreen(
       modifier = Modifier.padding(16.dp),
       state = state,
-      listCityFs = { cities ->  listCity = cities }
+      changedListCities = { changedListCities(it) }
     )
   }
   if (swipeRight) onSwipeRight()
@@ -114,17 +117,17 @@ internal fun EditingScreen(
 @Composable
 private fun MainScreen(
   modifier: Modifier = Modifier,
-  state: EditingFavouritesStore.State,
-  listCityFs: (List<CityFs>) -> Unit,
+  state: EditingStore.State,
+  changedListCities: (List<CityFs>) -> Unit,
 ) {
 
   when (state.cities) {
-    EditingFavouritesStore.State.CitiesStatus.CitiesInitial -> {}
-    EditingFavouritesStore.State.CitiesStatus.CitiesLoadingError -> {
+    EditingStore.State.CitiesStatus.CitiesInitial -> {}
+    EditingStore.State.CitiesStatus.CitiesLoadingError -> {
       CitiesLoadingError()
     }
 
-    is EditingFavouritesStore.State.CitiesStatus.CitiesLoaded -> {
+    is EditingStore.State.CitiesStatus.CitiesLoaded -> {
 
       val cityItems = state.cityItems
       val cities = state.cities.cities.toMutableStateList()
@@ -132,7 +135,7 @@ private fun MainScreen(
 
       val dragDropListState = rememberDragDropListState(onMove = { from, to ->
         cities.move(from, to)
-        listCityFs(cities)
+        changedListCities(cities)
       })
 
       val lazyColumnCoordinates = remember { mutableStateOf<LayoutCoordinates?>(null) }
@@ -143,8 +146,7 @@ private fun MainScreen(
           .background(MaterialTheme.colorScheme.background)
           .onGloballyPositioned { coordinates ->
             lazyColumnCoordinates.value = coordinates
-          }
-        ,
+          },
         state = dragDropListState.lazyListState,
         verticalArrangement = Arrangement.spacedBy(12.dp),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -167,7 +169,7 @@ private fun MainScreen(
             icon = cityItems.first { it.id == city.id }.icon,
             onClickIconDelete = { id ->
               cities.remove(cities.find { it.id == id })
-              listCityFs(cities)
+              changedListCities(cities)
             },
             dragDropListState = dragDropListState,
             lazyColumnCoordinates = lazyColumnCoordinates
@@ -274,8 +276,11 @@ private fun CityItem(
           detectDragGesturesAfterLongPress(
             onDragStart = { offset ->
               alpha.floatValue = 0.7f
+
               lazyColumnCoordinates.value?.let { lazyColumnCoords ->
+
                 iconCoordinates?.let { iconCoords ->
+
                   dragDropListState.onDragStart(
                     offset = offset,
                     lazyColumnCoords = lazyColumnCoords,
@@ -299,20 +304,15 @@ private fun CityItem(
 
               dragDropListState
                 .checkForOverScroll()
-                .takeIf {
-                  it != 0f
-                }
+                .takeIf { it != 0f }
                 ?.let {
                   overScrollJob = scope.launch {
                     dragDropListState.lazyListState.scrollBy(it)
                   }
-                } ?: run {
-                overScrollJob?.cancel()
-              }
+                } ?: run { overScrollJob?.cancel() }
             }
           )
-        }
-      ,
+        },
       imageVector = Icons.Default.Menu,
       contentDescription = "Menu icon editing order items"
     )

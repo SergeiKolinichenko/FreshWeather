@@ -36,6 +36,7 @@ internal fun AnimatedFavouriteContent(
       state.value.citiesState is FavouriteStore.State.CitiesState.Error
 
   animState.targetState = stateForTarget
+
   var animatedDirection by remember { mutableStateOf(AnimatedDirection.Top) }
 
   AnimatedVisibility(

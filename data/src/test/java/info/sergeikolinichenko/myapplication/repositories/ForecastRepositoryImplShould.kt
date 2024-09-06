@@ -6,7 +6,6 @@ import info.sergeikolinichenko.domain.entity.PRECIPITATION
 import info.sergeikolinichenko.domain.entity.PRESSURE
 import info.sergeikolinichenko.domain.entity.Settings
 import info.sergeikolinichenko.domain.entity.TEMPERATURE
-import info.sergeikolinichenko.myapplication.mappers.mapForecastDtoToWeather
 import info.sergeikolinichenko.myapplication.mappers.mapToForecast
 import info.sergeikolinichenko.myapplication.network.api.ApiFactory
 import info.sergeikolinichenko.myapplication.network.api.ApiService
@@ -22,15 +21,15 @@ import org.junit.Test
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
-import retrofit2.Response
 import org.mockito.kotlin.mock
+import retrofit2.Response
 
 
 /** Created by Sergei Kolinichenko on 17.06.2024 at 21:03 (GMT+3) **/
 
-class WeatherRepositoryImplShould {
+class ForecastRepositoryImplShould {
 
-  @Mock private lateinit var mockRepository: WeatherRepositoryImpl
+  @Mock private lateinit var mockRepository: ForecastRepositoryImpl
   @Mock private lateinit var mockApiService: ApiService
   @Mock private lateinit var mockSharedPreferences: SharedPreferences
   @Mock private lateinit var mockResponse: Response<ForecastDto>
@@ -41,61 +40,18 @@ class WeatherRepositoryImplShould {
     mockApiService = mock()
     mockSharedPreferences = mock()
     ApiFactory.apiServiceForVisualcrossing = mockApiService
-    mockRepository = WeatherRepositoryImpl(mockSharedPreferences)
-  }
-
-
-  @Test
-  fun `getWeather returns success with Weather data`(): Unit = runBlocking {
-    // Arrange
-    val city = testCity
-    val settings = Settings(
-      temperature = TEMPERATURE.CELSIUS,
-      precipitation = PRECIPITATION.MM,
-      pressure = PRESSURE.HPA
-    )
-    val expectedWeather = testForecastDto.mapForecastDtoToWeather(settings)
-
-    Mockito.`when`(mockResponse.isSuccessful).thenReturn(true)
-    Mockito.`when`(mockResponse.body()).thenReturn(testForecastDto)
-    Mockito.`when`(mockApiService.getCurrentWeather(
-      Mockito.anyString(),
-      Mockito.anyString()
-    )).thenReturn(mockResponse)
-    Mockito.`when`(mockSharedPreferences.getString("settings_key", null)).thenReturn(Gson().toJson(settings))
-
-    // Act
-    val result = mockRepository.getWeather(city)
-
-    // Assert
-    assertEquals(true, result.isSuccess)
-    assertEquals(expectedWeather, result.getOrNull())
+    mockRepository = ForecastRepositoryImpl(mockSharedPreferences)
   }
 
   @Test
-  fun `getWeather returns failure on unsuccessful response`() = runBlocking {
-    Mockito.`when`(mockResponse.isSuccessful).thenReturn(false)
-    Mockito.`when`(mockResponse.code()).thenReturn(400)
-    Mockito.`when`(
-      mockApiService.getCurrentWeather(Mockito.anyString(), Mockito.anyString())
-    ).thenReturn(mockResponse)
-
-    val city = testCity
-    val result = mockRepository.getWeather(city)
-
-    assertEquals(true, result.isFailure)
-    assertEquals("400", (result.exceptionOrNull() as Exception).message)
-  }
-
-  @Test
-  fun `getForecast returns success on successful response`() = runBlocking {
+  fun `getForecast returns success on successful response`(): Unit = runBlocking {
     val forecastDto = testForecastDto
     val settings = Settings(
       temperature = TEMPERATURE.CELSIUS,
       precipitation = PRECIPITATION.MM,
       pressure = PRESSURE.HPA
     )
-    val expectedForecast = forecastDto.mapToForecast(settings)
+    val expectedForecast = forecastDto.mapToForecast( testCity.id, settings)
 
     Mockito.`when`(mockResponse.isSuccessful).thenReturn(true)
     Mockito.`when`(mockResponse.body()).thenReturn(forecastDto)
@@ -109,11 +65,11 @@ class WeatherRepositoryImplShould {
     Mockito.`when`(mockSharedPreferences.getInt(DAYS_OF_WEATHER_KEY, 7))
       .thenReturn(7)
 
-    val city = testCity
-    val result = mockRepository.getForecast(city)
+    val cities = listOf(testCity)
+    val result = mockRepository.getForecast(cities)
 
     assertEquals(true, result.isSuccess)
-    assertEquals(expectedForecast, result.getOrNull())
+    assertEquals(expectedForecast, result.getOrNull()?.first())
   }
 
   @Test
@@ -130,8 +86,8 @@ class WeatherRepositoryImplShould {
     Mockito.`when`(mockSharedPreferences.getInt(DAYS_OF_WEATHER_KEY, 7))
       .thenReturn(7)
 
-    val city = testCity
-    val result = mockRepository.getForecast(city)
+    val cities = listOf(testCity)
+    val result = mockRepository.getForecast(cities)
 
     assertEquals(true, result.isFailure)
     assertEquals("400", (result.exceptionOrNull() as Exception).message)

@@ -67,7 +67,11 @@ class DragAndDropState(
 
   var overScrollJob by mutableStateOf<Job?>(null)
 
-  fun onDragStart(offset: Offset, lazyColumnCoords: LayoutCoordinates, iconCoordinates: LayoutCoordinates) {
+  fun onDragStart(
+    offset: Offset,
+    lazyColumnCoords: LayoutCoordinates,
+    iconCoordinates: LayoutCoordinates
+  ) {
     val iconWindowPos = iconCoordinates.localToWindow(offset)
     val lazyColumnWindowPos = lazyColumnCoords.positionInWindow()
     val y = iconWindowPos.y - lazyColumnWindowPos.y - lazyListState.firstVisibleItemScrollOffset
@@ -119,12 +123,13 @@ class DragAndDropState(
       val endOffset = it.offsetEnd + draggedDistance
 
       return@let when {
-        draggedDistance > 0 -> (endOffset - lazyListState.layoutInfo.viewportEndOffset).takeIf { diff ->
-          diff > 0
-        }
-        draggedDistance < 0 -> (startOffset - lazyListState.layoutInfo.viewportStartOffset).takeIf { diff ->
-          diff < 0
-        }
+        draggedDistance > 0 ->
+
+          (endOffset - lazyListState.layoutInfo.viewportEndOffset).takeIf { diff -> diff > 0 }
+
+        draggedDistance < 0 ->
+          (startOffset - lazyListState.layoutInfo.viewportStartOffset).takeIf { diff -> diff < 0 }
+
         else -> null
       }
     } ?: 0f

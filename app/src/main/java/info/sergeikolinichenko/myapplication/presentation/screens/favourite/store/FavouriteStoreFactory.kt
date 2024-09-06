@@ -9,13 +9,14 @@ import info.sergeikolinichenko.domain.entity.City
 import info.sergeikolinichenko.domain.entity.Forecast
 import info.sergeikolinichenko.domain.usecases.favourite.ChangeFavouriteStateUseCase
 import info.sergeikolinichenko.domain.usecases.favourite.GetFavouriteCitiesUseCase
+import info.sergeikolinichenko.domain.usecases.forecast.GetForecastUseCase
 import info.sergeikolinichenko.domain.usecases.search.SearchCitiesUseCase
-import info.sergeikolinichenko.domain.usecases.weather.GetForecastUseCase
-import info.sergeikolinichenko.myapplication.presentation.screens.editing.store.EditingFavouritesStore
-import info.sergeikolinichenko.myapplication.utils.mapToForecastScreen
-import info.sergeikolinichenko.myapplication.utils.toCity
+import info.sergeikolinichenko.myapplication.presentation.screens.editing.store.EditingStore
+import info.sergeikolinichenko.myapplication.utils.DURATION_OF_FORECAST_LIFE_MINUTES
+import info.sergeikolinichenko.myapplication.utils.getMinutesDifferenceFromNow
+import info.sergeikolinichenko.myapplication.utils.mapToCityFsList
+import info.sergeikolinichenko.myapplication.utils.mapToForecastScreenList
 import info.sergeikolinichenko.myapplication.utils.toCityList
-import info.sergeikolinichenko.myapplication.utils.toCityScreen
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -33,7 +34,7 @@ class FavouriteStoreFactory @Inject constructor(
         name = "FavouriteStore",
         initialState = FavouriteStore.State(
           citiesState = FavouriteStore.State.CitiesState.Initial,
-          weatherState = FavouriteStore.State.WeatherState.Initial,
+          forecastState = FavouriteStore.State.ForecastState.Initial,
         ),
         bootstrapper = BootstrapperImpl(),
         executorFactory = ::ExecutorImpl,
@@ -69,19 +70,17 @@ class FavouriteStoreFactory @Inject constructor(
     override fun invoke() {
 
       scope.launch {
-
         getFavouriteCities().collect { result ->
+
           when {
+
             result.isSuccess -> {
-
               result.getOrNull()?.let { cities ->
-
                 cities.forEach { city ->
 
                   if (city.lat == 0.0 || city.lon == 0.0) {
                     cityInfoAdd(city, changeFavouriteStateUseCase, searchCities)
                   }
-
                 }
                 dispatch(Action.FavouriteCitiesLoaded(cities))
               }
@@ -105,45 +104,61 @@ class FavouriteStoreFactory @Inject constructor(
     override fun executeIntent(intent: FavouriteStore.Intent) {
 
       when (intent) {
-        is FavouriteStore.Intent.SearchClicked -> publish(FavouriteStore.Label.OnClickSearch)
+        is FavouriteStore.Intent.SearchClicked -> publish(FavouriteStore.Label.OnSearchClicked)
 
-        is FavouriteStore.Intent.ItemCityClicked ->
-          publish(FavouriteStore.Label.OnClickCity(intent.id))
+        is FavouriteStore.Intent.ItemCityClicked -> {
+
+          if (state().forecastState is FavouriteStore.State.ForecastState.Loaded) {
+
+            val forecasts =
+              (state().forecastState as FavouriteStore.State.ForecastState.Loaded).listForecast
+
+            publish(
+              FavouriteStore.Label.OnItemClicked(
+                id = intent.id, forecasts = forecasts
+              )
+            )
+          }
+
+        }
+
 
         FavouriteStore.Intent.ActionMenuClicked -> dispatch(Message.DropDownMenuOpened)
         FavouriteStore.Intent.ClosingActionMenu -> dispatch(Message.DropDownMenuClosed)
 
         FavouriteStore.Intent.ItemMenuSettingsClicked -> {
-          publish(FavouriteStore.Label.OnClickItemMenuSettings)
+          publish(FavouriteStore.Label.OnItemMenuSettingsClicked)
           dispatch(Message.DropDownMenuClosed)
         }
 
         is FavouriteStore.Intent.ReloadWeather -> {
 
-          val cities = state().citiesState as FavouriteStore.State.CitiesState.Loaded
-
           scope.launch {
-            loadWeather(cities.listCities.toCityList())
+            if (state().citiesState is FavouriteStore.State.CitiesState.Loaded) {
+
+              val cities = state().citiesState as FavouriteStore.State.CitiesState.Loaded
+              loadWeather(cities.listCities.toCityList())
+            }
           }
         }
 
         FavouriteStore.Intent.ItemMenuEditingClicked -> {
 
           if (state().citiesState !is FavouriteStore.State.CitiesState.Loaded) return
-          if (state().weatherState !is FavouriteStore.State.WeatherState.Loaded) return
+          if (state().forecastState !is FavouriteStore.State.ForecastState.Loaded) return
 
           val cities = state().citiesState as FavouriteStore.State.CitiesState.Loaded
-          val weatherState = state().weatherState as FavouriteStore.State.WeatherState.Loaded
+          val forecastState = state().forecastState as FavouriteStore.State.ForecastState.Loaded
 
           val cityItems = cities.listCities.map { city ->
-            EditingFavouritesStore.State.CityItem(
+            EditingStore.State.CityItem(
               id = city.id,
-              temp = weatherState.listForecast.first { it.id == city.id }.currentForecast.temp,
-              icon = weatherState.listForecast.first { it.id == city.id }.currentForecast.icon
+              temp = forecastState.listForecast.first { it.id == city.id }.currentForecast.temp,
+              icon = forecastState.listForecast.first { it.id == city.id }.currentForecast.icon
             )
           }
           publish(
-            FavouriteStore.Label.OnClickItemMenuEditing(
+            FavouriteStore.Label.OnItemMenuEditingClicked(
               cities = cityItems
             )
           )
@@ -151,11 +166,13 @@ class FavouriteStoreFactory @Inject constructor(
         }
 
         FavouriteStore.Intent.ReloadCities -> {
+
           scope.launch {
             getFavouriteCities().collect { result ->
               when {
                 result.isSuccess -> {
                   result.getOrNull()?.let { cities ->
+                    dispatch(Message.FavoriteCitiesLoaded(cities))
                     loadWeather(cities)
                   }
                 }
@@ -176,10 +193,26 @@ class FavouriteStoreFactory @Inject constructor(
 
         is Action.FavouriteCitiesLoaded -> {
 
-          val cities = action.cities
-
           scope.launch {
-            loadWeather(cities)
+
+            dispatch(Message.FavoriteCitiesLoaded(action.cities))
+
+            if (state().forecastState == FavouriteStore.State.ForecastState.Initial) {
+              loadWeather(action.cities)
+            } else if (state().forecastState is FavouriteStore.State.ForecastState.Loaded) {
+
+              val forecastState = state().forecastState as FavouriteStore.State.ForecastState.Loaded
+              val forecast = forecastState.listForecast.first()
+              val minuteDifference =
+                getMinutesDifferenceFromNow(forecast.currentForecast.date, forecast.tzId)
+
+              val numberOfCities = action.cities.size
+              val numberOfForecasts = forecastState.listForecast.size
+
+              if (minuteDifference > DURATION_OF_FORECAST_LIFE_MINUTES || numberOfCities != numberOfForecasts) {
+                loadWeather(action.cities)
+              }
+            }
           }
         }
 
@@ -189,7 +222,6 @@ class FavouriteStoreFactory @Inject constructor(
 
     private suspend fun loadWeather(cities: List<City>) {
 
-      dispatch(Message.FavoriteCitiesLoaded(cities))
       dispatch(Message.WeatherLoading)
 
       val result = getForecast.invoke(cities)
@@ -204,7 +236,6 @@ class FavouriteStoreFactory @Inject constructor(
           dispatch(Message.WeatherLoadingError(result.exceptionOrNull()!!.message))
         }
       }
-
     }
   }
 
@@ -215,22 +246,30 @@ class FavouriteStoreFactory @Inject constructor(
 
         is Message.FavoriteCitiesLoaded -> {
 
-          copy(FavouriteStore.State.CitiesState.Loaded(
-            listCities = msg.cities.map { it.toCityScreen() }))
+          copy(
+            citiesState = FavouriteStore.State.CitiesState.Loaded(
+              listCities = msg.cities.mapToCityFsList()
+            )
+          )
         }
 
         is Message.WeatherLoaded -> {
-          copy(weatherState = FavouriteStore.State.WeatherState.Loaded(
-            listForecast = msg.listForecasts.map { it.mapToForecastScreen() }))
+          copy(
+            forecastState = FavouriteStore.State.ForecastState.Loaded(
+              listForecast = msg.listForecasts.mapToForecastScreenList()
+            )
+          )
         }
 
         is Message.WeatherLoading -> {
-          copy(weatherState = FavouriteStore.State.WeatherState.Loading)
+          copy(forecastState = FavouriteStore.State.ForecastState.Loading)
         }
 
         is Message.WeatherLoadingError -> copy(
-            weatherState = FavouriteStore.State.WeatherState.Error(
-              errorMessage = msg.error ?: "Something went wrong"))
+          forecastState = FavouriteStore.State.ForecastState.Error(
+            errorMessage = msg.error ?: "Something went wrong"
+          )
+        )
 
         Message.DropDownMenuClosed ->
           copy(dropDownMenuState = FavouriteStore.State.DropDownMenuState.CloseMenu)

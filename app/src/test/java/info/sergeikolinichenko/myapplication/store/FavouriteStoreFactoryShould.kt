@@ -5,16 +5,17 @@ import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
 import info.sergeikolinichenko.domain.entity.City
 import info.sergeikolinichenko.domain.usecases.favourite.ChangeFavouriteStateUseCase
 import info.sergeikolinichenko.domain.usecases.favourite.GetFavouriteCitiesUseCase
+import info.sergeikolinichenko.domain.usecases.forecast.GetForecastUseCase
 import info.sergeikolinichenko.domain.usecases.search.SearchCitiesUseCase
-import info.sergeikolinichenko.domain.usecases.weather.GetWeatherUseCase
-import info.sergeikolinichenko.myapplication.utils.BaseUnitTestsRules
 import info.sergeikolinichenko.myapplication.entity.CityFs
 import info.sergeikolinichenko.myapplication.presentation.screens.favourite.store.FavouriteStore
 import info.sergeikolinichenko.myapplication.presentation.screens.favourite.store.FavouriteStoreFactory
+import info.sergeikolinichenko.myapplication.utils.BaseUnitTestsRules
+import info.sergeikolinichenko.myapplication.utils.mapToForecastScreenList
 import info.sergeikolinichenko.myapplication.utils.test
 import info.sergeikolinichenko.myapplication.utils.testCity
 import info.sergeikolinichenko.myapplication.utils.testCityFs
-import info.sergeikolinichenko.myapplication.utils.testWeather
+import info.sergeikolinichenko.myapplication.utils.testForecast
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
@@ -31,11 +32,12 @@ class FavouriteStoreFactoryShould : BaseUnitTestsRules() {
 
   // region constants
   private val factory = DefaultStoreFactory()
-  private val getWeatherUseCase = mock<GetWeatherUseCase>()
+  private val getForecastUseCase = mock<GetForecastUseCase>()
   private val getFavouriteCitiesUseCase = mock<GetFavouriteCitiesUseCase>()
   private val changeFavouriteStateUseCase = mock<ChangeFavouriteStateUseCase>()
   private val searchCitiesUseCase = mock<SearchCitiesUseCase>()
   private val cities = listOf(testCity)
+  private val listForecast = listOf(testForecast)
   private val exception = Exception("Something went wrong")
   // endregion constants
 
@@ -44,7 +46,7 @@ class FavouriteStoreFactoryShould : BaseUnitTestsRules() {
     getFavouriteCitiesUseCase,
     changeFavouriteStateUseCase,
     searchCitiesUseCase,
-    getWeatherUseCase
+    getForecastUseCase
   )
 
   @Test
@@ -65,9 +67,9 @@ class FavouriteStoreFactoryShould : BaseUnitTestsRules() {
       mockSuccessResult()
       // Act
       val store = SUT.create()
-      val testField = store.state.cityItems.first().city.toTestCityForTest()
+      val testField = (store.state.citiesState as FavouriteStore.State.CitiesState.Loaded).listCities.first()
       // Assert
-      assert(testField == testCity)
+      assert(testField.toTestCityForTest() == testCity)
     }
 
   @Test
@@ -79,7 +81,7 @@ class FavouriteStoreFactoryShould : BaseUnitTestsRules() {
       val store = SUT.create()
       val testField = store.state.citiesState
       // Assert
-      assert(testField == FavouriteStore.State.CitiesState.Loaded)
+      assert(testField is FavouriteStore.State.CitiesState.Loaded)
     }
 
   @Test
@@ -102,7 +104,7 @@ class FavouriteStoreFactoryShould : BaseUnitTestsRules() {
       // Act
       SUT.create()
       // Assert
-      verify(getWeatherUseCase, times(1)).invoke(testCity)
+      verify(getForecastUseCase, times(1)).invoke(cities)
     }
 
   @Test
@@ -110,12 +112,12 @@ class FavouriteStoreFactoryShould : BaseUnitTestsRules() {
     runTest {
       // Arrange
       whenever(getFavouriteCitiesUseCase.invoke()).thenReturn(flowOf(Result.success(cities)))
-      whenever(getWeatherUseCase.invoke(testCity)).thenReturn(Result.failure(exception))
+      whenever(getForecastUseCase.invoke(cities)).thenReturn(Result.failure(exception))
       // Act
       val store = SUT.create()
-      val testField = store.state.cityItems.first().weatherState
+      val testField = store.state.forecastState
       // Assert
-      assert(testField is FavouriteStore.State.WeatherState.Error)
+      assert(testField is FavouriteStore.State.ForecastState.Error)
     }
 
   @Test
@@ -126,14 +128,60 @@ class FavouriteStoreFactoryShould : BaseUnitTestsRules() {
       // Act
       val store = SUT.create()
       val testField =
-        store.state.cityItems.first().weatherState
-            as FavouriteStore.State.WeatherState.Loaded
+        store.state.forecastState as FavouriteStore.State.ForecastState.Loaded
       // Assert
-      assert(testField.temp == testWeather.temp)
-      assert(testField.maxTemp == testWeather.maxTemp)
-      assert(testField.minTemp == testWeather.minTemp)
-      assert(testField.description == testWeather.description)
-      assert(testField.icon == testWeather.condIconUrl)
+      assert(testField.listForecast.first().id == testForecast.id)
+      assert(testField.listForecast.first().tzId == testForecast.tzId)
+      assert(testField.listForecast.first().currentForecast.date == testForecast.currentForecast.date)
+      assert(testField.listForecast.first().upcomingDays.first().date == testForecast.upcomingDays.first().date)
+      assert(testField.listForecast.first().upcomingHours.first().date == testForecast.upcomingHours.first().date)
+      assert(testField.listForecast.first().upcomingHours.first().temp == testForecast.upcomingHours.first().temp)
+      assert(testField.listForecast.first().upcomingHours.first().icon == testForecast.upcomingHours.first().icon)
+      assert(testField.listForecast.first().upcomingHours.first().pressure == testForecast.upcomingHours.first().pressure)
+      assert(testField.listForecast.first().upcomingHours.first().humidity == testForecast.upcomingHours.first().humidity)
+      assert(testField.listForecast.first().upcomingHours.first().uvIndex == testForecast.upcomingHours.first().uvIndex)
+      assert(testField.listForecast.first().upcomingHours.first().precipProb == testForecast.upcomingHours.first().precipProb)
+      assert(testField.listForecast.first().upcomingHours.first().precipType == testForecast.upcomingHours.first().precipType)
+      assert(testField.listForecast.first().currentForecast.temp == testForecast.currentForecast.temp)
+      assert(testField.listForecast.first().currentForecast.feelsLike == testForecast.currentForecast.feelsLike)
+      assert(testField.listForecast.first().currentForecast.cloudCover == testForecast.currentForecast.cloudCover)
+      assert(testField.listForecast.first().currentForecast.windDir == testForecast.currentForecast.windDir)
+      assert(testField.listForecast.first().currentForecast.windSpeed == testForecast.currentForecast.windSpeed)
+      assert(testField.listForecast.first().currentForecast.pressure == testForecast.currentForecast.pressure)
+      assert(testField.listForecast.first().currentForecast.humidity == testForecast.currentForecast.humidity)
+      assert(testField.listForecast.first().currentForecast.precipProb == testForecast.currentForecast.precipProb)
+      assert(testField.listForecast.first().currentForecast.precip == testForecast.currentForecast.precip)
+      assert(testField.listForecast.first().currentForecast.precipType == testForecast.currentForecast.precipType)
+      assert(testField.listForecast.first().currentForecast.uvIndex == testForecast.currentForecast.uvIndex)
+      assert(testField.listForecast.first().currentForecast.conditions == testForecast.currentForecast.conditions)
+      assert(testField.listForecast.first().currentForecast.icon == testForecast.currentForecast.icon)
+      assert(testField.listForecast.first().upcomingDays.first().temp == testForecast.upcomingDays.first().temp)
+      assert(testField.listForecast.first().upcomingDays.first().tempMax == testForecast.upcomingDays.first().tempMax)
+      assert(testField.listForecast.first().upcomingDays.first().tempMin == testForecast.upcomingDays.first().tempMin)
+      assert(testField.listForecast.first().upcomingDays.first().humidity == testForecast.upcomingDays.first().humidity)
+      assert(testField.listForecast.first().upcomingDays.first().windSpeed == testForecast.upcomingDays.first().windSpeed)
+      assert(testField.listForecast.first().upcomingDays.first().windDir == testForecast.upcomingDays.first().windDir)
+      assert(testField.listForecast.first().upcomingDays.first().pressure == testForecast.upcomingDays.first().pressure)
+      assert(testField.listForecast.first().upcomingDays.first().uvIndex == testForecast.upcomingDays.first().uvIndex)
+      assert(testField.listForecast.first().upcomingDays.first().cloudCover == testForecast.upcomingDays.first().cloudCover)
+      assert(testField.listForecast.first().upcomingDays.first().precipProb == testForecast.upcomingDays.first().precipProb)
+      assert(testField.listForecast.first().upcomingDays.first().precip == testForecast.upcomingDays.first().precip)
+      assert(testField.listForecast.first().upcomingDays.first().precipType == testForecast.upcomingDays.first().precipType)
+      assert(testField.listForecast.first().upcomingDays.first().description == testForecast.upcomingDays.first().description)
+      assert(testField.listForecast.first().upcomingDays.first().icon == testForecast.upcomingDays.first().icon)
+      assert(testField.listForecast.first().upcomingDays.first().sunrise == testForecast.upcomingDays.first().sunrise)
+      assert(testField.listForecast.first().upcomingDays.first().sunset == testForecast.upcomingDays.first().sunset)
+      assert(testField.listForecast.first().upcomingDays.first().moonrise == testForecast.upcomingDays.first().moonrise)
+      assert(testField.listForecast.first().upcomingDays.first().moonset == testForecast.upcomingDays.first().moonset)
+      assert(testField.listForecast.first().upcomingDays.first().moonPhase == testForecast.upcomingDays.first().moonPhase)
+      assert(testField.listForecast.first().upcomingHours.first().date == testForecast.upcomingHours.first().date)
+      assert(testField.listForecast.first().upcomingHours.first().temp == testForecast.upcomingHours.first().temp)
+      assert(testField.listForecast.first().upcomingHours.first().icon == testForecast.upcomingHours.first().icon)
+      assert(testField.listForecast.first().upcomingHours.first().pressure == testForecast.upcomingHours.first().pressure)
+      assert(testField.listForecast.first().upcomingHours.first().humidity == testForecast.upcomingHours.first().humidity)
+      assert(testField.listForecast.first().upcomingHours.first().uvIndex == testForecast.upcomingHours.first().uvIndex)
+      assert(testField.listForecast.first().upcomingHours.first().precipProb == testForecast.upcomingHours.first().precipProb)
+      assert(testField.listForecast.first().upcomingHours.first().precipType == testForecast.upcomingHours.first().precipType)
     }
 
   @Test
@@ -183,7 +231,7 @@ class FavouriteStoreFactoryShould : BaseUnitTestsRules() {
     val testField = store.labels.test()
     store.accept(FavouriteStore.Intent.SearchClicked)
     // Assert
-    assert(testField == listOf(FavouriteStore.Label.OnClickSearch))
+    assert(testField == listOf(FavouriteStore.Label.OnSearchClicked))
   }
 
   @Test
@@ -197,7 +245,7 @@ class FavouriteStoreFactoryShould : BaseUnitTestsRules() {
       val testField = store.labels.test()
       store.accept(FavouriteStore.Intent.ItemMenuSettingsClicked)
       // Assert
-      assert(testField == listOf(FavouriteStore.Label.OnClickItemMenuSettings))
+      assert(testField == listOf(FavouriteStore.Label.OnItemMenuSettingsClicked))
     }
 
   @Test
@@ -210,14 +258,14 @@ class FavouriteStoreFactoryShould : BaseUnitTestsRules() {
       val testField = store.labels.test()
       store.accept(FavouriteStore.Intent.ItemCityClicked(testCityFs.id))
       // Assert
-      assert(testField == listOf(FavouriteStore.Label.OnClickCity(testCityFs.id)))
+      assert(testField == listOf(FavouriteStore.Label.OnItemClicked(testCityFs.id, listForecast.mapToForecastScreenList())))
     }
 
   // region helper functions
 
   private suspend fun mockSuccessResult() {
     whenever(getFavouriteCitiesUseCase.invoke()).thenReturn(flowOf(Result.success(cities)))
-    whenever(getWeatherUseCase.invoke(testCity)).thenReturn(Result.success(testWeather))
+    whenever(getForecastUseCase.invoke(cities)).thenReturn(Result.success(listForecast))
   }
 
   private fun CityFs.toTestCityForTest() = City(

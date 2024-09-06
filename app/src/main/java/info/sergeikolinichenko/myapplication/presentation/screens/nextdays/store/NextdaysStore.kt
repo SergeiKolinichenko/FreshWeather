@@ -1,22 +1,18 @@
 package info.sergeikolinichenko.myapplication.presentation.screens.nextdays.store
 
-import android.util.Log
 import com.arkivanov.mvikotlin.core.store.Reducer
 import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineBootstrapper
 import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineExecutor
-import info.sergeikolinichenko.domain.entity.City
 import info.sergeikolinichenko.domain.usecases.favourite.GetFavouriteCitiesUseCase
-import info.sergeikolinichenko.domain.usecases.weather.GetForecastUseCase
+import info.sergeikolinichenko.domain.usecases.forecast.GetForecastUseCase
 import info.sergeikolinichenko.myapplication.entity.CityFs
 import info.sergeikolinichenko.myapplication.entity.ForecastFs
 import info.sergeikolinichenko.myapplication.presentation.screens.nextdays.store.NextdaysStore.Intent
 import info.sergeikolinichenko.myapplication.presentation.screens.nextdays.store.NextdaysStore.Label
 import info.sergeikolinichenko.myapplication.presentation.screens.nextdays.store.NextdaysStore.State
-import info.sergeikolinichenko.myapplication.utils.mapToForecastScreen
-import info.sergeikolinichenko.myapplication.utils.toCity
-import info.sergeikolinichenko.myapplication.utils.toCityScreen
+import info.sergeikolinichenko.myapplication.utils.mapToCityFs
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -34,13 +30,13 @@ interface NextdaysStore : Store<Intent, State, Label> {
 
   data class State(
     val index: Int,
-    val forecast: ForecastState,
+    val forecastState: ForecastState,
     val citiesState: CitiesState
   ) {
     sealed interface ForecastState {
       data object Initial : ForecastState
       data object Loading : ForecastState
-      data class Loaded(val forecast: ForecastFs) : ForecastState
+      data class Loaded(val forecasts: List<ForecastFs>) : ForecastState
       data object Error : ForecastState
     }
 
@@ -67,12 +63,12 @@ class NextdaysStoreFactory @Inject constructor(
   private val getForecast: GetForecastUseCase,
 ) {
 
-  fun create(id: Int, index: Int, forecast: ForecastFs): NextdaysStore =
+  fun create(id: Int, index: Int, forecasts: List<ForecastFs>): NextdaysStore =
     object : NextdaysStore, Store<Intent, State, Label> by storeFactory.create(
       name = "NextdaysStore",
       initialState = State(
         index = index,
-        forecast = State.ForecastState.Loaded(forecast),
+        forecastState = State.ForecastState.Loaded(forecasts),
         citiesState = State.CitiesState.Initial
       ),
       bootstrapper = BootstrapperImpl(id),
@@ -92,7 +88,7 @@ class NextdaysStoreFactory @Inject constructor(
 
     data class NewCityId(val id: Int) : Message
 
-    data class ForecastLoaded(val forecast: ForecastFs) : Message
+    data class ForecastLoaded(val forecasts: List<ForecastFs>) : Message
     data object ForecastStartLoading : Message
     data class ForecastLoadingFailed(val referrerCode: String) : Message
   }
@@ -108,7 +104,7 @@ class NextdaysStoreFactory @Inject constructor(
           dispatch(
             Action.CitiesLoaded(
               id = id,
-              cities = it.getOrNull()!!.map { city -> city.toCityScreen() })
+              cities = it.getOrNull()!!.map { city -> city.mapToCityFs() })
           )
         }
       }
@@ -123,7 +119,7 @@ class NextdaysStoreFactory @Inject constructor(
 
         is Intent.OnSwipeTop -> {
           if (state().citiesState is State.CitiesState.Loaded &&
-            state().forecast is State.ForecastState.Loaded
+            state().forecastState is State.ForecastState.Loaded
           ) {
             val index = state().index
             if (index > 1) {
@@ -136,10 +132,15 @@ class NextdaysStoreFactory @Inject constructor(
 
         is Intent.OnSwipeBottom -> {
           if (state().citiesState is State.CitiesState.Loaded &&
-            state().forecast is State.ForecastState.Loaded
+            state().forecastState is State.ForecastState.Loaded
           ) {
+
             val index = state().index
-            val days = (state().forecast as State.ForecastState.Loaded).forecast.upcomingDays.size
+            val forecastState = state().forecastState as State.ForecastState.Loaded
+            val citiesState = state().citiesState as State.CitiesState.Loaded
+            val forecast = forecastState.forecasts.first { it.id == citiesState.id }
+            val days = forecast.upcomingDays.size
+
             if (index < days - 1) {
               dispatch(Message.OnDayClicked(index + 1))
             }
@@ -163,10 +164,6 @@ class NextdaysStoreFactory @Inject constructor(
 
               dispatch(Message.NewCityId(id))
               dispatch(Message.ForecastStartLoading)
-
-              val city = citiesState.cities[cityIndex - 1]
-
-              loadForecast(city.toCity())
             }
           }
         }
@@ -181,11 +178,6 @@ class NextdaysStoreFactory @Inject constructor(
               val id = citiesState.cities[cityIndex + 1].id
 
               dispatch(Message.NewCityId(id))
-              dispatch(Message.ForecastStartLoading)
-
-              val city = citiesState.cities[cityIndex + 1]
-
-              loadForecast(city.toCity())
             }
           }
         }
@@ -208,24 +200,6 @@ class NextdaysStoreFactory @Inject constructor(
         Action.CitiesLoadingFailed -> dispatch(Message.CitiesLoadingFailed)
       }
     }
-
-    private fun loadForecast(city: City) {
-      scope.launch {
-
-        // TODO needs to be corrected late ------------------------------------------------------------
-        val cities = listOf(city)
-
-        val result = getForecast(cities)
-        if (result.isSuccess) {
-          val forecast = result.getOrNull()!!
-          dispatch(Message.ForecastLoaded(forecast.first().mapToForecastScreen()))
-        } else {
-          val errorCode = result.exceptionOrNull()!!.message!!
-          dispatch(Message.ForecastLoadingFailed(errorCode))
-        }
-      }
-      // TODO needs to be corrected late ------------------------------------------------------------
-    }
   }
 
   private object ReducerImpl : Reducer<State, Message> {
@@ -242,12 +216,12 @@ class NextdaysStoreFactory @Inject constructor(
         is Message.OnDayClicked -> copy(index = msg.index)
 
         is Message.ForecastLoaded -> {
-          copy(forecast = State.ForecastState.Loaded(msg.forecast))
+          copy(forecastState = State.ForecastState.Loaded(msg.forecasts))
         }
 
-        is Message.ForecastLoadingFailed -> copy(forecast = State.ForecastState.Error)
+        is Message.ForecastLoadingFailed -> copy(forecastState = State.ForecastState.Error)
 
-        Message.ForecastStartLoading -> copy(forecast = State.ForecastState.Loading)
+        Message.ForecastStartLoading -> copy(forecastState = State.ForecastState.Loading)
 
         is Message.NewCityId -> {
           val cities = citiesState as State.CitiesState.Loaded

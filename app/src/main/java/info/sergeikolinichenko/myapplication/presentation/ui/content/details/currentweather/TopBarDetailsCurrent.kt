@@ -49,7 +49,7 @@ internal fun TopBar(
     if (state.citiesState is DetailsStore.State.CitiesState.Loaded) {
 
 
-      if (state.forecastState is DetailsStore.State.ForecastState.Loaded) {
+      if (state.forecastState is DetailsStore.State.ForecastsState.Loaded) {
         Row(
           modifier = modifier.align(Alignment.Center),
           horizontalArrangement = Arrangement.spacedBy(4.dp),
