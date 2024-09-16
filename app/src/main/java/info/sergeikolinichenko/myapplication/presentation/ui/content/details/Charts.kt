@@ -205,12 +205,12 @@ private fun Chart(
   val textStyle = MaterialTheme.typography.labelMedium
 
   val listOfIcon = if (chartState.displayedItem == Displayed.UV_INDEX) {
-    list.map { resizeBitmapImage(it.icon.toIconId(), LocalContext.current) }
+    list.map { resizeBitmapImage(it.icon.toIconId(), LocalContext.current, 90) }
   } else null
 
   val icon = when (chartState.displayedItem) {
     Displayed.HUMIDITY -> resizeBitmapImage(R.mipmap.ic_chart_humidity, LocalContext.current)
-    Displayed.PRESSURE -> resizeBitmapImage(R.mipmap.ic_barometer, LocalContext.current)
+    Displayed.PRESSURE -> resizeBitmapImage(R.mipmap.ic_barometer, LocalContext.current, 65)
     else -> null
   }
 
@@ -529,7 +529,7 @@ private fun DrawScope.drawImage(
         image = img,
         topLeft = androidx.compose.ui.geometry.Offset(
           x = offsetX,
-          y = size.height - (pxPerPoint * value) - 30.dp.toPx() - footer,
+          y = size.height - (pxPerPoint * value) - 35.dp.toPx() - footer,
         ),
       )
     }
@@ -628,13 +628,13 @@ private fun rememberChartState(list: List<ChartsHourlyScreenValues>): MutableSta
   return rememberSaveable { mutableStateOf(ChartsState(list = list)) }
 }
 
-private fun resizeBitmapImage(imageId: Int, context: Context): ImageBitmap {
+private fun resizeBitmapImage(imageId: Int, context: Context, size: Int = 75): ImageBitmap {
   val source = BitmapFactory.decodeResource(
     context.resources,
     imageId
   ).copy(Bitmap.Config.ARGB_8888, true)
   val aspect = source.width / source.height.toFloat()
-  val required = 75.dp.value.toInt()
+  val required = size.dp.value.toInt()
   val result =
     Bitmap.createScaledBitmap(source, required, required / aspect.roundToInt(), false)
   return result.asImageBitmap()
@@ -646,17 +646,3 @@ private fun getDisplayedValue(item: ChartsHourlyScreenValues, chartsState: Chart
     Displayed.HUMIDITY -> item.humidity - chartsState.min
     Displayed.PRESSURE -> item.pressureFloat - chartsState.min
   }
-
-private fun ForecastFs.getSublistForecastHourly(): List<HourForecastFs> {
-
-  val now = LocalDateTime.now(ZoneId.of(this.tzId))
-
-  return this.upcomingHours.filter { item ->
-
-    val itemHour = LocalDateTime.ofInstant(
-      Instant.ofEpochSecond(item.date),
-      ZoneId.of(this.tzId)
-    )
-    itemHour > now.minusHours(2) && itemHour < now.plusHours(MAXIMUM_HOURS_CHART)
-  }
-}

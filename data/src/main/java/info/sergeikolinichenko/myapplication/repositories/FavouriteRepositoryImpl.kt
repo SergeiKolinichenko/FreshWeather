@@ -5,26 +5,27 @@ import com.google.gson.Gson
 import info.sergeikolinichenko.domain.entity.City
 import info.sergeikolinichenko.domain.repositories.FavouriteRepository
 import info.sergeikolinichenko.myapplication.local.db.FreshWeatherDao
-import info.sergeikolinichenko.myapplication.mappers.toCityDbModel
-import info.sergeikolinichenko.myapplication.mappers.toListFavouriteCities
+import info.sergeikolinichenko.myapplication.mappers.mapCityToDbModel
+import info.sergeikolinichenko.myapplication.mappers.mapListDbModelsToListCities
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class FavouriteRepositoryImpl @Inject constructor(
-  private val freshWeatherDao: FreshWeatherDao,
+  private val dao: FreshWeatherDao,
   private val preferences: SharedPreferences
 ) : FavouriteRepository {
 
-  override val getFavouriteCities: Flow<Result<List<City>>>
-    get() = freshWeatherDao.getAllCities().map { list ->
+  override val getFavouriteCities: Flow<Result<List<City>>> get() =
+
+    dao.getAllCities().map { list ->
       if (list.isEmpty()) {
         Result.failure(RuntimeException(ERROR_NO_CITIES_LIST))
       } else {
 
         val orderMap = getOrderCitiesViewed()?.withIndex()?.associate { it.value to it.index }
 
-        Result.success(list.toListFavouriteCities()
+        Result.success(list.mapListDbModelsToListCities()
           .sortedBy { item ->
             orderMap?.get(item.id)
           }
@@ -33,12 +34,12 @@ class FavouriteRepositoryImpl @Inject constructor(
     }
 
   override suspend fun setToFavourite(city: City) {
-    val cityDbModel = city.toCityDbModel()
-    freshWeatherDao.addCity(cityDbModel)
+    val cityDbModel = city.mapCityToDbModel()
+    dao.addCity(cityDbModel)
   }
 
   override suspend fun removeFromFavourite(id: Int) {
-    freshWeatherDao.removeCityById(id)
+    dao.removeCityById(id)
   }
 
 

@@ -10,7 +10,8 @@ import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineBootstrapper
 import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineExecutor
 import info.sergeikolinichenko.domain.entity.City
 import info.sergeikolinichenko.domain.usecases.favourite.GetFavouriteCitiesUseCase
-import info.sergeikolinichenko.domain.usecases.forecast.GetForecastUseCase
+import info.sergeikolinichenko.domain.usecases.forecast.ActWithForecastInDbUseCase
+import info.sergeikolinichenko.domain.usecases.forecast.GetForecastsFromNetUseCase
 import info.sergeikolinichenko.myapplication.entity.CityFs
 import info.sergeikolinichenko.myapplication.entity.ForecastFs
 import info.sergeikolinichenko.myapplication.presentation.screens.details.store.DetailsStore.Intent
@@ -19,8 +20,8 @@ import info.sergeikolinichenko.myapplication.presentation.screens.details.store.
 import info.sergeikolinichenko.myapplication.utils.DURATION_OF_FORECAST_LIFE_MINUTES
 import info.sergeikolinichenko.myapplication.utils.getMinutesDifferenceFromNow
 import info.sergeikolinichenko.myapplication.utils.mapToForecastScreenList
-import info.sergeikolinichenko.myapplication.utils.mapToCityFs
-import info.sergeikolinichenko.myapplication.utils.toCityList
+import info.sergeikolinichenko.myapplication.utils.mapCityToCityFs
+import info.sergeikolinichenko.myapplication.utils.mapCityFsListToCityList
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -41,6 +42,7 @@ interface DetailsStore : Store<Intent, State, Label> {
   ) {
 
     sealed interface ForecastsState {
+      data object Initial : ForecastsState
       data object Loading : ForecastsState
       data class Loaded(val forecasts: List<ForecastFs>) : ForecastsState
       data object Failed : ForecastsState
@@ -62,16 +64,17 @@ interface DetailsStore : Store<Intent, State, Label> {
 
 class DetailsStoreFactory @Inject constructor(
   private val storeFactory: StoreFactory,
-  private val getForecast: GetForecastUseCase,
-  private val getFavouriteCities: GetFavouriteCitiesUseCase
+  private val getForecast: GetForecastsFromNetUseCase,
+  private val getFavouriteCities: GetFavouriteCitiesUseCase,
+  private val actWithForecastInDb: ActWithForecastInDbUseCase
 ) {
 
-  fun create(id: Int, forecasts: List<ForecastFs>): DetailsStore =
+  fun create(id: Int): DetailsStore =
     object : DetailsStore, Store<Intent, State, Label> by storeFactory.create(
       name = "DetailsStore",
       initialState = State(
         citiesState = State.CitiesState.Initial,
-        forecastState = State.ForecastsState.Loaded(forecasts = forecasts)
+        forecastState = State.ForecastsState.Initial
       ),
       bootstrapper = BootstrapperImpl(id),
       executorFactory = ::ExecutorImpl,
@@ -108,7 +111,7 @@ class DetailsStoreFactory @Inject constructor(
               dispatch(
                 Action.CitiesLoaded(
                   id = id,
-                  cities = it.getOrNull()!!.map { city -> city.mapToCityFs() })
+                  cities = it.getOrNull()!!.map { city -> city.mapCityToCityFs() })
               )
             }
 
@@ -146,12 +149,12 @@ class DetailsStoreFactory @Inject constructor(
         Intent.OnSettingsClicked -> publish(Label.OnSettingsClicked)
 
         Intent.ReloadWeather -> {
+
           if (state().citiesState is State.CitiesState.Loaded) {
 
             val citiesState = state().citiesState as State.CitiesState.Loaded
-
             scope.launch {
-              loadForecast(citiesState.cities.toCityList())
+              loadForecastFromNet(citiesState.cities.mapCityFsListToCityList())
             }
           }
         }
@@ -204,19 +207,42 @@ class DetailsStoreFactory @Inject constructor(
 
           dispatch(Message.CitiesLoaded(id = action.id, cities = action.cities))
 
-          if (state().forecastState is State.ForecastsState.Loaded) {
+          val citiesState = state().citiesState as State.CitiesState.Loaded
 
-            val forecasts = (state().forecastState as State.ForecastsState.Loaded).forecasts
-            val forecast = forecasts.find { it.id == action.id } ?: forecasts.first()
+          if (state().forecastState is State.ForecastsState.Initial) {
 
-            val minuteDifference =
-              getMinutesDifferenceFromNow(forecast.currentForecast.date, forecast.tzId)
+            scope.launch {
 
-            if (minuteDifference > DURATION_OF_FORECAST_LIFE_MINUTES) {
-              scope.launch {
-                loadForecast(action.cities.toCityList())
+              actWithForecastInDb.getForecastsFromDb().collect{
+
+                if (it.isSuccess) {
+
+                  it.getOrNull()?.let { forecasts ->
+
+                      val forecast = forecasts.first { it.id == citiesState.id }
+
+                    val minuteDifference =
+                      getMinutesDifferenceFromNow( forecast.currentForecast.date, forecast.tzId)
+
+                    if (minuteDifference > DURATION_OF_FORECAST_LIFE_MINUTES) {
+                      scope.launch {
+                        loadForecastFromNet(action.cities.mapCityFsListToCityList())
+                      }
+                    } else {
+                      dispatch(Message.ForecastLoaded(forecasts.mapToForecastScreenList()))
+                    }
+                  }
+                }
+
               }
+
+
             }
+
+
+
+
+
           }
         }
 
@@ -224,7 +250,7 @@ class DetailsStoreFactory @Inject constructor(
       }
     }
 
-    private suspend fun loadForecast(cities: List<City>) {
+    private suspend fun loadForecastFromNet(cities: List<City>) {
 
       dispatch(Message.ForecastStartLoading)
 
@@ -233,15 +259,13 @@ class DetailsStoreFactory @Inject constructor(
       when {
         result.isSuccess -> {
           val forecast = result.getOrNull()!!
-          dispatch(Message.ForecastLoaded(forecast.mapToForecastScreenList()))
+          actWithForecastInDb.insertForecastToDb(forecast)
         }
-
         result.isFailure -> {
           val errorCode = result.exceptionOrNull()!!.message!!
           dispatch(Message.ForecastLoadingFailed(errorCode))
         }
       }
-
     }
   }
 

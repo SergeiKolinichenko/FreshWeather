@@ -11,15 +11,22 @@ import retrofit2.http.Query
 
 interface ApiService {
 
-  @GET("search.json")
+  @GET("search")
   suspend fun searchCities(
     @Query("q") query: String,
+    @Query("format") format: String = "json",
+    @Query("addressdetails") addressDetails: Int = 1,
+    @Query("limit") limit: Int = LIMIT_ON_THE_NUMBER_OF_LOCATIONS_FOUND,
   ): Response<List<CityDto>>
 
-  @GET("{location}/next{days}days?unitGroup=metric&iconSet=icons2&elements=datetime,datetimeEpoch,name,address,resolvedAddress,latitude,longitude,tempmax,tempmin,temp,feelslike,humidity,precip,precipprob,preciptype,windspeed,winddir,pressure,uvindex,moonphase,sunriseEpoch,sunsetEpoch,moonriseEpoch,moonsetEpoch,conditions,description,icon,cloudcover&include=current,days,hours,fcst")
+  @GET("{location}/next{days}days?unitGroup=metric&iconSet=icons2&elements=datetime,datetimeEpoch,name,cityAddressDto,resolvedAddress,latitude,longitude,tempmax,tempmin,temp,feelslike,humidity,precip,precipprob,preciptype,windspeed,winddir,pressure,uvindex,moonphase,sunriseEpoch,sunsetEpoch,moonriseEpoch,moonsetEpoch,conditions,description,icon,cloudcover&include=current,days,hours,fcst")
   suspend fun getCurrentWeather(
     @Path("location") location: String,
     @Path("days") days: String,
   ): Response<ForecastDto>
+
+  companion object {
+    private const val LIMIT_ON_THE_NUMBER_OF_LOCATIONS_FOUND = 10
+  }
 
 }

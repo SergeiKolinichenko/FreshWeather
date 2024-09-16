@@ -34,12 +34,11 @@ class DefaultDetailsComponent @AssistedInject constructor(
   @Assisted("onClickedSettings") private val onClickedSettings: (sourceOfOpening: SourceOfOpening) -> Unit,
   @Assisted("OnDayClicked") private val onClickedDay: (Int, Int, List<ForecastFs>) -> Unit,
   @Assisted("id") private val id: Int,
-  @Assisted("forecasts") forecasts: List<ForecastFs>,
   @Assisted("componentContext") private val componentContext: ComponentContext,
   private val storeFactory: DetailsStoreFactory
 ) : DetailsComponent, ComponentContext by componentContext {
 
-  private val store = instanceKeeper.getStore { storeFactory.create(id = id, forecasts = forecasts) }
+  private val store = instanceKeeper.getStore { storeFactory.create(id = id) }
   private val scope = componentScope()
 
   init {
@@ -82,7 +81,6 @@ class DefaultDetailsComponent @AssistedInject constructor(
   interface Factory {
     fun create(
       @Assisted("id") id: Int,
-      @Assisted("forecasts") forecasts: List<ForecastFs>,
       @Assisted("onBackClicked") onClickedBack: () -> Unit,
       @Assisted("onClickedSettings") onClickedSettings: (sourceOfOpening: SourceOfOpening) -> Unit,
       @Assisted("OnDayClicked") onClickedDay: (Int, Int, List<ForecastFs>) -> Unit,

@@ -7,8 +7,10 @@ import androidx.compose.ui.graphics.Color
 const val TITLE_ICON_SIZE_16 = 16
 const val SYS_ICON_SIZE_24 = 24
 const val WEATHER_ICON_SIZE_36 = 36
+// the duration in minutes after which the weather forecast is updated
 const val DURATION_OF_FORECAST_LIFE_MINUTES = 60
 
+// gradient use in details an nextdays screens
 internal object LinearGradient {
   val gradientUvIndex = arrayOf(
     0.0f to Color(0xFF44D04B),
@@ -17,6 +19,7 @@ internal object LinearGradient {
     1.0f to Color(0xFFD152DA)
   )
 
+  // all gradients bellow use in chart of details screen and nextdays screens
   val gradientUvIndexChart = listOf(
     Color(0xFFEF7C00),
     Color(0xFFD9D9D9)

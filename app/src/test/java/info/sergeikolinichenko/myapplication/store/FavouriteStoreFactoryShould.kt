@@ -5,7 +5,7 @@ import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
 import info.sergeikolinichenko.domain.entity.City
 import info.sergeikolinichenko.domain.usecases.favourite.ChangeFavouriteStateUseCase
 import info.sergeikolinichenko.domain.usecases.favourite.GetFavouriteCitiesUseCase
-import info.sergeikolinichenko.domain.usecases.forecast.GetForecastUseCase
+import info.sergeikolinichenko.domain.usecases.forecast.GetForecastsFromNetUseCase
 import info.sergeikolinichenko.domain.usecases.search.SearchCitiesUseCase
 import info.sergeikolinichenko.myapplication.entity.CityFs
 import info.sergeikolinichenko.myapplication.presentation.screens.favourite.store.FavouriteStore
@@ -32,7 +32,7 @@ class FavouriteStoreFactoryShould : BaseUnitTestsRules() {
 
   // region constants
   private val factory = DefaultStoreFactory()
-  private val getForecastUseCase = mock<GetForecastUseCase>()
+  private val getForecastsFromNetUseCase = mock<GetForecastsFromNetUseCase>()
   private val getFavouriteCitiesUseCase = mock<GetFavouriteCitiesUseCase>()
   private val changeFavouriteStateUseCase = mock<ChangeFavouriteStateUseCase>()
   private val searchCitiesUseCase = mock<SearchCitiesUseCase>()
@@ -46,7 +46,7 @@ class FavouriteStoreFactoryShould : BaseUnitTestsRules() {
     getFavouriteCitiesUseCase,
     changeFavouriteStateUseCase,
     searchCitiesUseCase,
-    getForecastUseCase
+    getForecastsFromNetUseCase
   )
 
   @Test
@@ -104,7 +104,7 @@ class FavouriteStoreFactoryShould : BaseUnitTestsRules() {
       // Act
       SUT.create()
       // Assert
-      verify(getForecastUseCase, times(1)).invoke(cities)
+      verify(getForecastsFromNetUseCase, times(1)).invoke(cities)
     }
 
   @Test
@@ -112,7 +112,7 @@ class FavouriteStoreFactoryShould : BaseUnitTestsRules() {
     runTest {
       // Arrange
       whenever(getFavouriteCitiesUseCase.invoke()).thenReturn(flowOf(Result.success(cities)))
-      whenever(getForecastUseCase.invoke(cities)).thenReturn(Result.failure(exception))
+      whenever(getForecastsFromNetUseCase.invoke(cities)).thenReturn(Result.failure(exception))
       // Act
       val store = SUT.create()
       val testField = store.state.forecastState
@@ -265,7 +265,7 @@ class FavouriteStoreFactoryShould : BaseUnitTestsRules() {
 
   private suspend fun mockSuccessResult() {
     whenever(getFavouriteCitiesUseCase.invoke()).thenReturn(flowOf(Result.success(cities)))
-    whenever(getForecastUseCase.invoke(cities)).thenReturn(Result.success(listForecast))
+    whenever(getForecastsFromNetUseCase.invoke(cities)).thenReturn(Result.success(listForecast))
   }
 
   private fun CityFs.toTestCityForTest() = City(

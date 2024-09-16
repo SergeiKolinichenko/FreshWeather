@@ -6,10 +6,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Card
@@ -36,12 +36,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import info.sergeikolinichenko.myapplication.R
+import info.sergeikolinichenko.myapplication.presentation.ui.content.details.nextdaysforecast.LAST_ITEM_IN_THE_LIST
 import info.sergeikolinichenko.myapplication.utils.ResponsiveText
 import info.sergeikolinichenko.myapplication.utils.TITLE_ICON_SIZE_16
 import info.sergeikolinichenko.myapplication.utils.WEATHER_ICON_SIZE_36
 import info.sergeikolinichenko.myapplication.utils.durationBetweenTwoTimes
+import info.sergeikolinichenko.myapplication.utils.getDayAndShotMonthName
 import info.sergeikolinichenko.myapplication.utils.getTime
-import info.sergeikolinichenko.myapplication.utils.isTodayOrTomorrow
+import info.sergeikolinichenko.myapplication.utils.getWhatDayItIs
+import info.sergeikolinichenko.myapplication.utils.thisIsToday
 import info.sergeikolinichenko.myapplication.utils.toPhaseOfMoonStringId
 
 /** Created by Sergei Kolinichenko on 26.07.2024 at 10:15 (GMT+3) **/
@@ -58,20 +61,27 @@ internal fun SunAndMoon(
 ) {
 
   val timeSunrise = getTime(sunrise, tzId)
-
   val timeSunset = getTime(sunset, tzId)
-
   val timeMoonrise = getTime(moonrise, tzId)
-
-  val timeMoonset = getTime(moonset, tzId)
+  val timeMoonset = if (moonset == LAST_ITEM_IN_THE_LIST) "" else getTime(moonset, tzId)
   val sunInSky = durationBetweenTwoTimes(sunrise, sunset, LocalContext.current)
-
   val moonInSky = durationBetweenTwoTimes(moonrise, moonset, LocalContext.current)
+  val sunGradient = listOf(Color(0xFFFBD645), Color.Transparent)
+  val moonGradient = listOf(Color.White, Color.Transparent)
+  val ifThisIsToday = thisIsToday( sunrise, tzId)
+  val titleSunrise = if (ifThisIsToday) getWhatDayItIs(sunrise, tzId, LocalContext.current)
+    else getDayAndShotMonthName(sunrise, tzId)
+  val titleSunset = if (ifThisIsToday) getWhatDayItIs(sunset, tzId, LocalContext.current)
+    else getDayAndShotMonthName(sunset, tzId)
+  val titleMoonrise = if (ifThisIsToday) getWhatDayItIs(moonrise, tzId, LocalContext.current)
+    else getDayAndShotMonthName(moonrise, tzId)
+  val titleMoonset = if (moonset == LAST_ITEM_IN_THE_LIST) ""
+  else getWhatDayItIs(moonset, tzId, LocalContext.current)
 
   Card(
     modifier = modifier
       .fillMaxWidth()
-      .height(270.dp),
+      .heightIn(min = 136.dp),
     colors = CardDefaults.cardColors(
       containerColor = MaterialTheme.colorScheme.surface
     )
@@ -107,9 +117,6 @@ internal fun SunAndMoon(
         verticalAlignment = Alignment.CenterVertically
       ) {
 
-        val sunGradient = listOf(Color(0xFFFBD645), Color.Transparent)
-        val moonGradient = listOf(Color.White, Color.Transparent)
-
         Item(
           modifier = Modifier,
           gradient = sunGradient,
@@ -119,8 +126,8 @@ internal fun SunAndMoon(
           set = timeSunset,
           riseIcon = R.drawable.sunrise,
           setIcon = R.drawable.sunset,
-          tittleRise = stringResource(R.string.details_content_tittle_sun_moon_block_today),
-          tittleSet = stringResource(R.string.details_content_tittle_sun_moon_block_today)
+          tittleRise = titleSunrise,
+          tittleSet = titleSunset
         )
         Item(
           modifier = Modifier,
@@ -131,8 +138,8 @@ internal fun SunAndMoon(
           set = timeMoonset,
           riseIcon = R.drawable.moonrise,
           setIcon = R.drawable.moonset,
-          tittleRise = stringResource(isTodayOrTomorrow(moonset, tzId)),
-          tittleSet = stringResource(R.string.details_content_tittle_sun_moon_block_tomorrow)
+          tittleRise = titleMoonrise,
+          tittleSet = titleMoonset
         )
       }
     }
@@ -144,55 +151,39 @@ internal fun SunAndMoon(
         .background(MaterialTheme.colorScheme.surfaceBright)
     )
 
-      Row(
-        modifier = Modifier
-          .fillMaxWidth()
-          .padding(16.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalAlignment = Alignment.CenterVertically
-      ) {
+    Row(
+      modifier = Modifier
+        .fillMaxSize()
+        .padding(8.dp),
+      horizontalArrangement = Arrangement.spacedBy(12.dp),
+      verticalAlignment = Alignment.CenterVertically
+    ) {
 
-        Box(
+      Box(
+        modifier = Modifier
+          .size(32.dp)
+          .clip(shape = MaterialTheme.shapes.small)
+          .background(MaterialTheme.colorScheme.surfaceBright)
+      )
+      {
+        Icon(
           modifier = Modifier
-            .size(32.dp)
-            .clip(shape = MaterialTheme.shapes.small)
-            .background(MaterialTheme.colorScheme.surfaceBright)
+            .size(TITLE_ICON_SIZE_16.dp)
+            .align(Alignment.Center),
+          imageVector = ImageVector.vectorResource(id = R.drawable.moon_phases),
+          tint = Color.Unspecified,
+          contentDescription = null
         )
-        {
-          Icon(
-            modifier = Modifier
-              .size(TITLE_ICON_SIZE_16.dp)
-              .align(Alignment.Center),
-            imageVector = ImageVector.vectorResource(id = R.drawable.moon_phases),
-            tint = Color.Unspecified,
-            contentDescription = null
-          )
-        }
-        Column(
-          modifier = Modifier
-            .fillMaxHeight(),
-          horizontalAlignment = Alignment.Start,
-          verticalArrangement = Arrangement.SpaceAround
-        ) {
-          Text(
-            text = stringResource(id = moonPhase.toPhaseOfMoonStringId()),
-            fontWeight = FontWeight.Normal,
-            fontSize = 14.sp,
-            lineHeight = 16.sp,
-            textAlign = TextAlign.Start,
-            color = MaterialTheme.colorScheme.onBackground,
-          )
-          Text(
-            text = stringResource(R.string.details_content_tittle_sun_moon_block_tomorrow),
-            fontFamily = FontFamily.SansSerif,
-            fontWeight = FontWeight.Normal,
-            fontSize = 10.sp,
-            textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.secondary,
-            lineHeight = 12.sp
-          )
-        }
       }
+      Text(
+        modifier = Modifier,
+        text = stringResource(id = moonPhase.toPhaseOfMoonStringId()),
+        fontWeight = FontWeight.Normal,
+        fontSize = 18.sp,
+        textAlign = TextAlign.Start,
+        color = MaterialTheme.colorScheme.onBackground,
+      )
+    }
   }
 }
 

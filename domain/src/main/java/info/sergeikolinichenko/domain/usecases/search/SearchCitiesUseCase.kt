@@ -9,5 +9,5 @@ import javax.inject.Inject
 class SearchCitiesUseCase @Inject constructor(
   private val repository: SearchRepository
 ){
-  suspend operator fun invoke(query: String) = repository.searchCities(query)
+  suspend operator fun <T> invoke(query: String): List<T> = repository.searchCities(query)
 }

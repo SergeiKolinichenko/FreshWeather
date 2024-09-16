@@ -57,12 +57,7 @@ class DefaultRootComponent @AssistedInject constructor(
         onClickItemMenuEditing = { cities ->
           navigation.push(Config.Editing(cities))
         },
-        onItemClick = { id, forecasts ->
-          navigation.push(Config.Details(
-            id = id,
-            forecasts = forecasts
-          ))
-        }
+        onItemClick = { navigation.push(Config.Details(id = it)) }
       )
       RootComponent.Child.Favourite(component)
     }
@@ -71,7 +66,6 @@ class DefaultRootComponent @AssistedInject constructor(
       val component = detailsComponentFactory.create(
         componentContext = componentContext,
         id = config.id,
-        forecasts = config.forecasts,
         onClickedBack = { navigation.pop() },
         onClickedSettings = { navigation.push(Config.Settings(sourceOfOpening = SourceOfOpening.OpenFromDetails)) },
         onClickedDay = { id, index, forecasts ->
@@ -147,7 +141,7 @@ class DefaultRootComponent @AssistedInject constructor(
     data object Favourite : Config
 
     @Parcelize
-    data class Details(val id: Int, val forecasts: List<ForecastFs>) : Config
+    data class Details(val id: Int) : Config
 
     @Parcelize
     data class Nextdays(val id: Int, val index: Int, val forecasts: List<ForecastFs>) : Config

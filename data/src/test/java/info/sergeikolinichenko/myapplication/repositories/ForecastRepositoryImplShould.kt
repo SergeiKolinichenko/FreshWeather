@@ -66,7 +66,7 @@ class ForecastRepositoryImplShould {
       .thenReturn(7)
 
     val cities = listOf(testCity)
-    val result = mockRepository.getForecast(cities)
+    val result = mockRepository.getForecastsFromNet(cities)
 
     assertEquals(true, result.isSuccess)
     assertEquals(expectedForecast, result.getOrNull()?.first())
@@ -87,7 +87,7 @@ class ForecastRepositoryImplShould {
       .thenReturn(7)
 
     val cities = listOf(testCity)
-    val result = mockRepository.getForecast(cities)
+    val result = mockRepository.getForecastsFromNet(cities)
 
     assertEquals(true, result.isFailure)
     assertEquals("400", (result.exceptionOrNull() as Exception).message)

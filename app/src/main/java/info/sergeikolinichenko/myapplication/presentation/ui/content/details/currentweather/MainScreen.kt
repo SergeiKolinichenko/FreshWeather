@@ -177,7 +177,7 @@ internal fun MainScreen(
           sunrise = forecast.upcomingDays.first().sunrise,
           sunset = forecast.upcomingDays.first().sunset,
           moonrise = forecast.upcomingDays.first().moonrise,
-          moonset = forecast.upcomingDays.first().moonset,
+          moonset = forecast.upcomingDays[1].moonset,
           moonPhase = forecast.upcomingDays.first().moonPhase,
           tzId = forecast.tzId
         )

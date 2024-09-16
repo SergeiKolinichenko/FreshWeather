@@ -14,7 +14,7 @@ class CityDbModelMapperShould {
   fun `map CityDbModel to City`() {
     // Arrange
     // Act
-    val city = testCityDbModel.toCity()
+    val city = testCityDbModel.mapDbModelToCity()
     // Assert
     assertEquals(testCityDbModel.id, city.id)
     assertEquals(testCityDbModel.name, city.name)
@@ -26,7 +26,7 @@ class CityDbModelMapperShould {
     // Arrange
     val city = testCityDbModel.toCityTest()
     // Act
-    val cityDbModel = city.toCityDbModel()
+    val cityDbModel = city.mapCityToDbModel()
     // Assert
     assertEquals(city.id, cityDbModel.id)
     assertEquals(city.name, cityDbModel.name)
@@ -38,7 +38,7 @@ class CityDbModelMapperShould {
     // Arrange
     val cityDbModelList = listOf(testCityDbModel)
     // Act
-    val favouriteCities = cityDbModelList.toListFavouriteCities()
+    val favouriteCities = cityDbModelList.mapListDbModelsToListCities()
     // Assert
     assertEquals(cityDbModelList.first().id, favouriteCities.first().id)
     assertEquals(cityDbModelList.first().name, favouriteCities.first().name)

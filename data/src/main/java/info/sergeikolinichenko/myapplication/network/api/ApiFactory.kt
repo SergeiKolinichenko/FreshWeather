@@ -14,9 +14,10 @@ object ApiFactory {
 
   private const val BASE_URL_VIS =
     "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/"
-  private const val BASE_URL_WEATHERAPI = "https://api.weatherapi.com/v1/"
+  private const val BASE_URL_OSM = "https://nominatim.openstreetmap.org/"
   private const val PARAM_KEY = "key"
   private const val PARAM_LANG = "lang"
+  private const val PARAM_ACCEPT_LANG = "accept-language"
 
   // for UI test so created at Mockoon
   private const val TEST_BASE_URL = "http://10.0.2.2:3000/"
@@ -26,6 +27,21 @@ object ApiFactory {
   init {
     logging.level = HttpLoggingInterceptor.Level.BODY
   }
+
+  private val okHttpClientOsm = OkHttpClient.Builder()
+    .addInterceptor(logging)
+    .addInterceptor { chain ->
+      val originalRequest = chain.request()
+      val originalHttpUrl = originalRequest.url
+      val url = originalHttpUrl.newBuilder()
+        .addQueryParameter(PARAM_ACCEPT_LANG, Locale.getDefault().language)
+        .build()
+      val desiredRequest = originalRequest.newBuilder()
+        .url(url)
+        .build()
+      chain.proceed(desiredRequest)
+    }
+    .build()
 
   private val okHttpClientVis = OkHttpClient.Builder()
     .addInterceptor(logging)
@@ -43,21 +59,12 @@ object ApiFactory {
     }
     .build()
 
-  private val okHttpClientWeatherApi = OkHttpClient.Builder()
-    .addInterceptor(logging)
-    .addInterceptor { chain ->
-      val originalRequest = chain.request()
-      val originalHttpUrl = originalRequest.url
-      val url = originalHttpUrl.newBuilder()
-        .addQueryParameter(PARAM_KEY, BuildConfig.API_KEY_WEATHERAPI)
-        .addQueryParameter(PARAM_LANG, Locale.getDefault().language)
-        .build()
-      val desiredRequest = originalRequest.newBuilder()
-        .url(url)
-        .build()
-      chain.proceed(desiredRequest)
-    }
+  var apiServiceOpenStreetMap = Retrofit.Builder()
+    .baseUrl(BASE_URL_OSM)
+    .addConverterFactory(GsonConverterFactory.create())
+    .client(okHttpClientOsm)
     .build()
+    .create<ApiService>()
 
   var apiServiceForVisualcrossing = Retrofit.Builder()
     .baseUrl(BASE_URL_VIS)
@@ -65,12 +72,4 @@ object ApiFactory {
     .client(okHttpClientVis)
     .build()
     .create<ApiService>()
-
-  var apiServiceForWeatherapi = Retrofit.Builder()
-    .baseUrl(BASE_URL_WEATHERAPI)
-    .addConverterFactory(GsonConverterFactory.create())
-    .client(okHttpClientWeatherApi)
-    .build()
-    .create<ApiService>()
-
 }

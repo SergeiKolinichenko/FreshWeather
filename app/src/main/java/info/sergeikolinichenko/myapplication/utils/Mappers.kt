@@ -10,10 +10,20 @@ import info.sergeikolinichenko.myapplication.entity.CurrentForecastFs
 import info.sergeikolinichenko.myapplication.entity.DayForecastFs
 import info.sergeikolinichenko.myapplication.entity.ForecastFs
 import info.sergeikolinichenko.myapplication.entity.HourForecastFs
+import info.sergeikolinichenko.myapplication.network.dto.CityDto
 
 /** Created by Sergei Kolinichenko on 11.08.2024 at 17:33 (GMT+3) **/
 
-internal fun City.mapToCityFs() = CityFs(
+internal fun CityDto.mapDtoToCity() = City(
+  id = id,
+  name = placeAddress.city?: placeAddress.town?: placeAddress.village?: "",
+  country = placeAddress.country,
+  region = placeAddress.state?: "",
+  lat = lat.toDouble(),
+  lon = lon.toDouble()
+)
+
+internal fun City.mapCityToCityFs() = CityFs(
   id = id,
   name = name,
   region = region,
@@ -22,9 +32,9 @@ internal fun City.mapToCityFs() = CityFs(
   lon = lon
 )
 
-internal fun List<City>.mapToCityFsList() = map { it.mapToCityFs() }
+internal fun List<City>.mapCityListToCityFsList() = map { it.mapCityToCityFs() }
 
-internal fun CityFs.toCity() = City(
+internal fun CityFs.mapCityFaToCity() = City(
   id = id,
   name = name,
   region = region,
@@ -33,7 +43,7 @@ internal fun CityFs.toCity() = City(
   lon = lon
 )
 
-internal fun List<CityFs>.toCityList() = map { it.toCity() }
+internal fun List<CityFs>.mapCityFsListToCityList() = map { it.mapCityFaToCity() }
 
 internal fun Forecast.mapToForecastScreen() = ForecastFs(
   id = id,

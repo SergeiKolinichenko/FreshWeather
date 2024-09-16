@@ -1,5 +1,6 @@
 package info.sergeikolinichenko.myapplication.presentation.screens.favourite.store
 
+import android.util.Log
 import com.arkivanov.mvikotlin.core.store.Reducer
 import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.core.store.StoreFactory
@@ -9,24 +10,28 @@ import info.sergeikolinichenko.domain.entity.City
 import info.sergeikolinichenko.domain.entity.Forecast
 import info.sergeikolinichenko.domain.usecases.favourite.ChangeFavouriteStateUseCase
 import info.sergeikolinichenko.domain.usecases.favourite.GetFavouriteCitiesUseCase
-import info.sergeikolinichenko.domain.usecases.forecast.GetForecastUseCase
+import info.sergeikolinichenko.domain.usecases.forecast.ActWithForecastInDbUseCase
+import info.sergeikolinichenko.domain.usecases.forecast.GetForecastsFromNetUseCase
 import info.sergeikolinichenko.domain.usecases.search.SearchCitiesUseCase
+import info.sergeikolinichenko.myapplication.network.dto.CityDto
 import info.sergeikolinichenko.myapplication.presentation.screens.editing.store.EditingStore
 import info.sergeikolinichenko.myapplication.utils.DURATION_OF_FORECAST_LIFE_MINUTES
 import info.sergeikolinichenko.myapplication.utils.getMinutesDifferenceFromNow
-import info.sergeikolinichenko.myapplication.utils.mapToCityFsList
+import info.sergeikolinichenko.myapplication.utils.mapCityListToCityFsList
 import info.sergeikolinichenko.myapplication.utils.mapToForecastScreenList
-import info.sergeikolinichenko.myapplication.utils.toCityList
+import info.sergeikolinichenko.myapplication.utils.mapCityFsListToCityList
+import info.sergeikolinichenko.myapplication.utils.mapDtoToCity
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /** Created by Sergei Kolinichenko on 02.07.2024 at 19:07 (GMT+3) **/
 class FavouriteStoreFactory @Inject constructor(
   private val storeFactory: StoreFactory,
-  private val getFavouriteCities: GetFavouriteCitiesUseCase,
-  private val changeFavouriteStateUseCase: ChangeFavouriteStateUseCase,
-  private val searchCities: SearchCitiesUseCase,
-  private val getForecast: GetForecastUseCase
+  private val getFavouriteCitiesFromDb: GetFavouriteCitiesUseCase,
+  private val changeFavouriteStateInDb: ChangeFavouriteStateUseCase,
+  private val searchCitiesOnNet: SearchCitiesUseCase,
+  private val getForecastFromNet: GetForecastsFromNetUseCase,
+  private val actWithForecastInDb: ActWithForecastInDbUseCase
 ) {
   fun create(): FavouriteStore =
     object : FavouriteStore,
@@ -70,7 +75,7 @@ class FavouriteStoreFactory @Inject constructor(
     override fun invoke() {
 
       scope.launch {
-        getFavouriteCities().collect { result ->
+        getFavouriteCitiesFromDb().collect { result ->
 
           when {
 
@@ -79,13 +84,12 @@ class FavouriteStoreFactory @Inject constructor(
                 cities.forEach { city ->
 
                   if (city.lat == 0.0 || city.lon == 0.0) {
-                    cityInfoAdd(city, changeFavouriteStateUseCase, searchCities)
+                    cityInfoAdd(city, changeFavouriteStateInDb, searchCitiesOnNet)
                   }
                 }
                 dispatch(Action.FavouriteCitiesLoaded(cities))
               }
             }
-
             result.isFailure -> {
               dispatch(Action.FavouriteCitiesLoadedError)
             }
@@ -105,24 +109,9 @@ class FavouriteStoreFactory @Inject constructor(
 
       when (intent) {
         is FavouriteStore.Intent.SearchClicked -> publish(FavouriteStore.Label.OnSearchClicked)
-
         is FavouriteStore.Intent.ItemCityClicked -> {
-
-          if (state().forecastState is FavouriteStore.State.ForecastState.Loaded) {
-
-            val forecasts =
-              (state().forecastState as FavouriteStore.State.ForecastState.Loaded).listForecast
-
-            publish(
-              FavouriteStore.Label.OnItemClicked(
-                id = intent.id, forecasts = forecasts
-              )
-            )
-          }
-
+          publish(FavouriteStore.Label.OnItemClicked(id = intent.id))
         }
-
-
         FavouriteStore.Intent.ActionMenuClicked -> dispatch(Message.DropDownMenuOpened)
         FavouriteStore.Intent.ClosingActionMenu -> dispatch(Message.DropDownMenuClosed)
 
@@ -137,7 +126,7 @@ class FavouriteStoreFactory @Inject constructor(
             if (state().citiesState is FavouriteStore.State.CitiesState.Loaded) {
 
               val cities = state().citiesState as FavouriteStore.State.CitiesState.Loaded
-              loadWeather(cities.listCities.toCityList())
+              loadForecast(cities.listCities.mapCityFsListToCityList())
             }
           }
         }
@@ -168,12 +157,14 @@ class FavouriteStoreFactory @Inject constructor(
         FavouriteStore.Intent.ReloadCities -> {
 
           scope.launch {
-            getFavouriteCities().collect { result ->
+
+            getFavouriteCitiesFromDb().collect { result ->
+
               when {
                 result.isSuccess -> {
                   result.getOrNull()?.let { cities ->
                     dispatch(Message.FavoriteCitiesLoaded(cities))
-                    loadWeather(cities)
+                    loadForecast(cities)
                   }
                 }
 
@@ -198,7 +189,7 @@ class FavouriteStoreFactory @Inject constructor(
             dispatch(Message.FavoriteCitiesLoaded(action.cities))
 
             if (state().forecastState == FavouriteStore.State.ForecastState.Initial) {
-              loadWeather(action.cities)
+              loadForecast(action.cities)
             } else if (state().forecastState is FavouriteStore.State.ForecastState.Loaded) {
 
               val forecastState = state().forecastState as FavouriteStore.State.ForecastState.Loaded
@@ -210,9 +201,19 @@ class FavouriteStoreFactory @Inject constructor(
               val numberOfForecasts = forecastState.listForecast.size
 
               if (minuteDifference > DURATION_OF_FORECAST_LIFE_MINUTES || numberOfCities != numberOfForecasts) {
-                loadWeather(action.cities)
+                loadForecast(action.cities)
               }
             }
+
+            actWithForecastInDb.getForecastsFromDb().collect { forecasts ->
+
+              if (forecasts.isSuccess) {
+                dispatch(Message.WeatherLoaded(forecasts.getOrNull()!!))
+              } else if (forecasts.isFailure) {
+                dispatch(Message.WeatherLoadingError(forecasts.exceptionOrNull()?.message))
+              }
+            }
+
           }
         }
 
@@ -220,16 +221,16 @@ class FavouriteStoreFactory @Inject constructor(
       }
     }
 
-    private suspend fun loadWeather(cities: List<City>) {
+    private suspend fun loadForecast(cities: List<City>) {
 
       dispatch(Message.WeatherLoading)
 
-      val result = getForecast.invoke(cities)
+      val result = getForecastFromNet.invoke(cities)
 
       when {
+
         result.isSuccess -> {
-          val forecast = result.getOrNull()!!
-          dispatch(Message.WeatherLoaded(listForecasts = forecast))
+          actWithForecastInDb.insertForecastToDb(result.getOrNull()!!)
         }
 
         result.isFailure -> {
@@ -248,7 +249,7 @@ class FavouriteStoreFactory @Inject constructor(
 
           copy(
             citiesState = FavouriteStore.State.CitiesState.Loaded(
-              listCities = msg.cities.mapToCityFsList()
+              listCities = msg.cities.mapCityListToCityFsList()
             )
           )
         }
@@ -288,9 +289,8 @@ private suspend fun cityInfoAdd(
   changeFavouriteStateUseCase: ChangeFavouriteStateUseCase,
   searchCities: SearchCitiesUseCase,
 ) {
-  val searchedCity = searchCities(city.name)
-
+  val searchedCity: List<CityDto> = searchCities(city.name)
   if (searchedCity.isNotEmpty()) {
-    changeFavouriteStateUseCase.addToFavourite(searchedCity.first())
+    changeFavouriteStateUseCase.addToFavourite(searchedCity.first().mapDtoToCity())
   }
 }

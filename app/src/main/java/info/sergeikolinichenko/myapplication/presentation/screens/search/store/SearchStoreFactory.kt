@@ -1,18 +1,17 @@
 package info.sergeikolinichenko.myapplication.presentation.screens.search.store
 
-import android.util.Log
 import com.arkivanov.mvikotlin.core.store.Reducer
 import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineBootstrapper
 import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineExecutor
-import info.sergeikolinichenko.domain.entity.City
 import info.sergeikolinichenko.domain.usecases.favourite.ChangeFavouriteStateUseCase
 import info.sergeikolinichenko.domain.usecases.search.SearchCitiesUseCase
+import info.sergeikolinichenko.myapplication.network.dto.CityDto
 import info.sergeikolinichenko.myapplication.presentation.screens.search.store.SearchStore.Intent
 import info.sergeikolinichenko.myapplication.presentation.screens.search.store.SearchStore.Label
 import info.sergeikolinichenko.myapplication.presentation.screens.search.store.SearchStore.State
-import info.sergeikolinichenko.myapplication.utils.toCity
+import info.sergeikolinichenko.myapplication.utils.mapDtoToCity
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -41,7 +40,7 @@ class SearchStoreFactory @Inject constructor(
 
   private sealed interface Message {
     data class OnQueryChanged(val query: String) : Message
-    data class SearchResultLoaded(val cities: List<City>) : Message
+    data class SearchResultLoaded(val cities: List<CityDto>) : Message
     data object SearchResultLoading : Message
     data object SearchResultError : Message
     data object NotEnoughLetters : Message
@@ -66,7 +65,7 @@ class SearchStoreFactory @Inject constructor(
 
           val letterCount = intent.query.count { it.isLetter() }
 
-          if (letterCount < 3) {
+          if (letterCount < MINIMUM_QUANTITY_LIMIT_FOR_SEARCH) {
 
             dispatch(Message.NotEnoughLetters)
 
@@ -81,7 +80,7 @@ class SearchStoreFactory @Inject constructor(
               try {
                 val query = state().query
 
-                val cities = searchCities(query)
+                val cities: List<CityDto> = searchCities(query)
 
                 dispatch(Message.SearchResultLoaded(cities))
 
@@ -98,7 +97,7 @@ class SearchStoreFactory @Inject constructor(
 
         is Intent.OnClickedCity -> {
           scope.launch {
-            changeFavouriteState.addToFavourite(intent.city.toCity())
+            changeFavouriteState.addToFavourite(intent.city.mapDtoToCity())
             publish(Label.ClickedCityItem)
           }
         }
@@ -124,7 +123,6 @@ class SearchStoreFactory @Inject constructor(
           if (msg.cities.isEmpty()) {
             copy(state = State.SearchState.Empty)
           } else {
-
             copy(state = State.SearchState.SuccessLoaded(msg.cities))
           }
 
@@ -136,5 +134,10 @@ class SearchStoreFactory @Inject constructor(
           copy(query = "", state = State.SearchState.SuccessLoaded(emptyList()))
         }
       }
+  }
+
+  companion object {
+    const val MINIMUM_QUANTITY_LIMIT_FOR_SEARCH = 3
+
   }
 }

@@ -121,6 +121,8 @@ private fun DetailsScreen(
             onSwipeRight = { onSwipeRight() }
           )
       }
+
+      DetailsStore.State.ForecastsState.Initial -> {}
     }
   }
 }

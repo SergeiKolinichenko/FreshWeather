@@ -3,8 +3,7 @@ package info.sergeikolinichenko.myapplication.presentation.screens.search.store
 /** Created by Sergei Kolinichenko on 21.02.2024 at 15:55 (GMT+3) **/
 
 import com.arkivanov.mvikotlin.core.store.Store
-import info.sergeikolinichenko.domain.entity.City
-import info.sergeikolinichenko.myapplication.entity.CityFs
+import info.sergeikolinichenko.myapplication.network.dto.CityDto
 import info.sergeikolinichenko.myapplication.presentation.screens.search.store.SearchStore.Intent
 import info.sergeikolinichenko.myapplication.presentation.screens.search.store.SearchStore.Label
 import info.sergeikolinichenko.myapplication.presentation.screens.search.store.SearchStore.State
@@ -13,7 +12,7 @@ interface SearchStore : Store<Intent, State, Label> {
 
   sealed interface Intent {
     data class OnQueryChanged(val query: String) : Intent
-    data class OnClickedCity(val city: CityFs) : Intent
+    data class OnClickedCity(val city: CityDto) : Intent
     data object OnClickedClearLine : Intent
     data object OnClickedBack : Intent
   }
@@ -33,7 +32,7 @@ interface SearchStore : Store<Intent, State, Label> {
 
       data object NotEnoughLetters: SearchState
 
-      data class SuccessLoaded(val cities: List<City>) : SearchState
+      data class SuccessLoaded(val cities: List<CityDto>) : SearchState
     }
   }
 

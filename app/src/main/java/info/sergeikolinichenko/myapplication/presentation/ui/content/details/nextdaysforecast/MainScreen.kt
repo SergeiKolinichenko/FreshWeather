@@ -34,6 +34,8 @@ import info.sergeikolinichenko.myapplication.utils.DividingLine
 
 /** Created by Sergei Kolinichenko on 06.09.2024 at 10:26 (GMT+3) **/
 
+internal const val LAST_ITEM_IN_THE_LIST = -1L
+
 @Composable
 internal fun MainScreen(
   modifier: Modifier = Modifier,
@@ -178,6 +180,10 @@ internal fun MainScreen(
           precipitation = if (dayForecast.precipProb > 0) dayForecast.precip else null
         )
 
+        val moonsetNextDay = if (state.index < forecast.upcomingDays.size - 1) {
+          forecast.upcomingDays[state.index + 1].moonset
+        } else LAST_ITEM_IN_THE_LIST
+
         SunAndMoon(
           modifier = Modifier
             .padding(
@@ -188,7 +194,7 @@ internal fun MainScreen(
           sunrise = dayForecast.sunrise,
           sunset = dayForecast.sunset,
           moonrise = dayForecast.moonrise,
-          moonset = dayForecast.moonset,
+          moonset = moonsetNextDay,
           moonPhase = dayForecast.moonPhase,
           tzId = forecast.tzId
         )

@@ -2,7 +2,7 @@ package info.sergeikolinichenko.myapplication.store
 
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
 import info.sergeikolinichenko.domain.usecases.favourite.GetFavouriteCitiesUseCase
-import info.sergeikolinichenko.domain.usecases.forecast.GetForecastUseCase
+import info.sergeikolinichenko.domain.usecases.forecast.GetForecastsFromNetUseCase
 import info.sergeikolinichenko.myapplication.entity.ForecastFs
 import info.sergeikolinichenko.myapplication.presentation.screens.details.store.DetailsStore
 import info.sergeikolinichenko.myapplication.presentation.screens.details.store.DetailsStoreFactory
@@ -10,7 +10,7 @@ import info.sergeikolinichenko.myapplication.utils.BaseUnitTestsRules
 import info.sergeikolinichenko.myapplication.utils.mapToForecastScreen
 import info.sergeikolinichenko.myapplication.utils.testCity
 import info.sergeikolinichenko.myapplication.utils.testForecast
-import info.sergeikolinichenko.myapplication.utils.mapToCityFs
+import info.sergeikolinichenko.myapplication.utils.mapCityToCityFs
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
@@ -28,7 +28,7 @@ class DetailsStoreFactoryShould : BaseUnitTestsRules() {
 
   // region constants
   private val factory = DefaultStoreFactory()
-  private val getForecastUseCase = mock<GetForecastUseCase>()
+  private val getForecastsFromNetUseCase = mock<GetForecastsFromNetUseCase>()
   private val getFavouriteCitiesUseCase = mock<GetFavouriteCitiesUseCase>()
 
   private val cities = listOf(testCity)
@@ -38,7 +38,7 @@ class DetailsStoreFactoryShould : BaseUnitTestsRules() {
 
   private val SUT = DetailsStoreFactory(
     factory,
-    getForecastUseCase,
+    getForecastsFromNetUseCase,
     getFavouriteCitiesUseCase
   )
 
@@ -67,7 +67,7 @@ class DetailsStoreFactoryShould : BaseUnitTestsRules() {
     // Assert
     if (testField is DetailsStore.State.CitiesState.Loaded) {
       assert(testField.id == testCity.id)
-      assert(testField.cities.first() == cities.first().mapToCityFs())
+      assert(testField.cities.first() == cities.first().mapCityToCityFs())
     } else {
       assert(false)
     }
@@ -104,7 +104,7 @@ class DetailsStoreFactoryShould : BaseUnitTestsRules() {
   fun `check that when a class is created, the forecast is not loaded from Network`() = runTest {
     // Arrange
     whenever(getFavouriteCitiesUseCase.invoke()).thenReturn(flowOf(Result.success(cities)))
-    whenever(getForecastUseCase.invoke(cities)).thenReturn(Result.failure(Exception("Something went wrong")))
+    whenever(getForecastsFromNetUseCase.invoke(cities)).thenReturn(Result.failure(Exception("Something went wrong")))
     // Act
     val store = SUT.create(testCity.id, listOfForecastFs)
     // Assert
@@ -115,7 +115,7 @@ class DetailsStoreFactoryShould : BaseUnitTestsRules() {
 
   private suspend fun mockSuccessfulResult() {
     whenever(getFavouriteCitiesUseCase.invoke()).thenReturn(flowOf(Result.success(cities)))
-    whenever(getForecastUseCase.invoke(cities)).thenReturn(Result.success(listOfForecast))
+    whenever(getForecastsFromNetUseCase.invoke(cities)).thenReturn(Result.success(listOfForecast))
   }
 
 }

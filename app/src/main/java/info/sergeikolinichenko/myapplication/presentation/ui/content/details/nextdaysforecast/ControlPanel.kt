@@ -5,10 +5,11 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -42,6 +43,7 @@ internal fun ControlPanel(
   onDayClicked: (Int) -> Unit,
   onCloseClicked: () -> Unit
 ) {
+
   Box(
     modifier = modifier
       .fillMaxWidth()
@@ -68,101 +70,41 @@ internal fun ControlPanel(
     )
   }
 
-  if (forecast.upcomingDays.drop(1).size <= DAYS_ROR_ONE_LINE) {
+  LazyRow(
+    modifier = Modifier
+      .fillMaxWidth()
+      .padding(16.dp),
+    horizontalArrangement = Arrangement.SpaceEvenly,
+    verticalAlignment = Alignment.CenterVertically
+  ) {
 
-    Row(
-      modifier = Modifier
-        .fillMaxWidth()
-        .padding(16.dp),
-      horizontalArrangement = Arrangement.SpaceBetween,
-      verticalAlignment = Alignment.CenterVertically
-    ) {
+    itemsIndexed(
+      items = forecast.upcomingDays.drop(1),
+      key = { _, day -> day.date}
+    ) { ind, day ->
 
-      forecast.upcomingDays.drop(1).forEachIndexed { ind, day ->
+      val color =
+        if (ind == index - 1) MaterialTheme.colorScheme.tertiary
+        else MaterialTheme.colorScheme.background
 
-        val color =
-          if (ind == index - 1) MaterialTheme.colorScheme.tertiary
-          else MaterialTheme.colorScheme.background
-
-        DayForOneLine(
-          modifier = Modifier
-            .weight(1f),
-          titleTopText = getTwoLettersDayOfTheWeek(day.date, forecast.tzId),
-          titleBottomText = getNumberDayOfMonth(day.date, forecast.tzId),
-          backgroundColor = color,
-          index = ind,
-          onDayClicked = { onDayClicked(it + 1) }
-        )
-      }
-    }
-  } else {
-
-    val sizeTopLine =
-      forecast.upcomingDays.drop(1).size / 2 + forecast.upcomingDays.drop(1).size % 2
-    val topLine = forecast.upcomingDays.drop(1).take(sizeTopLine)
-    val bottomLine = forecast.upcomingDays.drop(1).drop(sizeTopLine)
-
-
-    Row(
-      modifier = Modifier
-        .fillMaxWidth()
-        .padding(start = 16.dp, end = 16.dp, top = 18.dp),
-      horizontalArrangement = Arrangement.SpaceBetween,
-      verticalAlignment = Alignment.CenterVertically
-    ) {
-
-      topLine.forEachIndexed { ind, day ->
-
-        val color =
-          if (ind == index - 1) MaterialTheme.colorScheme.tertiary
-          else MaterialTheme.colorScheme.background
-
-        DayForTwoLines(
-          modifier = Modifier
-            .weight(1f),
-          titleBottomText = getNumberDayOfMonth(day.date, forecast.tzId),
-          backgroundColor = color,
-          index = ind,
-          onDayClicked = { onDayClicked(it + 1) }
-        )
-      }
-    }
-
-    Row(
-      modifier = Modifier
-        .fillMaxWidth()
-        .padding(start = 16.dp, end = 16.dp, bottom = 18.dp),
-      horizontalArrangement = Arrangement.SpaceBetween,
-      verticalAlignment = Alignment.CenterVertically
-    ) {
-
-      bottomLine.forEachIndexed { ind, day ->
-
-        val color =
-          if (ind + sizeTopLine == index - 1) MaterialTheme.colorScheme.tertiary
-          else MaterialTheme.colorScheme.background
-
-        DayForTwoLines(
-          modifier = Modifier
-            .weight(1f),
-          titleBottomText = getNumberDayOfMonth(day.date, forecast.tzId),
-          backgroundColor = color,
-          index = ind,
-          onDayClicked = { onDayClicked(it + sizeTopLine + 1) }
-        )
-      }
+      DayOfDailyForecast(
+        modifier = Modifier,
+        titleTopText = getTwoLettersDayOfTheWeek(day.date, forecast.tzId),
+        titleBottomText = getNumberDayOfMonth(day.date, forecast.tzId),
+        backgroundColor = color,
+        onDayClicked = { onDayClicked(ind + 1) }
+      )
     }
   }
 }
 
 @Composable
-private fun DayForOneLine(
+private fun DayOfDailyForecast(
   modifier: Modifier = Modifier,
   titleTopText: String,
   titleBottomText: String,
   backgroundColor: Color,
-  index: Int,
-  onDayClicked: (Int) -> Unit
+  onDayClicked: () -> Unit
 ) {
   Column(
     modifier = modifier,
@@ -183,7 +125,7 @@ private fun DayForOneLine(
         .size(50.dp)
         .clip(shape = CircleShape)
         .background(backgroundColor)
-        .clickable { onDayClicked(index) },
+        .clickable { onDayClicked() },
     ) {
       Text(
         modifier = Modifier.align(Alignment.Center),
@@ -197,34 +139,3 @@ private fun DayForOneLine(
     }
   }
 }
-
-@Composable
-private fun DayForTwoLines(
-  modifier: Modifier = Modifier,
-  titleBottomText: String,
-  backgroundColor: Color,
-  index: Int,
-  onDayClicked: (Int) -> Unit
-) {
-  Box(
-    modifier = modifier
-      .size(50.dp)
-      .clip(shape = CircleShape)
-      .background(backgroundColor)
-      .clickable { onDayClicked(index) },
-  ) {
-      Text(
-        modifier = Modifier.align(Alignment.Center),
-        text = titleBottomText,
-        fontFamily = FontFamily.SansSerif,
-        fontWeight = FontWeight.Normal,
-        fontSize = 16.sp,
-        textAlign = TextAlign.Center,
-        color = MaterialTheme.colorScheme.onBackground
-      )
-  }
-
-
-}
-
-private const val DAYS_ROR_ONE_LINE = 7

@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
 
 class DefaultFavouriteComponent @AssistedInject constructor(
   @Assisted("onSearchClicked") private val onClickedSearch: () -> Unit,
-  @Assisted("onItemClicked") private val onClickedItem: (Int, List<ForecastFs>) -> Unit,
+  @Assisted("onItemClicked") private val onClickedItem: (Int) -> Unit,
   @Assisted("onClickItemMenuSettings") private val onClickItemMenuSettings: () -> Unit,
   @Assisted("onClickItemMenuEditing") private val onClickItemMenuEditing: (List<EditingStore.State.CityItem>) -> Unit,
   @Assisted("componentContext") private val componentContext: ComponentContext,
@@ -36,7 +36,7 @@ class DefaultFavouriteComponent @AssistedInject constructor(
             onClickedSearch()
           }
           is FavouriteStore.Label.OnItemClicked -> {
-            onClickedItem(label.id, label.forecasts)
+            onClickedItem(label.id)
           }
           FavouriteStore.Label.OnItemMenuSettingsClicked ->
             onClickItemMenuSettings()
@@ -86,7 +86,7 @@ class DefaultFavouriteComponent @AssistedInject constructor(
   interface Factory {
     fun create(
       @Assisted("onSearchClicked") onSearchClick: () -> Unit,
-      @Assisted("onItemClicked") onItemClick: (Int, List<ForecastFs>) -> Unit,
+      @Assisted("onItemClicked") onItemClick: (Int) -> Unit,
       @Assisted("onClickItemMenuSettings") onClickItemMenuSettings: () -> Unit,
       @Assisted("onClickItemMenuEditing") onClickItemMenuEditing: (List<EditingStore.State.CityItem>) -> Unit,
       @Assisted("componentContext") componentContext: ComponentContext

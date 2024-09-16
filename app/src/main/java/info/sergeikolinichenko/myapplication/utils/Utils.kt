@@ -1,6 +1,7 @@
 package info.sergeikolinichenko.myapplication.utils
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -73,7 +74,9 @@ internal fun getTwoLettersDayOfTheWeek(date: Long, tzId: String): String {
   val zoneId = ZoneId.of(tzId)
   val zonedDateTime = ZonedDateTime.ofInstant(instant, zoneId)
   val dayOfWeek = zonedDateTime.dayOfWeek
-  return dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault()).take(2)
+  return dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault())
+    .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString() }
+    .take(2)
 }
 
 internal fun getNumberDayOfMonth(date: Long, tzId: String): String {
@@ -89,6 +92,7 @@ internal fun getDayOfWeekName(date: Long, tzId: String): String {
   val zonedDateTime = ZonedDateTime.ofInstant(instant, zoneId)
   val dayOfWeek = zonedDateTime.dayOfWeek
   return dayOfWeek.getDisplayName(TextStyle.FULL, Locale.getDefault())
+    .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString() }
 }
 
 fun getTime(date: Long, tzId: String): String {
@@ -108,21 +112,37 @@ fun getDayAndMonthName(date: Long, tzId: String): String {
   return "$dayOfMonth $monthName"
 }
 
-internal fun isTodayOrTomorrow(date: Long, tzId: String): Int {
+internal fun getDayAndShotMonthName(date: Long, tzId: String): String {
+  val instant = Instant.ofEpochSecond(date)
+  val zoneId = ZoneId.of(tzId)
+  val zonedDateTime = ZonedDateTime.ofInstant(instant, zoneId)
+  val shortMonthName = zonedDateTime.month.getDisplayName(TextStyle.SHORT, Locale.getDefault())
+    .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString() }
+    .substring(0, 3)
+  val dayOfMonth = zonedDateTime.dayOfMonth
+  return "$dayOfMonth $shortMonthName"
+}
+
+internal fun getWhatDayItIs(date: Long, tzId: String, context: Context): String {
   val now = LocalDate.now(ZoneId.of(tzId))
   val dateIn = Instant.ofEpochSecond(date).atZone(ZoneId.of(tzId)).toLocalDate()
-
   return when (dateIn) {
-    now -> R.string.details_content_tittle_sun_moon_block_today
-    now.plusDays(1) -> R.string.details_content_tittle_sun_moon_block_tomorrow
-    else -> R.string.details_content_nothing
+    now -> context.getString(R.string.details_content_tittle_sun_moon_block_today)
+    now.plusDays(1) -> context.getString(R.string.details_content_tittle_sun_moon_block_tomorrow)
+    else -> getDayAndShotMonthName(date, tzId)
   }
 }
 
-fun getMinutesDifferenceFromNow(epochMillis: Long, tzId: String): Long {
+internal fun thisIsToday(date: Long, tzId: String): Boolean {
+  val now = LocalDate.now(ZoneId.of(tzId))
+  val dateIn = Instant.ofEpochSecond(date).atZone(ZoneId.of(tzId)).toLocalDate()
+  return now == dateIn
+}
+
+fun getMinutesDifferenceFromNow(date: Long, tzId: String): Long {
   val now = ZonedDateTime.now()
-  val date = ZonedDateTime.ofInstant(Instant.ofEpochMilli(epochMillis), ZoneId.of(tzId))
-  return Duration.between(date, now).toMinutes()
+  val zonedDateTime = ZonedDateTime.ofInstant(Instant.ofEpochSecond(date), ZoneId.of(tzId))
+  return Duration.between(zonedDateTime, now).toMinutes()
 }
 
 internal fun durationBetweenTwoTimes(

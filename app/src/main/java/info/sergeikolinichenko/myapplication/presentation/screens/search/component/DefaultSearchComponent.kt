@@ -7,7 +7,7 @@ import com.arkivanov.mvikotlin.extensions.coroutines.stateFlow
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import info.sergeikolinichenko.myapplication.entity.CityFs
+import info.sergeikolinichenko.myapplication.network.dto.CityDto
 import info.sergeikolinichenko.myapplication.presentation.screens.search.store.SearchStore
 import info.sergeikolinichenko.myapplication.presentation.screens.search.store.SearchStoreFactory
 import info.sergeikolinichenko.myapplication.utils.componentScope
@@ -46,7 +46,7 @@ class DefaultSearchComponent @AssistedInject constructor(
   override fun onQueryChanged(query: String) =
     store.accept(SearchStore.Intent.OnQueryChanged(query))
 
-  override fun onItemClicked(city: CityFs) =
+  override fun onItemClicked(city: CityDto) =
     store.accept(SearchStore.Intent.OnClickedCity(city))
 
   @AssistedFactory

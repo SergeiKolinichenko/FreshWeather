@@ -88,6 +88,6 @@ interface FavouriteStore : Store<Intent, State, Label> {
       val cities: List<EditingStore.State.CityItem>
     ) : Label
 
-    data class OnItemClicked(val id: Int, val forecasts: List<ForecastFs>) : Label
+    data class OnItemClicked(val id: Int) : Label
   }
 }

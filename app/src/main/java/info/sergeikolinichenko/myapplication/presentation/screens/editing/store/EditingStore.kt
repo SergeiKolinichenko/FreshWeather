@@ -14,8 +14,8 @@ import info.sergeikolinichenko.myapplication.entity.CityFs
 import info.sergeikolinichenko.myapplication.presentation.screens.editing.store.EditingStore.Intent
 import info.sergeikolinichenko.myapplication.presentation.screens.editing.store.EditingStore.Label
 import info.sergeikolinichenko.myapplication.presentation.screens.editing.store.EditingStore.State
-import info.sergeikolinichenko.myapplication.utils.mapToCityFs
-import info.sergeikolinichenko.myapplication.utils.toCityList
+import info.sergeikolinichenko.myapplication.utils.mapCityToCityFs
+import info.sergeikolinichenko.myapplication.utils.mapCityFsListToCityList
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
@@ -131,7 +131,7 @@ class EditingStoreFactory @Inject constructor(
 
               if (citiesFromScreen == citiesFromDb) return@launch
               val citiesForDeletion = citiesFromDb?.filterNot {
-                citiesFromScreen.toCityList().contains(it)
+                citiesFromScreen.mapCityFsListToCityList().contains(it)
               }
               citiesForDeletion?.forEach { city ->
                 changeFavouriteStateUseCase.removeFromFavourite(city.id)
@@ -159,7 +159,7 @@ class EditingStoreFactory @Inject constructor(
   private object ReducerImpl : Reducer<State, Message> {
     override fun State.reduce(msg: Message): State =
       when (msg) {
-        is Message.FavoriteCitiesLoaded -> copy(cities = State.CitiesStatus.CitiesLoaded(msg.cities.map { city -> city.mapToCityFs() }))
+        is Message.FavoriteCitiesLoaded -> copy(cities = State.CitiesStatus.CitiesLoaded(msg.cities.map { city -> city.mapCityToCityFs() }))
         Message.FavouriteCitiesLoadingError -> copy(cities = State.CitiesStatus.CitiesLoadingError)
         is Message.ListOfCitiesChanged -> copy(cities = State.CitiesStatus.CitiesLoaded(msg.cities))
       }

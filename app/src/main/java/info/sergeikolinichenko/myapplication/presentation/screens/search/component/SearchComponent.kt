@@ -1,6 +1,6 @@
 package info.sergeikolinichenko.myapplication.presentation.screens.search.component
 
-import info.sergeikolinichenko.myapplication.entity.CityFs
+import info.sergeikolinichenko.myapplication.network.dto.CityDto
 import info.sergeikolinichenko.myapplication.presentation.screens.search.store.SearchStore
 import kotlinx.coroutines.flow.StateFlow
 
@@ -16,6 +16,6 @@ interface SearchComponent {
 
   fun onQueryChanged(query: String)
 
-  fun onItemClicked(city: CityFs)
+  fun onItemClicked(city: CityDto)
 
 }

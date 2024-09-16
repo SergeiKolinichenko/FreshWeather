@@ -6,13 +6,12 @@ import com.arkivanov.mvikotlin.core.store.StoreFactory
 import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineBootstrapper
 import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineExecutor
 import info.sergeikolinichenko.domain.usecases.favourite.GetFavouriteCitiesUseCase
-import info.sergeikolinichenko.domain.usecases.forecast.GetForecastUseCase
 import info.sergeikolinichenko.myapplication.entity.CityFs
 import info.sergeikolinichenko.myapplication.entity.ForecastFs
 import info.sergeikolinichenko.myapplication.presentation.screens.nextdays.store.NextdaysStore.Intent
 import info.sergeikolinichenko.myapplication.presentation.screens.nextdays.store.NextdaysStore.Label
 import info.sergeikolinichenko.myapplication.presentation.screens.nextdays.store.NextdaysStore.State
-import info.sergeikolinichenko.myapplication.utils.mapToCityFs
+import info.sergeikolinichenko.myapplication.utils.mapCityToCityFs
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -59,8 +58,7 @@ interface NextdaysStore : Store<Intent, State, Label> {
 
 class NextdaysStoreFactory @Inject constructor(
   private val storeFactory: StoreFactory,
-  private val getFavouriteCities: GetFavouriteCitiesUseCase,
-  private val getForecast: GetForecastUseCase,
+  private val getFavouriteCities: GetFavouriteCitiesUseCase
 ) {
 
   fun create(id: Int, index: Int, forecasts: List<ForecastFs>): NextdaysStore =
@@ -104,7 +102,7 @@ class NextdaysStoreFactory @Inject constructor(
           dispatch(
             Action.CitiesLoaded(
               id = id,
-              cities = it.getOrNull()!!.map { city -> city.mapToCityFs() })
+              cities = it.getOrNull()!!.map { city -> city.mapCityToCityFs() })
           )
         }
       }

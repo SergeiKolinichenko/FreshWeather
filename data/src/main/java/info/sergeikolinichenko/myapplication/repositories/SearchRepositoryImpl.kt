@@ -1,22 +1,21 @@
 package info.sergeikolinichenko.myapplication.repositories
 
-import info.sergeikolinichenko.myapplication.mappers.toListCities
-import info.sergeikolinichenko.domain.entity.City
 import info.sergeikolinichenko.domain.repositories.SearchRepository
 import info.sergeikolinichenko.myapplication.network.api.ApiFactory
 import javax.inject.Inject
 
 class SearchRepositoryImpl @Inject constructor() : SearchRepository {
 
-  override suspend fun searchCities(query: String): List<City> {
-
-//    val response = ApiFactory.getWeatherapiApi().searchCities(query)
-    val response = ApiFactory.apiServiceForWeatherapi.searchCities(query)
-
-    if (!response.isSuccessful) {
-      throw Exception("Error while searching cities")
-    } else {
-      return response.body()!!.toListCities()
+  override suspend fun <T> searchCities(query: String): List<T> {
+    @Suppress("UNCHECKED_CAST")
+    return  ApiFactory.apiServiceOpenStreetMap.searchCities(query).run {
+      if (isSuccessful) {
+       body()?.filter {
+          it.placeAddress.city != null || it.placeAddress.village != null || it.placeAddress.town != null
+        } as List<T>
+      } else {
+        throw Exception("Error while searching cities")
+      }
     }
   }
 }

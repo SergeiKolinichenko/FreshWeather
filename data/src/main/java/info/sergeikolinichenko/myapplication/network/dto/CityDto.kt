@@ -2,23 +2,48 @@ package info.sergeikolinichenko.myapplication.network.dto
 
 import com.google.gson.annotations.SerializedName
 
-/** Created by Sergei Kolinichenko on 21.02.2024 at 20:26 (GMT+3) **/
+/** Created by Sergei Kolinichenko on 07.09.2024 at 17:50 (GMT+3) **/
+
 data class CityDto(
-  @SerializedName("id")
-  val idCity: Int,
+  @SerializedName("place_id")
+  val id: Int,
 
-  @SerializedName("name")
-  val nameCity: String,
-
-  @SerializedName("region")
-  val regionCity: String,
-
-  @SerializedName("country")
-  val countryCity: String,
+  @SerializedName("display_name")
+  val displayName: String,
 
   @SerializedName("lat")
-  val lat: Double,
+  val lat: String,
 
   @SerializedName("lon")
-  val lon: Double
+  val lon: String,
+
+  @SerializedName("class")
+  val classType: String,
+
+  @SerializedName("type")
+  val type: String,
+
+  @SerializedName("address")
+  val placeAddress: PlaceAddressDto
 )
+
+data class PlaceAddressDto(
+  @SerializedName("state")
+  val state: String?,
+
+  @SerializedName("city")
+  val city: String?,
+
+  @SerializedName("town")
+  val town: String?,
+
+  @SerializedName("village")
+  val village: String?,
+
+  @SerializedName("country")
+  val country: String,
+)
+
+
+
+
