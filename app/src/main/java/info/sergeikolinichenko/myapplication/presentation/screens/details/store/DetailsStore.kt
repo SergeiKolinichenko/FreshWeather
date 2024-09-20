@@ -10,7 +10,7 @@ import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineBootstrapper
 import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineExecutor
 import info.sergeikolinichenko.domain.entity.City
 import info.sergeikolinichenko.domain.usecases.favourite.GetFavouriteCitiesUseCase
-import info.sergeikolinichenko.domain.usecases.forecast.ActWithForecastInDbUseCase
+import info.sergeikolinichenko.domain.usecases.forecast.HandleForecastIntoDbUseCase
 import info.sergeikolinichenko.domain.usecases.forecast.GetForecastsFromNetUseCase
 import info.sergeikolinichenko.myapplication.entity.CityFs
 import info.sergeikolinichenko.myapplication.entity.ForecastFs
@@ -58,7 +58,7 @@ interface DetailsStore : Store<Intent, State, Label> {
   sealed interface Label {
     data object OnBackClicked : Label
     data object OnSettingsClicked : Label
-    data class OnDayClicked(val id: Int, val index: Int, val forecasts: List<ForecastFs>) : Label
+    data class OnDayClicked(val id: Int, val index: Int) : Label
   }
 }
 
@@ -66,7 +66,7 @@ class DetailsStoreFactory @Inject constructor(
   private val storeFactory: StoreFactory,
   private val getForecast: GetForecastsFromNetUseCase,
   private val getFavouriteCities: GetFavouriteCitiesUseCase,
-  private val actWithForecastInDb: ActWithForecastInDbUseCase
+  private val handleForecastIntoDb: HandleForecastIntoDbUseCase
 ) {
 
   fun create(id: Int): DetailsStore =
@@ -134,15 +134,12 @@ class DetailsStoreFactory @Inject constructor(
         }
 
         is Intent.OnDayClicked -> {
-          if (state().forecastState is State.ForecastsState.Loaded) {
-            publish(
-              Label.OnDayClicked(
-                id = intent.id,
-                forecasts = (state().forecastState as State.ForecastsState.Loaded).forecasts,
-                index = intent.index
-              )
+          publish(
+            Label.OnDayClicked(
+              id = intent.id,
+              index = intent.index
             )
-          }
+          )
         }
 
 
@@ -166,8 +163,6 @@ class DetailsStoreFactory @Inject constructor(
             val citiesState = state().citiesState as State.CitiesState.Loaded
 
             val cityIndex = citiesState.cities.indexOfFirst { it.id == citiesState.id }
-
-            Log.d("TAG", "cityIndex: $cityIndex")
 
             if (cityIndex > 0) {
               scope.launch {
@@ -213,16 +208,16 @@ class DetailsStoreFactory @Inject constructor(
 
             scope.launch {
 
-              actWithForecastInDb.getForecastsFromDb().collect{
+              handleForecastIntoDb.getForecastsFromDb().collect {
 
                 if (it.isSuccess) {
 
                   it.getOrNull()?.let { forecasts ->
 
-                      val forecast = forecasts.first { it.id == citiesState.id }
+                    val forecast = forecasts.first { it.id == citiesState.id }
 
                     val minuteDifference =
-                      getMinutesDifferenceFromNow( forecast.currentForecast.date, forecast.tzId)
+                      getMinutesDifferenceFromNow(forecast.currentForecast.date, forecast.tzId)
 
                     if (minuteDifference > DURATION_OF_FORECAST_LIFE_MINUTES) {
                       scope.launch {
@@ -238,9 +233,6 @@ class DetailsStoreFactory @Inject constructor(
 
 
             }
-
-
-
 
 
           }
@@ -259,8 +251,9 @@ class DetailsStoreFactory @Inject constructor(
       when {
         result.isSuccess -> {
           val forecast = result.getOrNull()!!
-          actWithForecastInDb.insertForecastToDb(forecast)
+          handleForecastIntoDb.insertForecastToDb(forecast)
         }
+
         result.isFailure -> {
           val errorCode = result.exceptionOrNull()!!.message!!
           dispatch(Message.ForecastLoadingFailed(errorCode))

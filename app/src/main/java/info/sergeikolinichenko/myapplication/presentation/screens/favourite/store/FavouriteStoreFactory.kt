@@ -1,6 +1,5 @@
 package info.sergeikolinichenko.myapplication.presentation.screens.favourite.store
 
-import android.util.Log
 import com.arkivanov.mvikotlin.core.store.Reducer
 import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.core.store.StoreFactory
@@ -10,7 +9,7 @@ import info.sergeikolinichenko.domain.entity.City
 import info.sergeikolinichenko.domain.entity.Forecast
 import info.sergeikolinichenko.domain.usecases.favourite.ChangeFavouriteStateUseCase
 import info.sergeikolinichenko.domain.usecases.favourite.GetFavouriteCitiesUseCase
-import info.sergeikolinichenko.domain.usecases.forecast.ActWithForecastInDbUseCase
+import info.sergeikolinichenko.domain.usecases.forecast.HandleForecastIntoDbUseCase
 import info.sergeikolinichenko.domain.usecases.forecast.GetForecastsFromNetUseCase
 import info.sergeikolinichenko.domain.usecases.search.SearchCitiesUseCase
 import info.sergeikolinichenko.myapplication.network.dto.CityDto
@@ -31,7 +30,7 @@ class FavouriteStoreFactory @Inject constructor(
   private val changeFavouriteStateInDb: ChangeFavouriteStateUseCase,
   private val searchCitiesOnNet: SearchCitiesUseCase,
   private val getForecastFromNet: GetForecastsFromNetUseCase,
-  private val actWithForecastInDb: ActWithForecastInDbUseCase
+  private val actWithForecastInDb: HandleForecastIntoDbUseCase
 ) {
   fun create(): FavouriteStore =
     object : FavouriteStore,

@@ -32,7 +32,7 @@ interface DetailsComponent {
 class DefaultDetailsComponent @AssistedInject constructor(
   @Assisted("onBackClicked") private val onClickedBack: () -> Unit,
   @Assisted("onClickedSettings") private val onClickedSettings: (sourceOfOpening: SourceOfOpening) -> Unit,
-  @Assisted("OnDayClicked") private val onClickedDay: (Int, Int, List<ForecastFs>) -> Unit,
+  @Assisted("OnDayClicked") private val onClickedDay: (Int, Int) -> Unit,
   @Assisted("id") private val id: Int,
   @Assisted("componentContext") private val componentContext: ComponentContext,
   private val storeFactory: DetailsStoreFactory
@@ -47,7 +47,7 @@ class DefaultDetailsComponent @AssistedInject constructor(
         when (label) {
           DetailsStore.Label.OnBackClicked -> onClickedBack()
           DetailsStore.Label.OnSettingsClicked -> onClickedSettings(SourceOfOpening.OpenFromDetails)
-          is DetailsStore.Label.OnDayClicked -> onClickedDay(label.id, label.index, label.forecasts)
+          is DetailsStore.Label.OnDayClicked -> onClickedDay(label.id, label.index)
         }
       }
     }
@@ -83,7 +83,7 @@ class DefaultDetailsComponent @AssistedInject constructor(
       @Assisted("id") id: Int,
       @Assisted("onBackClicked") onClickedBack: () -> Unit,
       @Assisted("onClickedSettings") onClickedSettings: (sourceOfOpening: SourceOfOpening) -> Unit,
-      @Assisted("OnDayClicked") onClickedDay: (Int, Int, List<ForecastFs>) -> Unit,
+      @Assisted("OnDayClicked") onClickedDay: (Int, Int) -> Unit,
       @Assisted("componentContext") componentContext: ComponentContext
     ): DefaultDetailsComponent
   }

@@ -5,13 +5,20 @@ import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineBootstrapper
 import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineExecutor
+import info.sergeikolinichenko.domain.entity.City
 import info.sergeikolinichenko.domain.usecases.favourite.GetFavouriteCitiesUseCase
+import info.sergeikolinichenko.domain.usecases.forecast.GetForecastsFromNetUseCase
+import info.sergeikolinichenko.domain.usecases.forecast.HandleForecastIntoDbUseCase
 import info.sergeikolinichenko.myapplication.entity.CityFs
 import info.sergeikolinichenko.myapplication.entity.ForecastFs
 import info.sergeikolinichenko.myapplication.presentation.screens.nextdays.store.NextdaysStore.Intent
 import info.sergeikolinichenko.myapplication.presentation.screens.nextdays.store.NextdaysStore.Label
 import info.sergeikolinichenko.myapplication.presentation.screens.nextdays.store.NextdaysStore.State
+import info.sergeikolinichenko.myapplication.utils.DURATION_OF_FORECAST_LIFE_MINUTES
+import info.sergeikolinichenko.myapplication.utils.getMinutesDifferenceFromNow
+import info.sergeikolinichenko.myapplication.utils.mapCityFsListToCityList
 import info.sergeikolinichenko.myapplication.utils.mapCityToCityFs
+import info.sergeikolinichenko.myapplication.utils.mapToForecastScreenList
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -58,15 +65,17 @@ interface NextdaysStore : Store<Intent, State, Label> {
 
 class NextdaysStoreFactory @Inject constructor(
   private val storeFactory: StoreFactory,
-  private val getFavouriteCities: GetFavouriteCitiesUseCase
+  private val getFavouriteCities: GetFavouriteCitiesUseCase,
+  private val getForecast: GetForecastsFromNetUseCase,
+  private val handleForecastIntoDb: HandleForecastIntoDbUseCase
 ) {
 
-  fun create(id: Int, index: Int, forecasts: List<ForecastFs>): NextdaysStore =
+  fun create(id: Int, index: Int): NextdaysStore =
     object : NextdaysStore, Store<Intent, State, Label> by storeFactory.create(
       name = "NextdaysStore",
       initialState = State(
         index = index,
-        forecastState = State.ForecastState.Loaded(forecasts),
+        forecastState = State.ForecastState.Initial,
         citiesState = State.CitiesState.Initial
       ),
       bootstrapper = BootstrapperImpl(id),
@@ -87,7 +96,7 @@ class NextdaysStoreFactory @Inject constructor(
     data class NewCityId(val id: Int) : Message
 
     data class ForecastLoaded(val forecasts: List<ForecastFs>) : Message
-    data object ForecastStartLoading : Message
+    data object ForecastLoading : Message
     data class ForecastLoadingFailed(val referrerCode: String) : Message
   }
 
@@ -161,7 +170,6 @@ class NextdaysStoreFactory @Inject constructor(
               val id = citiesState.cities[cityIndex - 1].id
 
               dispatch(Message.NewCityId(id))
-              dispatch(Message.ForecastStartLoading)
             }
           }
         }
@@ -187,15 +195,48 @@ class NextdaysStoreFactory @Inject constructor(
     override fun executeAction(action: Action) {
       when (action) {
         is Action.CitiesLoaded -> {
-          dispatch(
-            Message.CitiesLoaded(
-              id = action.id,
-              cities = action.cities
-            )
-          )
+          dispatch( Message.CitiesLoaded(id = action.id, cities = action.cities))
+          if (state().forecastState is State.ForecastState.Initial) {
+            scope.launch {
+              handleForecastIntoDb.getForecastsFromDb().collect {
+                if (it.isSuccess) {
+                  it.getOrNull()?.let { forecasts ->
+                    val forecast = forecasts.first { it.id == action.id }
+                    val minuteDifference =
+                      getMinutesDifferenceFromNow(forecast.currentForecast.date, forecast.tzId)
+                    if (minuteDifference > DURATION_OF_FORECAST_LIFE_MINUTES) {
+                      scope.launch {
+                        loadForecastFromNet(action.cities.mapCityFsListToCityList())
+                      }
+                    } else {
+                      dispatch(Message.ForecastLoaded(forecasts.mapToForecastScreenList()))
+                    }
+                  }
+                }
+              }
+            }
+          }
         }
 
         Action.CitiesLoadingFailed -> dispatch(Message.CitiesLoadingFailed)
+      }
+    }
+    private suspend fun loadForecastFromNet(cities: List<City>) {
+
+      dispatch(Message.ForecastLoading)
+
+      val result = getForecast(cities)
+
+      when {
+        result.isSuccess -> {
+          val forecast = result.getOrNull()!!
+          handleForecastIntoDb.insertForecastToDb(forecast)
+        }
+
+        result.isFailure -> {
+          val errorCode = result.exceptionOrNull()!!.message!!
+          dispatch(Message.ForecastLoadingFailed(errorCode))
+        }
       }
     }
   }
@@ -219,7 +260,7 @@ class NextdaysStoreFactory @Inject constructor(
 
         is Message.ForecastLoadingFailed -> copy(forecastState = State.ForecastState.Error)
 
-        Message.ForecastStartLoading -> copy(forecastState = State.ForecastState.Loading)
+        Message.ForecastLoading -> copy(forecastState = State.ForecastState.Loading)
 
         is Message.NewCityId -> {
           val cities = citiesState as State.CitiesState.Loaded

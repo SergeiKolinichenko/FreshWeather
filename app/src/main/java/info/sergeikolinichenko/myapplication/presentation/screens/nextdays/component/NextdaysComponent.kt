@@ -34,15 +34,13 @@ class DefaultNextdaysComponent @AssistedInject constructor(
   @Assisted("onClickedClose") private val onClickedClose:() -> Unit,
   @Assisted("id") private val id: Int,
   @Assisted("index") private val index: Int,
-  @Assisted("forecasts") private val forecasts: List<ForecastFs>,
   @Assisted("componentContext") private val componentContext: ComponentContext,
   private val storeFactory: NextdaysStoreFactory
 ) : NextdaysComponent, ComponentContext by componentContext {
 
   private val store = instanceKeeper.getStore{ storeFactory.create(
     id = id,
-    index = index,
-    forecasts = forecasts
+    index = index
   ) }
   private val scope = componentScope()
 
@@ -93,7 +91,6 @@ class DefaultNextdaysComponent @AssistedInject constructor(
       @Assisted("onClickedClose") onClickedClose:() -> Unit,
       @Assisted("id") id: Int,
       @Assisted("index") index: Int,
-      @Assisted("forecasts") forecasts: List<ForecastFs>,
       @Assisted("componentContext") componentContext: ComponentContext
     ): DefaultNextdaysComponent
   }

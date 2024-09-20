@@ -6,7 +6,7 @@ import javax.inject.Inject
 
 /** Created by Sergei Kolinichenko on 11.09.2024 at 18:48 (GMT+3) **/
 
-class ActWithForecastInDbUseCase@Inject constructor(
+class HandleForecastIntoDbUseCase@Inject constructor(
   private val repository: ForecastRepository
 ) {
 

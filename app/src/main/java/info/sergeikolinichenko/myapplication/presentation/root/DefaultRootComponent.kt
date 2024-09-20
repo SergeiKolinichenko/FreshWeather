@@ -68,9 +68,7 @@ class DefaultRootComponent @AssistedInject constructor(
         id = config.id,
         onClickedBack = { navigation.pop() },
         onClickedSettings = { navigation.push(Config.Settings(sourceOfOpening = SourceOfOpening.OpenFromDetails)) },
-        onClickedDay = { id, index, forecasts ->
-          navigation.push(Config.Nextdays(id = id, index = index, forecasts = forecasts))
-        }
+        onClickedDay = { id, index -> navigation.push(Config.Nextdays(id = id, index = index))}
       )
       RootComponent.Child.Details(component)
     }
@@ -80,13 +78,10 @@ class DefaultRootComponent @AssistedInject constructor(
         componentContext = componentContext,
         id = config.id,
         index = config.index,
-        forecasts = config.forecasts,
         onSwipedTop = {
           navigation.pop()
         },
-        onClickedClose = {
-          navigation.popWhile{ it !is Config.Favourite}
-        }
+        onClickedClose = { navigation.popWhile{ it !is Config.Favourite} }
       )
       RootComponent.Child.Nextdays(component)
     }
@@ -144,7 +139,7 @@ class DefaultRootComponent @AssistedInject constructor(
     data class Details(val id: Int) : Config
 
     @Parcelize
-    data class Nextdays(val id: Int, val index: Int, val forecasts: List<ForecastFs>) : Config
+    data class Nextdays(val id: Int, val index: Int) : Config
 
     @Parcelize
     data object Search : Config
