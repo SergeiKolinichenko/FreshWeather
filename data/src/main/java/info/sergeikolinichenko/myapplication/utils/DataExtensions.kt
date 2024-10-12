@@ -19,11 +19,11 @@ internal fun Float.toHpaString(): String = "${this.roundToInt()}\n hPa"
 
 internal fun Float.toMmHgString(): String = "${(this * 0.750062).roundToInt()}\n mmHg"
 
-@TypeConverter
-internal fun List<String>.toStringFromStringList() = Gson().toJson(this)
-
-@TypeConverter
-internal fun String.toStringListFromString(): List<String> {
-  val listType = object : TypeToken<List<String>>() {}.type
-  return Gson().fromJson(this, listType)
-}
+//@TypeConverter
+//internal fun List<String>.toStringFromStringList() = Gson().toJson(this)
+//
+//@TypeConverter
+//internal fun String.toStringListFromString(): List<String> {
+//  val listType = object : TypeToken<List<String>>() {}.type
+//  return Gson().fromJson(this, listType)
+//}

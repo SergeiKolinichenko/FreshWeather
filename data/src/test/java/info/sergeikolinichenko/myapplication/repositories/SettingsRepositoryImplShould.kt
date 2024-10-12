@@ -7,7 +7,6 @@ import info.sergeikolinichenko.domain.entity.PRECIPITATION
 import info.sergeikolinichenko.domain.entity.PRESSURE
 import info.sergeikolinichenko.domain.entity.Settings
 import info.sergeikolinichenko.domain.entity.TEMPERATURE
-import info.sergeikolinichenko.myapplication.utils.BaseUnitTestsRules
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -31,7 +30,7 @@ class SettingsRepositoryImplShould {
   private val editor = mock(SharedPreferences.Editor::class.java)
   private val gson = Gson()
 
-  private val SUT = SettingsRepositoryImpl(preferences)
+  private val systemUnderTest = SettingsRepositoryImpl(preferences)
 
   @Test
   fun `test set settings`() {
@@ -41,7 +40,7 @@ class SettingsRepositoryImplShould {
     `when`(preferences.edit()).thenReturn(editor)
     `when`(editor.putString(anyString(), anyString())).thenReturn(editor)
     // Act
-    SUT.setSettings(settings)
+    systemUnderTest.setSettings(settings)
     // Assert
     verify(editor).putString(SettingsRepositoryImpl.SETTINGS_KEY, jsonObject) // Check key and value
     verify(editor).apply() // Check that apply() was called
@@ -55,7 +54,7 @@ class SettingsRepositoryImplShould {
     `when`(preferences.getString(SettingsRepositoryImpl.SETTINGS_KEY, null)).thenReturn(jsonObject)
 
     // Act
-    val flow: Flow<Settings> = SUT.getSettings()
+    val flow: Flow<Settings> = systemUnderTest.getSettings()
     val result = flow.first()
 
     // Assert
@@ -68,7 +67,7 @@ class SettingsRepositoryImplShould {
     `when`(preferences.getString(SettingsRepositoryImpl.SETTINGS_KEY, null)).thenReturn(null)
 
     // Act
-    val flow: Flow<Settings> = SUT.getSettings()
+    val flow: Flow<Settings> = systemUnderTest.getSettings()
     val result = flow.first()
 
     // Assert

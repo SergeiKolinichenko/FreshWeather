@@ -48,7 +48,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import info.sergeikolinichenko.myapplication.R
-import info.sergeikolinichenko.myapplication.presentation.screens.settings.store.SettingsStore
+import info.sergeikolinichenko.myapplication.presentation.stors.settings.SettingsStore
 import info.sergeikolinichenko.myapplication.utils.ResponsiveText
 
 /** Created by Sergei Kolinichenko on 17.07.2024 at 14:15 (GMT+3) **/

@@ -39,8 +39,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import info.sergeikolinichenko.myapplication.R
-import info.sergeikolinichenko.myapplication.presentation.screens.search.component.SearchComponent
-import info.sergeikolinichenko.myapplication.presentation.screens.search.store.SearchStore
+import info.sergeikolinichenko.myapplication.presentation.components.search.SearchComponent
+import info.sergeikolinichenko.myapplication.presentation.stors.search.SearchStore
 import info.sergeikolinichenko.myapplication.utils.ResponsiveText
 
 const val TEST_SEARCHBAR_TAG = "test_searchbar_tag"
@@ -79,50 +79,43 @@ private fun SearchScreen(
       .padding(start = 16.dp, top = 24.dp, end = 16.dp, bottom = 16.dp)
       .focusRequester(focusRequester = focusRequester)
       .testTag(TEST_SEARCHBAR_TAG),
-
-    placeholder = {
-      ResponsiveText(
-        modifier = Modifier
-          .padding(end = 16.dp),
-        text = stringResource(R.string.search_content_text_into_placeholder),
-        fontFamily = FontFamily.SansSerif,
-        fontWeight = FontWeight.Normal,
-        targetTextSizeHeight = 16.sp,
-        textAlign = TextAlign.Start,
-        color = MaterialTheme.colorScheme.onBackground
+    inputField = {
+      SearchBarDefaults.InputField(
+        query = state.query,
+        onQueryChange = { component.onQueryChanged(it) },
+        onSearch = { component.onQueryChanged(it) },
+        expanded = true,
+        onExpandedChange = {
+          if (!it) component.onBackClicked()
+        },
+        leadingIcon = {
+          IconButton(onClick = { component.onBackClicked() }) {
+            Icon(
+              modifier = Modifier.size(24.dp),
+              imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+              contentDescription = stringResource(id = R.string.settings_content_description_text_back_button),
+              tint = MaterialTheme.colorScheme.onBackground
+            )
+          }
+        },
+        trailingIcon = {
+          IconButton(onClick = { component.onClickedClearLine() }) {
+            Icon(
+              modifier = Modifier.size(24.dp),
+              imageVector = Icons.Default.Close,
+              contentDescription = stringResource(R.string.content_description_text_clear_line),
+              tint = MaterialTheme.colorScheme.onBackground
+            )
+          }
+        },
+        colors = SearchBarDefaults.inputFieldColors()
       )
     },
-
-    query = state.query,
-
-    onQueryChange = { component.onQueryChanged(it) },
-    onSearch = { component.onQueryChanged(it) },
-    active = true,
-    leadingIcon = {
-      IconButton(onClick = { component.onBackClicked() }) {
-        Icon(
-          modifier = Modifier.size(24.dp),
-          imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-          contentDescription = stringResource(id = R.string.settings_content_description_text_back_button)
-        )
-      }
-    },
-    trailingIcon = {
-      IconButton(onClick = { component.onClickedClearLine() }) {
-        Icon(
-          modifier = Modifier.size(24.dp),
-          imageVector = Icons.Default.Close,
-          contentDescription = stringResource(R.string.content_description_text_clear_line)
-        )
-      }
-    },
-    onActiveChange = {
+    expanded = true,
+    onExpandedChange = {
       if (!it) component.onBackClicked()
     },
-    colors = SearchBarDefaults.colors(
-      containerColor = Color.Transparent,
-      inputFieldColors = SearchBarDefaults.inputFieldColors()
-    )
+    colors = SearchBarDefaults.colors(containerColor = Color.Transparent)
   ) {
 
     when (val searchState = state.state) {

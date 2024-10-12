@@ -4,8 +4,8 @@ import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
 import info.sergeikolinichenko.domain.usecases.favourite.GetFavouriteCitiesUseCase
 import info.sergeikolinichenko.domain.usecases.forecast.GetForecastsFromNetUseCase
 import info.sergeikolinichenko.myapplication.entity.ForecastFs
-import info.sergeikolinichenko.myapplication.presentation.screens.details.store.DetailsStore
-import info.sergeikolinichenko.myapplication.presentation.screens.details.store.DetailsStoreFactory
+import info.sergeikolinichenko.myapplication.presentation.stors.details.DetailsStore
+import info.sergeikolinichenko.myapplication.presentation.stors.details.DetailsStoreFactory
 import info.sergeikolinichenko.myapplication.utils.BaseUnitTestsRules
 import info.sergeikolinichenko.myapplication.utils.mapToForecastScreen
 import info.sergeikolinichenko.myapplication.utils.testCity
@@ -36,7 +36,7 @@ class DetailsStoreFactoryShould : BaseUnitTestsRules() {
   private val listOfForecast = listOf(testForecast)
   // endregion constants
 
-  private val SUT = DetailsStoreFactory(
+  private val systemUnderTest = DetailsStoreFactory(
     factory,
     getForecastsFromNetUseCase,
     getFavouriteCitiesUseCase
@@ -52,7 +52,7 @@ class DetailsStoreFactoryShould : BaseUnitTestsRules() {
     // Arrange
     mockSuccessfulResult()
     // Act
-    SUT.create(testCity.id, listOfForecastFs)
+    systemUnderTest.create(testCity.id, listOfForecastFs)
     // Assert
     verify(getFavouriteCitiesUseCase, times(1)).invoke()
   }
@@ -62,7 +62,7 @@ class DetailsStoreFactoryShould : BaseUnitTestsRules() {
     // Arrange
     mockSuccessfulResult()
     // Act
-    val store = SUT.create(testCity.id, listOfForecastFs)
+    val store = systemUnderTest.create(testCity.id, listOfForecastFs)
     val testField = store.state.citiesState
     // Assert
     if (testField is DetailsStore.State.CitiesState.Loaded) {
@@ -79,9 +79,9 @@ class DetailsStoreFactoryShould : BaseUnitTestsRules() {
       // Arrange
       whenever(getFavouriteCitiesUseCase.invoke()).thenReturn(flowOf(Result.failure(RuntimeException("Something went wrong"))))
       // Act
-      val store = SUT.create(testCity.id, listOfForecastFs)
+      val store = systemUnderTest.create(testCity.id, listOfForecastFs)
       // Assert
-      assert(store.state.citiesState is DetailsStore.State.CitiesState.Error)
+      assert(store.state.citiesState is DetailsStore.State.CitiesState.LoadingFailed)
     }
 
 
@@ -90,7 +90,7 @@ class DetailsStoreFactoryShould : BaseUnitTestsRules() {
     // Arrange
     mockSuccessfulResult()
     // Act
-    val store = SUT.create(testCity.id, listOfForecastFs)
+    val store = systemUnderTest.create(testCity.id, listOfForecastFs)
     val testField = store.state.forecastState
     // Assert
     if (testField is DetailsStore.State.ForecastsState.Loaded) {
@@ -106,9 +106,9 @@ class DetailsStoreFactoryShould : BaseUnitTestsRules() {
     whenever(getFavouriteCitiesUseCase.invoke()).thenReturn(flowOf(Result.success(cities)))
     whenever(getForecastsFromNetUseCase.invoke(cities)).thenReturn(Result.failure(Exception("Something went wrong")))
     // Act
-    val store = SUT.create(testCity.id, listOfForecastFs)
+    val store = systemUnderTest.create(testCity.id, listOfForecastFs)
     // Assert
-    assert(store.state.forecastState is DetailsStore.State.ForecastsState.Failed)
+    assert(store.state.forecastState is DetailsStore.State.ForecastsState.LoadingFailed)
   }
 
 

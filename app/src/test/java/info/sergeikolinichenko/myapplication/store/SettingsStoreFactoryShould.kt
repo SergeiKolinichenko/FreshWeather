@@ -13,9 +13,9 @@ import info.sergeikolinichenko.domain.entity.Settings
 import info.sergeikolinichenko.domain.entity.TEMPERATURE
 import info.sergeikolinichenko.domain.usecases.settings.DaysOfWeatherUseCase
 import info.sergeikolinichenko.domain.usecases.settings.SettingsUseCase
-import info.sergeikolinichenko.myapplication.presentation.screens.details.SourceOfOpening
-import info.sergeikolinichenko.myapplication.presentation.screens.settings.store.SettingsStore
-import info.sergeikolinichenko.myapplication.presentation.screens.settings.store.SettingsStoreFactory
+import info.sergeikolinichenko.myapplication.presentation.ui.content.detailsnextdays.SourceOfOpening
+import info.sergeikolinichenko.myapplication.presentation.stors.settings.SettingsStore
+import info.sergeikolinichenko.myapplication.presentation.stors.settings.SettingsStoreFactory
 import info.sergeikolinichenko.myapplication.utils.BaseUnitTestsRules
 import info.sergeikolinichenko.myapplication.utils.test
 import junit.framework.TestCase.assertEquals
@@ -58,7 +58,7 @@ class SettingsStoreFactoryShould: BaseUnitTestsRules() {
     pressure = PRESSURE.MMHG
   )
 
-  private val SUT = SettingsStoreFactory(
+  private val systemUnderTest = SettingsStoreFactory(
     storeFactory,
     mockSettingsUseCase,
     daysOfWeatherUseCase
@@ -69,13 +69,11 @@ class SettingsStoreFactoryShould: BaseUnitTestsRules() {
     MockitoAnnotations.openMocks(this)
   }
 
-
-  @OptIn(ExperimentalCoroutinesApi::class)
   @Test
   fun `test initial state`() = runTest {
     mockSuccessfulCase()
     // Act
-    SUT.create(sourceOfOpening)
+    systemUnderTest.create(sourceOfOpening)
     // Assert
     verify(mockSettingsUseCase, times(1)).getSettings()
   }
@@ -85,7 +83,7 @@ class SettingsStoreFactoryShould: BaseUnitTestsRules() {
     // Arrange
     mockSuccessfulCase()
     // Act
-    val store = SUT.create(sourceOfOpening)
+    val store = systemUnderTest.create(sourceOfOpening)
     // Assert
     assertEquals(testSettings.temperature, store.state.temperature)
     assertEquals(testSettings.precipitation, store.state.precipitation)
@@ -101,7 +99,7 @@ class SettingsStoreFactoryShould: BaseUnitTestsRules() {
     // Arrange
     mockSuccessfulCase()
     // Act
-    val store = SUT.create(sourceOfOpening)
+    val store = systemUnderTest.create(sourceOfOpening)
     store.accept(SettingsStore.Intent.ChangeOfTemperatureMeasure(TEMPERATURE.FAHRENHEIT))
     // Assert
     assertEquals(TEMPERATURE.FAHRENHEIT, store.state.temperature)
@@ -112,7 +110,7 @@ class SettingsStoreFactoryShould: BaseUnitTestsRules() {
     // Arrange
     mockSuccessfulCase()
     // Act
-    val store = SUT.create(sourceOfOpening)
+    val store = systemUnderTest.create(sourceOfOpening)
     store.accept(SettingsStore.Intent.ChangeOfPrecipitationMeasure(PRECIPITATION.INCHES))
     // Assert
     assertEquals(PRECIPITATION.INCHES, store.state.precipitation)
@@ -123,7 +121,7 @@ class SettingsStoreFactoryShould: BaseUnitTestsRules() {
     // Arrange
     mockSuccessfulCase()
     // Act
-    val store = SUT.create(sourceOfOpening)
+    val store = systemUnderTest.create(sourceOfOpening)
     store.accept(SettingsStore.Intent.ChangeOfPressureMeasure(PRESSURE.MMHG))
     // Assert
     assertEquals(PRESSURE.MMHG, store.state.pressure)
@@ -134,7 +132,7 @@ class SettingsStoreFactoryShould: BaseUnitTestsRules() {
     // Arrange
     mockSuccessfulCase()
     // Act
-    val store = SUT.create(sourceOfOpening)
+    val store = systemUnderTest.create(sourceOfOpening)
     val testSettings = Settings(
       temperature = store.state.temperature,
       precipitation = store.state.precipitation,
@@ -150,7 +148,7 @@ class SettingsStoreFactoryShould: BaseUnitTestsRules() {
     // Arrange
     mockSuccessfulCase()
     // Act
-    val store = SUT.create(sourceOfOpening)
+    val store = systemUnderTest.create(sourceOfOpening)
     val testField = store.labels.test()
     store.accept(SettingsStore.Intent.OnClickedBack)
     // Assert
@@ -163,7 +161,7 @@ class SettingsStoreFactoryShould: BaseUnitTestsRules() {
     mockSuccessfulCase()
     val context = spy(Robolectric.buildActivity(Activity::class.java).get())
     // Act
-    val store = SUT.create(sourceOfOpening)
+    val store = systemUnderTest.create(sourceOfOpening)
     store.accept(SettingsStore.Intent.OnClickedEvaluateApp(context))
     val startedIntent = shadowOf(context).nextStartedActivity
     val expectedUri = Uri.parse("market://details?id=${context.packageName}")
@@ -185,7 +183,7 @@ class SettingsStoreFactoryShould: BaseUnitTestsRules() {
       .`when`(context)
       .startActivity(argThat { action == Intent.ACTION_VIEW && data?.scheme == "market" })
     // Act
-    val store = SUT.create(sourceOfOpening)
+    val store = systemUnderTest.create(sourceOfOpening)
     store.accept(SettingsStore.Intent.OnClickedEvaluateApp(context))
 
     inOrder.verify(context).startActivity(argThat{
@@ -203,7 +201,7 @@ class SettingsStoreFactoryShould: BaseUnitTestsRules() {
     mockSuccessfulCase()
     val context = mock(Context::class.java)
     // Act
-    val store = SUT.create(sourceOfOpening)
+    val store = systemUnderTest.create(sourceOfOpening)
     store.accept(SettingsStore.Intent.ClickedWriteDevelopers(context))
     // Assert
     verify(context).startActivity(argThat { action == Intent.ACTION_CHOOSER })

@@ -6,8 +6,8 @@ import info.sergeikolinichenko.domain.entity.City
 import info.sergeikolinichenko.domain.usecases.favourite.ChangeFavouriteStateUseCase
 import info.sergeikolinichenko.domain.usecases.search.SearchCitiesUseCase
 import info.sergeikolinichenko.myapplication.entity.CityFs
-import info.sergeikolinichenko.myapplication.presentation.screens.search.store.SearchStore
-import info.sergeikolinichenko.myapplication.presentation.screens.search.store.SearchStoreFactory
+import info.sergeikolinichenko.myapplication.presentation.stors.search.SearchStore
+import info.sergeikolinichenko.myapplication.presentation.stors.search.SearchStoreFactory
 import info.sergeikolinichenko.myapplication.utils.BaseUnitTestsRules
 import info.sergeikolinichenko.myapplication.utils.test
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -27,7 +27,7 @@ class SearchStoreFactoryShould: BaseUnitTestsRules() {
   private val mockCity = mock<City>()
   private val mockCities = listOf(mockCity)
 
-    val SUT = SearchStoreFactory(
+    private val systemUnderTest = SearchStoreFactory(
       storeFactory = DefaultStoreFactory(),
       searchCities = mockSearchCitiesUseCase,
       changeFavouriteState = mockChangeFavouriteStateUseCase
@@ -37,18 +37,18 @@ class SearchStoreFactoryShould: BaseUnitTestsRules() {
   fun `test for changing a query containing 1 letter`() = runTest {
     // Arrange
     // Act
-    SUT.accept(SearchStore.Intent.OnQueryChanged(query = "t"))
+    systemUnderTest.accept(SearchStore.Intent.OnQueryChanged(query = "t"))
     // Assert
-    assert(SUT.state.state == SearchStore.State.SearchState.NotEnoughLetters)
+    assert(systemUnderTest.state.state == SearchStore.State.SearchState.NotEnoughLetters)
   }
 
   @Test
   fun `test for changing a query containing 2 letters`() = runTest {
     // Arrange
     // Act
-    SUT.accept(SearchStore.Intent.OnQueryChanged(query = "te"))
+    systemUnderTest.accept(SearchStore.Intent.OnQueryChanged(query = "te"))
     // Assert
-    assert(SUT.state.state == SearchStore.State.SearchState.NotEnoughLetters)
+    assert(systemUnderTest.state.state == SearchStore.State.SearchState.NotEnoughLetters)
   }
 
   @Test
@@ -56,10 +56,10 @@ class SearchStoreFactoryShould: BaseUnitTestsRules() {
     // Arrange
     `when`(mockSearchCitiesUseCase.invoke(any())).thenReturn(mockCities)
     // Act
-    SUT.accept(SearchStore.Intent.OnQueryChanged(query = "tes"))
-    val result = SUT.state.state as SearchStore.State.SearchState.SuccessLoaded
+    systemUnderTest.accept(SearchStore.Intent.OnQueryChanged(query = "tes"))
+    val result = systemUnderTest.state.state as SearchStore.State.SearchState.SuccessLoaded
     // Assert
-    assert(SUT.state.state == SearchStore.State.SearchState.SuccessLoaded(mockCities))
+    assert(systemUnderTest.state.state == SearchStore.State.SearchState.SuccessLoaded(mockCities))
     assert(result.cities == mockCities)
   }
 
@@ -68,27 +68,27 @@ class SearchStoreFactoryShould: BaseUnitTestsRules() {
     // Arrange
     `when`(mockSearchCitiesUseCase.invoke(any())).thenReturn(emptyList())
     // Act
-    SUT.accept(SearchStore.Intent.OnQueryChanged(query = "test"))
+    systemUnderTest.accept(SearchStore.Intent.OnQueryChanged(query = "test"))
     // Assert
-    assert(SUT.state.state == SearchStore.State.SearchState.Empty)
+    assert(systemUnderTest.state.state == SearchStore.State.SearchState.Empty)
   }
 
   @Test
   fun `test on query changed with error`() = runTest {
     // Arrange
-    `when`(SUT.accept(SearchStore.Intent.OnQueryChanged(query = "test"))).thenThrow()
+    `when`(systemUnderTest.accept(SearchStore.Intent.OnQueryChanged(query = "test"))).thenThrow()
     // Act
-    SUT.accept(SearchStore.Intent.OnQueryChanged(query = "test"))
+    systemUnderTest.accept(SearchStore.Intent.OnQueryChanged(query = "test"))
     // Assert
-    assert(SUT.state.state == SearchStore.State.SearchState.Error)
+    assert(systemUnderTest.state.state == SearchStore.State.SearchState.Error)
   }
 
   @Test
   fun `test on clicked back`() = runTest {
     // Arrange
     // Act
-    val result = SUT.labels.test()
-    SUT.accept(SearchStore.Intent.OnClickedBack)
+    val result = systemUnderTest.labels.test()
+    systemUnderTest.accept(SearchStore.Intent.OnClickedBack)
     // Assert
     assert(result == listOf(SearchStore.Label.ClickedBack))
   }
@@ -97,10 +97,10 @@ class SearchStoreFactoryShould: BaseUnitTestsRules() {
   fun `test on clicked clear line`() = runTest {
     // Arrange
     // Act
-    SUT.accept(SearchStore.Intent.OnClickedClearLine)
-    val result = SUT.state.state as SearchStore.State.SearchState.SuccessLoaded
+    systemUnderTest.accept(SearchStore.Intent.OnClickedClearLine)
+    val result = systemUnderTest.state.state as SearchStore.State.SearchState.SuccessLoaded
     // Assert
-    assert(SUT.state.query == "")
+    assert(systemUnderTest.state.query == "")
     assert(result.cities == emptyList<City>())
   }
 
@@ -109,8 +109,8 @@ class SearchStoreFactoryShould: BaseUnitTestsRules() {
     // Arrange
     val city = City(1, "Sofia", "Sofia region", "Bulgaria", 1.0, 1.0)
     // Act
-    val result = SUT.labels.test()
-    SUT.accept(SearchStore.Intent.OnClickedCity(city.toTestCityForScreen()))
+    val result = systemUnderTest.labels.test()
+    systemUnderTest.accept(SearchStore.Intent.OnClickedCity(city.toTestCityForScreen()))
     // Assert
 //    assert(result == listOf(SearchStore.Label.SavedToFavorite))
   }

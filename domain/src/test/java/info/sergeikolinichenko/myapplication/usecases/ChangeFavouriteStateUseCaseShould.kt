@@ -20,18 +20,18 @@ class ChangeFavouriteStateUseCaseShould {
   private val id = 1
   // endregion constants
 
-  private val SUT = ChangeFavouriteStateUseCase(repository)
+  private val systemUnderTest = ChangeFavouriteStateUseCase(repository)
   @Test
   fun `add favourite city to db`() = runBlocking {
     // Act
-    SUT.addToFavourite(city)
+    systemUnderTest.addToFavourite(city)
     // Assert
     verify(repository, Mockito.times(1)).setToFavourite(city)
   }
   @Test
   fun `remove favourite city from db`() = runTest {
     // Act
-    SUT.removeFromFavourite(id)
+    systemUnderTest.removeFromFavourite(id)
     // Assert
     verify(repository, Mockito.times(1)).removeFromFavourite(id)
   }

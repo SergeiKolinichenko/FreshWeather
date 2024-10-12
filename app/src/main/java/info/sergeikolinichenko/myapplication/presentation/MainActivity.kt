@@ -1,18 +1,13 @@
 package info.sergeikolinichenko.myapplication.presentation
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.arkivanov.decompose.defaultComponentContext
 import info.sergeikolinichenko.myapplication.di.WeatherApp
-import info.sergeikolinichenko.myapplication.presentation.root.DefaultRootComponent
-import info.sergeikolinichenko.myapplication.presentation.root.RootContent
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
+import info.sergeikolinichenko.myapplication.presentation.components.root.DefaultRootComponent
+import info.sergeikolinichenko.myapplication.presentation.ui.content.root.RootContent
 import javax.inject.Inject
 
 class MainActivity : ComponentActivity() {

@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import info.sergeikolinichenko.myapplication.R
 import info.sergeikolinichenko.myapplication.entity.CityFs
-import info.sergeikolinichenko.myapplication.presentation.screens.favourite.store.FavouriteStore
+import info.sergeikolinichenko.myapplication.presentation.stors.favourites.FavouriteStore
 import info.sergeikolinichenko.myapplication.utils.ResponsiveText
 import info.sergeikolinichenko.myapplication.utils.toIconId
 
@@ -61,7 +61,7 @@ internal fun CityCard(
       FavouriteStore.State.ForecastState.Initial -> {}
 
       is FavouriteStore.State.ForecastState.Error -> {
-        // Failed message
+        // LoadingFailed message
         Box(
           modifier = Modifier.fillMaxSize(),
           contentAlignment = Alignment.Center

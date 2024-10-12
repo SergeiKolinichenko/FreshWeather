@@ -4,11 +4,11 @@ kotlin = "2.0.20"
 ksp = "2.0.20-1.0.24"
 core-ktx = "1.13.1"
 core-splashscreen = "1.0.1"
-lifecycle-runtime-ktx = "2.8.4"
-activity-compose = "1.9.1"
-compose-bom = "2024.08.00"
+lifecycle-runtime-ktx = "2.8.6"
+activity-compose = "1.9.2"
+compose-bom = "2024.09.02"
 mvikotlin = "4.2.0"
-decompose = "3.1.0"
+decompose = "3.2.0-beta01"
 room = "2.6.1"
 dagger = "2.52"
 retrofit = "2.11.0"
@@ -24,7 +24,7 @@ mockitokotlin = "4.0.0"
 androidx-core = "2.2.0"
 androidx-runner = "1.6.2"
 junit-ktx = "1.2.1"
-robolectric = "4.9"
+robolectric = "4.9.1"
 
 [libraries]
 core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
@@ -39,6 +39,7 @@ material3 = { group = "androidx.compose.material3", name = "material3" }
 mvikotlin-core = { group = "com.arkivanov.mvikotlin", name = "mvikotlin", version.ref = "mvikotlin" }
 mvikotlin-main = { group = "com.arkivanov.mvikotlin", name = "mvikotlin-main", version.ref = "mvikotlin" }
 mvikotlin-coroutines = { group = "com.arkivanov.mvikotlin", name = "mvikotlin-extensions-coroutines", version.ref = "mvikotlin" }
+# Decompose
 decompose-core = { group = "com.arkivanov.decompose", name = "decompose", version.ref = "decompose" }
 decompose-jetpack = { group = "com.arkivanov.decompose", name = "extensions-compose", version.ref = "decompose" }
 room-core = { group = "androidx.room", name = "room-ktx", version.ref = "room" }

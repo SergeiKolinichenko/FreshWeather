@@ -116,7 +116,8 @@
   <string name="error_loading_favourite_cities_please_inform_the_developers_about_the_problem">Ошибка при загрузке любимых городов, пожалуйста, сообщите разработчикам о проблеме.</string>
   <string name="error_receiving_weather_forecast_please_try_again_later_if_the_error_occurs_again_please_notify_the_developers">Ошибка при получении прогноза погоды, пожалуйста, повторите попытку позже, если ошибка возникнет снова, пожалуйста, сообщите об этом разработчикам.</string>
   <string name="dropdown_menu_title_screen_editing">Редактировать избранное</string>
-  <string name="failed_to_load_the_list_of_favourite_cities">Не удалось загрузить список избранных городов!\\nПожалуйста, сообщите о проблеме разработчикам приложения.</string>
   <string name="settings_content_unit_title_forecast">Прогноз погоды</string>
   <string name="settings_content_number_of_forecast_days">Количество дней прогноза</string>
+  <string name="details_content_error_loading_cities_text">Ошибка при получении городов из базы данных. Пожалуйста, попробуйте перезагрузить приложение, если ошибка возникнет снова, сообщите об этом разработчикам приложения.</string>
+  <string name="details_content_error_loading_forecast_text">Ошибка при получении погоды для избранного города. Пожалуйста, попробуйте перезагрузить приложение, если ошибка возникнет снова, сообщите об этом разработчикам приложения.</string>
 </resources>

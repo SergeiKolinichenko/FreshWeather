@@ -23,12 +23,12 @@ class GetFavouriteCitiesUseCaseShould {
   private val exception = RuntimeException("Something went wrong")
   // endregion  constants
 
-  private val SUT = GetFavouriteCitiesUseCase(repository)
+  private val systemUnderTest = GetFavouriteCitiesUseCase(repository)
 
   @Test
   fun `get list of favourite cities from repository`(): Unit = runTest {
     // Act
-    SUT.invoke()
+    systemUnderTest.invoke()
     // Assert
     verify(repository, times(1)).getFavouriteCities
   }
@@ -37,7 +37,7 @@ class GetFavouriteCitiesUseCaseShould {
     // Arrange
     mockGetSuccessfullyListOfCities()
     // Act
-    val result = SUT.invoke().first()
+    val result = systemUnderTest.invoke().first()
     // Assert
     assertEquals(listCities, result.getOrNull())
   }
@@ -48,7 +48,7 @@ class GetFavouriteCitiesUseCaseShould {
       flow {
         emit(Result.failure(exception))
       })
-    val result = SUT.invoke().first()
+    val result = systemUnderTest.invoke().first()
     // Assert
     assertEquals(exception, result.exceptionOrNull())
   }

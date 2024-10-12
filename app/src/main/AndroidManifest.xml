@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- TODO When this line "android:screenOrientation="portrait" will been deleted, need to delete "tools:ignore="LockedOrientationActivity".-->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="LockedOrientationActivity">
 
   <uses-permission android:name="android.permission.INTERNET" />
 
@@ -16,7 +18,7 @@
       android:theme="@style/Theme.FreshWeather"
       android:enableOnBackInvokedCallback="true"
       tools:targetApi="tiramisu">
-    <!-- TODO In the future it is necessary to fix the last line and to add screen orientation handling.-->
+    <!-- TODO In the future it is necessary to fix the this line "android:screenOrientation="portrait" and to add screen orientation handling.-->
     <activity
         android:name=".presentation.MainActivity"
         android:exported="true"

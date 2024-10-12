@@ -115,7 +115,8 @@
   <string name="error_loading_favourite_cities_please_inform_the_developers_about_the_problem">Error loading favourite cities, please inform the developers about the problem.</string>
   <string name="error_receiving_weather_forecast_please_try_again_later_if_the_error_occurs_again_please_notify_the_developers">Error receiving weather forecast, please try again later, if the error occurs again, please notify the developers.</string>
   <string name="dropdown_menu_title_screen_editing">Edit favourites</string>
-  <string name="failed_to_load_the_list_of_favourite_cities">Failed to load the list of favourite cities!\nPlease report the problem to the application developers.</string>
   <string name="settings_content_unit_title_forecast">Weather forecast</string>
   <string name="settings_content_number_of_forecast_days">Number of forecast days</string>
+  <string name="details_content_error_loading_cities_text">Error retrieving cities from the database. Please try reloading the application, if the error occurs again, please inform the application developers.</string>
+  <string name="details_content_error_loading_forecast_text">Error while retrieving weather for the favourite city. Please try reloading the app, if the error occurs again, please notify the app developers.</string>
 </resources>

@@ -1,7 +1,6 @@
 package info.sergeikolinichenko.myapplication.repositories
 
 import android.content.SharedPreferences
-import android.util.Log
 import com.google.gson.Gson
 import info.sergeikolinichenko.domain.entity.City
 import info.sergeikolinichenko.domain.entity.Forecast
@@ -35,9 +34,6 @@ class ForecastRepositoryImpl @Inject constructor(
           days = preferences.getInt(DAYS_OF_WEATHER_KEY, SEVEN_DAYS_FORECAST).toString()
         )
 
-        Log.d("TAG", "getForecastsFromNet: ${response.body()!!.daysForecast.first().moonset}")
-        Log.d("TAG", "getForecastsFromNet: ${response.body()!!.daysForecast.first().moonrise}")
-
         if (response.isSuccessful) response.body()!!.mapToForecast(city.id, getMySettings())
         else throw Exception(response.code().toString())
       }
@@ -48,9 +44,6 @@ class ForecastRepositoryImpl @Inject constructor(
 
   override val getForecastsFromDb: Flow<Result<List<Forecast>>> get() =
     dao.getForecastsFromDb().map {
-
-      Log.d("TAG", "getForecastsFromDb ${it.first().upcomingDays.first().moonset}")
-      Log.d("TAG", "getForecastsFromDb ${it.first().upcomingDays.first().moonrise}")
 
       if (it.isEmpty()) Result.failure(RuntimeException("No forecast in db"))
       else Result.success(it.mapListDbModelsToListForecast())

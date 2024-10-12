@@ -8,8 +8,8 @@ import info.sergeikolinichenko.domain.usecases.favourite.GetFavouriteCitiesUseCa
 import info.sergeikolinichenko.domain.usecases.forecast.GetForecastsFromNetUseCase
 import info.sergeikolinichenko.domain.usecases.search.SearchCitiesUseCase
 import info.sergeikolinichenko.myapplication.entity.CityFs
-import info.sergeikolinichenko.myapplication.presentation.screens.favourite.store.FavouriteStore
-import info.sergeikolinichenko.myapplication.presentation.screens.favourite.store.FavouriteStoreFactory
+import info.sergeikolinichenko.myapplication.presentation.stors.favourites.FavouriteStore
+import info.sergeikolinichenko.myapplication.presentation.stors.favourites.FavouriteStoreFactory
 import info.sergeikolinichenko.myapplication.utils.BaseUnitTestsRules
 import info.sergeikolinichenko.myapplication.utils.mapToForecastScreenList
 import info.sergeikolinichenko.myapplication.utils.test
@@ -41,7 +41,7 @@ class FavouriteStoreFactoryShould : BaseUnitTestsRules() {
   private val exception = Exception("Something went wrong")
   // endregion constants
 
-  private val SUT = FavouriteStoreFactory(
+  private val systemUnderTest = FavouriteStoreFactory(
     factory,
     getFavouriteCitiesUseCase,
     changeFavouriteStateUseCase,
@@ -55,7 +55,7 @@ class FavouriteStoreFactoryShould : BaseUnitTestsRules() {
       // Arrange
       mockSuccessResult()
       // Act
-      SUT.create()
+      systemUnderTest.create()
       // Assert
       verify(getFavouriteCitiesUseCase, times(1)).invoke()
     }
@@ -66,7 +66,7 @@ class FavouriteStoreFactoryShould : BaseUnitTestsRules() {
       // Arrange
       mockSuccessResult()
       // Act
-      val store = SUT.create()
+      val store = systemUnderTest.create()
       val testField = (store.state.citiesState as FavouriteStore.State.CitiesState.Loaded).listCities.first()
       // Assert
       assert(testField.toTestCityForTest() == testCity)
@@ -78,7 +78,7 @@ class FavouriteStoreFactoryShould : BaseUnitTestsRules() {
       // Arrange
       mockSuccessResult()
       // Act
-      val store = SUT.create()
+      val store = systemUnderTest.create()
       val testField = store.state.citiesState
       // Assert
       assert(testField is FavouriteStore.State.CitiesState.Loaded)
@@ -90,7 +90,7 @@ class FavouriteStoreFactoryShould : BaseUnitTestsRules() {
       // Arrange
       whenever(getFavouriteCitiesUseCase.invoke()).thenReturn(flowOf(Result.failure(exception)))
       // Act
-      val store = SUT.create()
+      val store = systemUnderTest.create()
       val testField = store.state.citiesState
       // Assert
       assert(testField == FavouriteStore.State.CitiesState.Error)
@@ -102,7 +102,7 @@ class FavouriteStoreFactoryShould : BaseUnitTestsRules() {
       // Arrange
       mockSuccessResult()
       // Act
-      SUT.create()
+      systemUnderTest.create()
       // Assert
       verify(getForecastsFromNetUseCase, times(1)).invoke(cities)
     }
@@ -114,7 +114,7 @@ class FavouriteStoreFactoryShould : BaseUnitTestsRules() {
       whenever(getFavouriteCitiesUseCase.invoke()).thenReturn(flowOf(Result.success(cities)))
       whenever(getForecastsFromNetUseCase.invoke(cities)).thenReturn(Result.failure(exception))
       // Act
-      val store = SUT.create()
+      val store = systemUnderTest.create()
       val testField = store.state.forecastState
       // Assert
       assert(testField is FavouriteStore.State.ForecastState.Error)
@@ -126,7 +126,7 @@ class FavouriteStoreFactoryShould : BaseUnitTestsRules() {
       // Arrange
       mockSuccessResult()
       // Act
-      val store = SUT.create()
+      val store = systemUnderTest.create()
       val testField =
         store.state.forecastState as FavouriteStore.State.ForecastState.Loaded
       // Assert
@@ -189,7 +189,7 @@ class FavouriteStoreFactoryShould : BaseUnitTestsRules() {
     // Arrange
     mockSuccessResult()
     // Act
-    val store = SUT.create()
+    val store = systemUnderTest.create()
 //    store.accept(FavouriteStore.Intent.ClosingActionMenu)
     val testField = store.state.dropDownMenuState
     // Assert
@@ -202,7 +202,7 @@ class FavouriteStoreFactoryShould : BaseUnitTestsRules() {
       // Arrange
       mockSuccessResult()
       // Act
-      val store = SUT.create()
+      val store = systemUnderTest.create()
       store.accept(FavouriteStore.Intent.ActionMenuClicked)
       val testField = store.state.dropDownMenuState
       // Assert
@@ -215,7 +215,7 @@ class FavouriteStoreFactoryShould : BaseUnitTestsRules() {
       // Arrange
       mockSuccessResult()
       // Act
-      val store = SUT.create()
+      val store = systemUnderTest.create()
       store.accept(FavouriteStore.Intent.ClosingActionMenu)
       val testField = store.state.dropDownMenuState
       // Assert
@@ -227,7 +227,7 @@ class FavouriteStoreFactoryShould : BaseUnitTestsRules() {
     // Arrange
     mockSuccessResult()
     // Act
-    val store = SUT.create()
+    val store = systemUnderTest.create()
     val testField = store.labels.test()
     store.accept(FavouriteStore.Intent.SearchClicked)
     // Assert
@@ -241,7 +241,7 @@ class FavouriteStoreFactoryShould : BaseUnitTestsRules() {
       mockSuccessResult()
 
       // Act
-      val store = SUT.create()
+      val store = systemUnderTest.create()
       val testField = store.labels.test()
       store.accept(FavouriteStore.Intent.ItemMenuSettingsClicked)
       // Assert
@@ -254,7 +254,7 @@ class FavouriteStoreFactoryShould : BaseUnitTestsRules() {
       // Arrange
       mockSuccessResult()
       // Act
-      val store = SUT.create()
+      val store = systemUnderTest.create()
       val testField = store.labels.test()
       store.accept(FavouriteStore.Intent.ItemCityClicked(testCityFs.id))
       // Assert

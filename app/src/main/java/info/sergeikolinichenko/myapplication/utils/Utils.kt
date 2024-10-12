@@ -1,7 +1,6 @@
 package info.sergeikolinichenko.myapplication.utils
 
 import android.content.Context
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth

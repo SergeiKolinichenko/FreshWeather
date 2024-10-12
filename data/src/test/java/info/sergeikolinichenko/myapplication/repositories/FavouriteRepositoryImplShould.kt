@@ -26,12 +26,12 @@ class FavouriteRepositoryImplShould : BaseUnitTestsRules() {
   private val id = 1
   // endregion constants
 
-  private val SUT = FavouriteRepositoryImpl(dao, preferences)
+  private val systemUnderTest = FavouriteRepositoryImpl(dao, preferences)
 
   @Test
   fun `get favourite cities from Db`(): Unit = runBlocking {
     // Act
-    SUT.getFavouriteCities
+    systemUnderTest.getFavouriteCities
     // Assert
     verify(dao, times(1)).getAllCities()
   }
@@ -42,7 +42,7 @@ class FavouriteRepositoryImplShould : BaseUnitTestsRules() {
     whenever(dao.getAllCities()).thenReturn( flow { emit(listOf(testCityDbModel)) })
     val sample = testCityDbModel.toCityInTest()
     // Act
-    val result = SUT.getFavouriteCities.first().getOrNull()?.first()
+    val result = systemUnderTest.getFavouriteCities.first().getOrNull()?.first()
     // Assert
     assert(result == sample)
   }
@@ -52,7 +52,7 @@ class FavouriteRepositoryImplShould : BaseUnitTestsRules() {
     // Arrange
     whenever(dao.getAllCities()).thenReturn ( flow { emit(emptyList() ) } )
     // Act
-    val result = SUT.getFavouriteCities.first().exceptionOrNull()?.message
+    val result = systemUnderTest.getFavouriteCities.first().exceptionOrNull()?.message
     // Assert
     assert(result == exceptionMessage)
   }
@@ -62,14 +62,14 @@ class FavouriteRepositoryImplShould : BaseUnitTestsRules() {
     // Arrange
     val city = testCityDbModel.toCityInTest()
     // Act
-    SUT.setToFavourite(city)
+    systemUnderTest.setToFavourite(city)
     // Assert
     verify(dao, times(1)).addCity(testCityDbModel)
   }
   @Test
   fun `remove city from favorite`(): Unit = runBlocking {
     // Act
-    SUT.removeFromFavourite(id)
+    systemUnderTest.removeFromFavourite(id)
     // Assert
     verify(dao, times(1)).removeCityById(id)
   }

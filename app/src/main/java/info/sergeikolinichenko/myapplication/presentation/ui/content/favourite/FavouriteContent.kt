@@ -7,8 +7,8 @@ import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.rememberTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -32,6 +32,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,18 +41,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import info.sergeikolinichenko.myapplication.R
-import info.sergeikolinichenko.myapplication.presentation.screens.favourite.component.FavouriteComponent
-import info.sergeikolinichenko.myapplication.presentation.screens.favourite.store.FavouriteStore
+import info.sergeikolinichenko.myapplication.presentation.stors.favourites.FavouriteStore
+import info.sergeikolinichenko.myapplication.presentation.components.favourite.FavouriteComponent
 
 /** Created by Sergei Kolinichenko on 21.02.2024 at 16:06 (GMT+3) **/
 @Composable
@@ -62,11 +62,25 @@ fun FavouriteContent(component: FavouriteComponent) {
       .fillMaxSize()
       .background(MaterialTheme.colorScheme.background)
   ) {
-    AnimatedFavouriteContent(
-      component = component,
-      modifier = Modifier
-        .fillMaxSize()
-        .align(Alignment.TopCenter)
+
+    val state = component.model.collectAsState()
+
+    FavoriteVerticalGrid(
+      modifier = Modifier,
+      state = state,
+      onClickSearch = { component.onSearchClicked() },
+      onClickActionMenu = { component.onActionMenuClicked() },
+      onItemClicked = { component.onItemClicked(it) },
+      onDismissRequestDropdownMenu = { component.onClosingActionMenu() },
+      onClickSettings = { component.onItemMenuSettingsClicked() },
+      onClickEditing = { component.onItemMenuEditingClicked() },
+      onSwipeLeft = { component.onItemMenuEditingClicked() },
+      onSwipeRight = {
+        if (state.value.citiesState is FavouriteStore.State.CitiesState.Loaded) {
+          val id = (state.value.citiesState as FavouriteStore.State.CitiesState.Loaded).listCities.first().id
+          component.onItemClicked(id)
+        }
+      }
     )
   }
 }
@@ -245,7 +259,7 @@ fun scaleAndAlpha(
       targetState = TransitionState.PLACED
     }
   }
-  val transition = updateTransition(transitionState, label = "")
+  val transition = rememberTransition(transitionState, label = "")
   val alpha by transition.animateFloat(transitionSpec = { animation }, label = "") { state ->
     when (state) {
       TransitionState.PLACING -> args.fromAlpha
@@ -276,15 +290,15 @@ private fun InitialBox(
       verticalArrangement = Arrangement.Center
     ) {
 
-      val img = if (isSystemInDarkTheme()) R.drawable.dark_initial_picture
-      else R.drawable.light_initial_picture
+      val img = if (isSystemInDarkTheme()) R.mipmap.ic_dark_initial_picture
+      else R.mipmap.ic_light_initial_picture
 
       Icon(
         modifier = Modifier
           .size(300.dp),
-        imageVector = ImageVector.vectorResource(id = img),
+        painter = painterResource(id = img),
         contentDescription = stringResource(id = R.string.favourite_content_initial_picture),
-        tint = Color.Unspecified,
+        tint = Color.Unspecified
       )
       Spacer(modifier = Modifier.size(20.dp))
       Text(

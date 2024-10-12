@@ -1,5 +1,6 @@
 package info.sergeikolinichenko.myapplication.presentation.ui.content.settings
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -31,7 +32,7 @@ import info.sergeikolinichenko.domain.entity.PRECIPITATION
 import info.sergeikolinichenko.domain.entity.PRESSURE
 import info.sergeikolinichenko.domain.entity.TEMPERATURE
 import info.sergeikolinichenko.myapplication.R
-import info.sergeikolinichenko.myapplication.presentation.screens.settings.component.SettingsComponent
+import info.sergeikolinichenko.myapplication.presentation.components.settings.SettingsComponent
 import info.sergeikolinichenko.myapplication.utils.ResponsiveText
 
 /** Created by Sergei Kolinichenko on 14.07.2024 at 18:16 (GMT+3) **/
@@ -151,6 +152,7 @@ private fun ScreenTopBar(
   onClickedBack: () -> Unit,
   onClickedSaveSettings: () -> Unit,
 ) {
+
   Box(
    modifier = modifier
       .fillMaxWidth()
@@ -161,7 +163,8 @@ private fun ScreenTopBar(
       Icon(
         modifier = Modifier
           .size(24.dp)
-          .clickable { onClickedBack() },
+          .clickable {
+            onClickedBack() },
         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
         contentDescription = stringResource(id = R.string.settings_content_description_text_back_button)
       )
@@ -180,7 +183,8 @@ private fun ScreenTopBar(
     ResponsiveText(
       modifier = Modifier
         .align(Alignment.CenterEnd)
-        .clickable { onClickedSaveSettings() },
+        .clickable {
+          onClickedSaveSettings() },
       text = stringResource(R.string.many_place_title_button_done),
       fontFamily = FontFamily.SansSerif,
       fontWeight = FontWeight.Medium,

@@ -22,16 +22,15 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -50,9 +49,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import info.sergeikolinichenko.myapplication.R
-import info.sergeikolinichenko.myapplication.entity.CityFs
-import info.sergeikolinichenko.myapplication.presentation.screens.editing.component.EditingComponent
-import info.sergeikolinichenko.myapplication.presentation.screens.editing.store.EditingStore
+import info.sergeikolinichenko.myapplication.presentation.components.editing.EditingComponent
+import info.sergeikolinichenko.myapplication.presentation.stors.editing.EditingStore
+import info.sergeikolinichenko.myapplication.presentation.stors.editing.EditingStore.State.CityItem
 import info.sergeikolinichenko.myapplication.utils.ResponsiveText
 import info.sergeikolinichenko.myapplication.utils.SYS_ICON_SIZE_24
 import info.sergeikolinichenko.myapplication.utils.toIconId
@@ -63,14 +62,20 @@ import kotlinx.coroutines.launch
 
 @Composable
 internal fun EditingContent(component: EditingComponent) {
+
+  val state by component.model.collectAsState()
+
   Box(
     modifier = Modifier
       .background(MaterialTheme.colorScheme.background)
       .fillMaxSize()
   ) {
-    AnimatedEditingContent(
-      modifier = Modifier.fillMaxSize(),
-      component = component,
+    EditingScreen(
+      state = state,
+      onCloseClicked = { component.onBackClicked() },
+      onSwipeRight = { component.onBackClicked() },
+      onDoneClicked = { component.onDoneClicked() },
+      changedListCities = { component.listOfCitiesChanged(it) }
     )
   }
 }
@@ -79,7 +84,7 @@ internal fun EditingContent(component: EditingComponent) {
 internal fun EditingScreen(
   modifier: Modifier = Modifier,
   state: EditingStore.State,
-  changedListCities: (cities: List<CityFs>) -> Unit,
+  changedListCities: (cities: List<CityItem>) -> Unit,
   onCloseClicked: () -> Unit,
   onDoneClicked: () -> Unit,
   onSwipeRight: () -> Unit
@@ -118,64 +123,52 @@ internal fun EditingScreen(
 private fun MainScreen(
   modifier: Modifier = Modifier,
   state: EditingStore.State,
-  changedListCities: (List<CityFs>) -> Unit,
+  changedListCities: (List<CityItem>) -> Unit,
 ) {
 
-  when (state.cities) {
-    EditingStore.State.CitiesStatus.CitiesInitial -> {}
-    EditingStore.State.CitiesStatus.CitiesLoadingError -> {
-      CitiesLoadingError()
+  val cityItems = state.cityItems.toMutableList()
+
+  val dragDropListState = rememberDragDropListState(onMove = { from, to ->
+    if (cityItems.isNotEmpty() && from in 0 until cityItems.size) {
+      cityItems.move(from, to)
+      changedListCities(cityItems)
     }
+  })
 
-    is EditingStore.State.CitiesStatus.CitiesLoaded -> {
+  val lazyColumnCoordinates = remember { mutableStateOf<LayoutCoordinates?>(null) }
 
-      val cityItems = state.cityItems
-      val cities = state.cities.cities.toMutableStateList()
+  LazyColumn(
+    modifier = modifier
+      .fillMaxSize()
+      .background(MaterialTheme.colorScheme.background)
+      .onGloballyPositioned { coordinates ->
+        lazyColumnCoordinates.value = coordinates
+      },
+    state = dragDropListState.lazyListState,
+    verticalArrangement = Arrangement.spacedBy(12.dp),
+    horizontalAlignment = Alignment.CenterHorizontally
+  ) {
 
+    itemsIndexed(
+      items = cityItems,
+      key = { _, city -> city.id }
+    ) { index, cityItem ->
 
-      val dragDropListState = rememberDragDropListState(onMove = { from, to ->
-        cities.move(from, to)
-        changedListCities(cities)
-      })
-
-      val lazyColumnCoordinates = remember { mutableStateOf<LayoutCoordinates?>(null) }
-
-      LazyColumn(
-        modifier = modifier
-          .fillMaxSize()
-          .background(MaterialTheme.colorScheme.background)
-          .onGloballyPositioned { coordinates ->
-            lazyColumnCoordinates.value = coordinates
+      CityItem(
+        modifier = Modifier
+          .graphicsLayer {
+            translationY = dragDropListState.elementDisplacement.takeIf {
+              index == dragDropListState.currentIndexOfDraggedItem
+            } ?: 0f
           },
-        state = dragDropListState.lazyListState,
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-      ) {
-
-        itemsIndexed(
-          items = cities,
-          key = { _, city -> city.id }
-        ) { index, city ->
-
-          CityItem(
-            modifier = Modifier
-              .graphicsLayer {
-                translationY = dragDropListState.elementDisplacement.takeIf {
-                  index == dragDropListState.currentIndexOfDraggedItem
-                } ?: 0f
-              },
-            city = city,
-            temp = cityItems.first { it.id == city.id }.temp,
-            icon = cityItems.first { it.id == city.id }.icon,
-            onClickIconDelete = { id ->
-              cities.remove(cities.find { it.id == id })
-              changedListCities(cities)
-            },
-            dragDropListState = dragDropListState,
-            lazyColumnCoordinates = lazyColumnCoordinates
-          )
-        }
-      }
+        item = cityItem,
+        onClickIconDelete = { id ->
+          cityItems.remove(cityItems.find { it.id == id })
+          changedListCities(cityItems)
+        },
+        dragDropListState = dragDropListState,
+        lazyColumnCoordinates = lazyColumnCoordinates
+      )
     }
   }
 }
@@ -183,9 +176,7 @@ private fun MainScreen(
 @Composable
 private fun CityItem(
   modifier: Modifier = Modifier,
-  city: CityFs,
-  temp: String,
-  icon: String,
+  item: CityItem,
   onClickIconDelete: (id: Int) -> Unit,
   dragDropListState: DragAndDropState,
   lazyColumnCoordinates: MutableState<LayoutCoordinates?>
@@ -207,7 +198,7 @@ private fun CityItem(
       modifier = Modifier
         .size(36.dp)
         .padding(end = 8.dp)
-        .clickable { onClickIconDelete(city.id) },
+        .clickable { onClickIconDelete(item.id) },
       imageVector = ImageVector.vectorResource(id = R.drawable.remove_item),
       tint = Color.Unspecified,
       contentDescription = "Item deletion icon"
@@ -237,7 +228,7 @@ private fun CityItem(
           verticalArrangement = Arrangement.Center
         ) {
           ResponsiveText(
-            text = city.name,
+            text = item.name,
             textAlign = TextAlign.Start,
             fontFamily = FontFamily.SansSerif,
             fontWeight = FontWeight.Medium,
@@ -246,7 +237,7 @@ private fun CityItem(
             maxLines = 1
           )
           ResponsiveText(
-            text = temp,
+            text = item.temp,
             textAlign = TextAlign.Start,
             fontFamily = FontFamily.SansSerif,
             fontWeight = FontWeight.Normal,
@@ -257,7 +248,7 @@ private fun CityItem(
         }
         Icon(
           modifier = Modifier.size(44.dp),
-          painter = painterResource(id = icon.toIconId()),
+          painter = painterResource(id = item.icon.toIconId()),
           tint = Color.Unspecified,
           contentDescription = "Icon of weather state"
         )
@@ -315,28 +306,6 @@ private fun CityItem(
         },
       imageVector = Icons.Default.Menu,
       contentDescription = "Menu icon editing order items"
-    )
-  }
-}
-
-
-@Composable
-private fun CitiesLoadingError(
-  modifier: Modifier = Modifier
-) {
-  Box(
-    modifier = modifier
-      .fillMaxSize()
-      .background(MaterialTheme.colorScheme.background),
-    contentAlignment = Alignment.Center
-  ) {
-    Text(
-      text = stringResource(R.string.failed_to_load_the_list_of_favourite_cities),
-      textAlign = TextAlign.Start,
-      fontFamily = FontFamily.SansSerif,
-      fontWeight = FontWeight.W500,
-      fontSize = 22.sp,
-      color = MaterialTheme.colorScheme.onBackground
     )
   }
 }
