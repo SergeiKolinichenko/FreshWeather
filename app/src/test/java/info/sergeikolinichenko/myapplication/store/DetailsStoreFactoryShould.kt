@@ -4,8 +4,8 @@ import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
 import info.sergeikolinichenko.domain.usecases.favourite.GetFavouriteCitiesUseCase
 import info.sergeikolinichenko.domain.usecases.forecast.GetForecastsFromNetUseCase
 import info.sergeikolinichenko.myapplication.entity.ForecastFs
-import info.sergeikolinichenko.myapplication.presentation.stors.details.DetailsStore
-import info.sergeikolinichenko.myapplication.presentation.stors.details.DetailsStoreFactory
+import info.sergeikolinichenko.myapplication.presentation.stores.details.DetailsStore
+import info.sergeikolinichenko.myapplication.presentation.stores.details.DetailsStoreFactory
 import info.sergeikolinichenko.myapplication.utils.BaseUnitTestsRules
 import info.sergeikolinichenko.myapplication.utils.mapToForecastScreen
 import info.sergeikolinichenko.myapplication.utils.testCity

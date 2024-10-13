@@ -1,4 +1,4 @@
-package info.sergeikolinichenko.myapplication.presentation.stors.favourites
+package info.sergeikolinichenko.myapplication.presentation.stores.favourites
 
 import com.arkivanov.mvikotlin.core.store.Reducer
 import com.arkivanov.mvikotlin.core.store.Store

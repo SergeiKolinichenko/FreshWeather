@@ -1,4 +1,4 @@
-package info.sergeikolinichenko.myapplication.presentation.stors.settings
+package info.sergeikolinichenko.myapplication.presentation.stores.settings
 
 import android.content.Context
 import android.os.Parcelable

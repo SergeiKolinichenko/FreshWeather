@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import info.sergeikolinichenko.myapplication.entity.ForecastFs
 import info.sergeikolinichenko.myapplication.entity.HourForecastFs
-import info.sergeikolinichenko.myapplication.presentation.stors.details.DetailsStore
+import info.sergeikolinichenko.myapplication.presentation.stores.details.DetailsStore
 import info.sergeikolinichenko.myapplication.presentation.ui.content.detailsnextdays.AnimatingHourlyWeatherForecast
 import info.sergeikolinichenko.myapplication.presentation.ui.content.detailsnextdays.Charts
 import info.sergeikolinichenko.myapplication.presentation.ui.content.detailsnextdays.HumidityWindPressure

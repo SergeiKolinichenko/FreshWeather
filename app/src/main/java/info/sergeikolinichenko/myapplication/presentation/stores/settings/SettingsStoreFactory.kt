@@ -1,4 +1,4 @@
-package info.sergeikolinichenko.myapplication.presentation.stors.settings
+package info.sergeikolinichenko.myapplication.presentation.stores.settings
 
 import com.arkivanov.mvikotlin.core.store.Reducer
 import com.arkivanov.mvikotlin.core.store.Store
@@ -111,7 +111,7 @@ class SettingsStoreFactory @Inject constructor(
         }
 
         is SettingsStore.Intent.ClickedWriteDevelopers -> {
-          val result = intent.context.writeToDevelopers()
+          intent.context.writeToDevelopers()
         }
 
         is SettingsStore.Intent.ChangeOfDaysOfWeather ->

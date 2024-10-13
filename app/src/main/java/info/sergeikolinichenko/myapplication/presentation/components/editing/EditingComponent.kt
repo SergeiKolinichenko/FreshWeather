@@ -1,6 +1,5 @@
 package info.sergeikolinichenko.myapplication.presentation.components.editing
 
-import android.util.Log
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.mvikotlin.core.instancekeeper.getStore
 import com.arkivanov.mvikotlin.extensions.coroutines.labels
@@ -8,8 +7,8 @@ import com.arkivanov.mvikotlin.extensions.coroutines.stateFlow
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import info.sergeikolinichenko.myapplication.presentation.stors.editing.EditingStore
-import info.sergeikolinichenko.myapplication.presentation.stors.editing.EditingStoreFactory
+import info.sergeikolinichenko.myapplication.presentation.stores.editing.EditingStore
+import info.sergeikolinichenko.myapplication.presentation.stores.editing.EditingStoreFactory
 import info.sergeikolinichenko.myapplication.utils.componentScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.StateFlow

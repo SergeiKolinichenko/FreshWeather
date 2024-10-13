@@ -34,8 +34,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.asImageBitmap
@@ -126,7 +128,8 @@ fun Charts(
             modifier = Modifier
               .size(TITLE_ICON_SIZE_16.dp),
             imageVector = ImageVector.vectorResource(id = R.drawable.chart),
-            contentDescription = stringResource(R.string.details_content_description_graph_icon)
+            contentDescription = stringResource(R.string.details_content_description_graph_icon),
+            tint = MaterialTheme.colorScheme.surfaceTint
           )
           Column(
             modifier = Modifier
@@ -205,8 +208,8 @@ private fun Chart(
   } else null
 
   val icon = when (chartState.displayedItem) {
-    Displayed.HUMIDITY -> resizeBitmapImage(R.mipmap.ic_humidity, LocalContext.current)
-    Displayed.PRESSURE -> resizeBitmapImage(R.mipmap.ic_barometer, LocalContext.current, 65)
+    Displayed.HUMIDITY -> resizeBitmapImage(R.mipmap.ic_humidity, LocalContext.current, 60)
+    Displayed.PRESSURE -> resizeBitmapImage(R.mipmap.ic_barometer, LocalContext.current, 55)
     else -> null
   }
 
@@ -215,6 +218,8 @@ private fun Chart(
     Displayed.PRESSURE -> gradientPressureChart
     else -> gradientUvIndexChart
   }
+
+  val colorIcons = MaterialTheme.colorScheme.surfaceTint
 
   val transformableState = rememberTransformableState { _, panChange, _ ->
 
@@ -267,21 +272,24 @@ private fun Chart(
         drawTextValue(
           chartsState = chartState,
           textMeasurer = textMeasurer,
-          textStyle = textStyle
+          textStyle = textStyle,
+          color = textColor
         )
 
         // draw text - pressure
         drawTextTitleValue(
           chartsState = chartState,
           textMeasurer = textMeasurer,
-          textStyle = textStyle
+          textStyle = textStyle,
+          color = textColor
         )
 
         // draw images
         drawImage(
           chartsState = chartState,
           images = listOfIcon,
-          image = icon
+          image = icon,
+          color = colorIcons
         )
       }
     }
@@ -421,7 +429,8 @@ private fun DrawScope.drawTextHours(
 private fun DrawScope.drawTextValue(
   chartsState: ChartsState,
   textMeasurer: TextMeasurer,
-  textStyle: TextStyle
+  textStyle: TextStyle,
+  color: Color
 ) {
 
   val pxPerPoint = chartsState.pxPerPoint
@@ -440,7 +449,7 @@ private fun DrawScope.drawTextValue(
 
     val textLayoutResult = textMeasurer.measure(
       text = mainText,
-      style = textStyle.copy(textAlign = TextAlign.Center)
+      style = textStyle.copy(textAlign = TextAlign.Center, color = color)
     )
 
     if (index > 0 && index < chartsState.list.size - 1) {
@@ -462,7 +471,8 @@ private fun DrawScope.drawTextValue(
 private fun DrawScope.drawTextTitleValue(
   chartsState: ChartsState,
   textMeasurer: TextMeasurer,
-  textStyle: TextStyle
+  textStyle: TextStyle,
+  color: Color
 ) {
 
   if (chartsState.displayedItem == Displayed.PRESSURE) {
@@ -479,7 +489,7 @@ private fun DrawScope.drawTextTitleValue(
 
       val textLayoutResult = textMeasurer.measure(
         text = text,
-        style = textStyle.copy(fontSize = 10.sp, textAlign = TextAlign.Center)
+        style = textStyle.copy(fontSize = 10.sp, textAlign = TextAlign.Center, color = color)
       )
 
       if (index > 0 && index < chartsState.list.size - 1) {
@@ -503,11 +513,14 @@ private fun DrawScope.drawTextTitleValue(
 private fun DrawScope.drawImage(
   chartsState: ChartsState,
   images: List<ImageBitmap>? = null,
-  image: ImageBitmap? = null
+  image: ImageBitmap? = null,
+  color: Color
 ) {
 
   val pxPerPoint = chartsState.pxPerPoint
   val footer = chartsState.footer
+
+  val blendMode = if (images == null) BlendMode.SrcIn else BlendMode.Dst
 
   chartsState.list.forEachIndexed { index, item ->
 
@@ -525,8 +538,12 @@ private fun DrawScope.drawImage(
         image = img,
         topLeft = androidx.compose.ui.geometry.Offset(
           x = offsetX,
-          y = size.height - (pxPerPoint * value) - 35.dp.toPx() - footer,
+          y = size.height - (pxPerPoint * value) - 40.dp.toPx() - footer,
         ),
+        colorFilter = ColorFilter.tint(
+          color = color,
+          blendMode = blendMode
+        )
       )
     }
   }
@@ -548,9 +565,9 @@ private fun DisplayedValues(
     Displayed.entries.forEach { displayed ->
 
       val iconId = when (displayed) {
-        Displayed.UV_INDEX -> R.mipmap.ic_sun_max //R.drawable.sun_max
-        Displayed.HUMIDITY -> R.mipmap.ic_humidity //R.drawable.humidity
-        Displayed.PRESSURE -> R.mipmap.ic_barometer //R.drawable.barometer
+        Displayed.UV_INDEX -> R.mipmap.ic_sun_max
+        Displayed.HUMIDITY -> R.mipmap.ic_humidity
+        Displayed.PRESSURE -> R.mipmap.ic_barometer
       }
 
       val isDisplayed = displayed == onSelect
@@ -564,7 +581,7 @@ private fun DisplayedValues(
           Icon(
             modifier = Modifier.size(TITLE_ICON_SIZE_16.dp),
             painter = painterResource(id = iconId),
-            tint = if (isDisplayed) MaterialTheme.colorScheme.surface else Color.Unspecified,
+            tint = if (isDisplayed) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.surfaceTint,
             contentDescription = stringResource(R.string.details_content_description_uv_index_button_icon)
           )
         },

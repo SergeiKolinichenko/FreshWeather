@@ -7,8 +7,8 @@ import com.arkivanov.mvikotlin.extensions.coroutines.stateFlow
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import info.sergeikolinichenko.myapplication.presentation.stors.favourites.FavouriteStore
-import info.sergeikolinichenko.myapplication.presentation.stors.favourites.FavouriteStoreFactory
+import info.sergeikolinichenko.myapplication.presentation.stores.favourites.FavouriteStore
+import info.sergeikolinichenko.myapplication.presentation.stores.favourites.FavouriteStoreFactory
 import info.sergeikolinichenko.myapplication.utils.componentScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.StateFlow

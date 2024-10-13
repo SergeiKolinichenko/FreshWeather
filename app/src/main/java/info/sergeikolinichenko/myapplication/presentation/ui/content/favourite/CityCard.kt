@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import info.sergeikolinichenko.myapplication.R
 import info.sergeikolinichenko.myapplication.entity.CityFs
-import info.sergeikolinichenko.myapplication.presentation.stors.favourites.FavouriteStore
+import info.sergeikolinichenko.myapplication.presentation.stores.favourites.FavouriteStore
 import info.sergeikolinichenko.myapplication.utils.ResponsiveText
 import info.sergeikolinichenko.myapplication.utils.toIconId
 

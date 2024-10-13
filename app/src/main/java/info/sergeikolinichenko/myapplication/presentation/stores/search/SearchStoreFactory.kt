@@ -1,4 +1,4 @@
-package info.sergeikolinichenko.myapplication.presentation.stors.search
+package info.sergeikolinichenko.myapplication.presentation.stores.search
 
 import com.arkivanov.mvikotlin.core.store.Reducer
 import com.arkivanov.mvikotlin.core.store.Store
@@ -8,9 +8,9 @@ import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineExecutor
 import info.sergeikolinichenko.domain.usecases.favourite.ChangeFavouriteStateUseCase
 import info.sergeikolinichenko.domain.usecases.search.SearchCitiesUseCase
 import info.sergeikolinichenko.myapplication.network.dto.CityDto
-import info.sergeikolinichenko.myapplication.presentation.stors.search.SearchStore.Intent
-import info.sergeikolinichenko.myapplication.presentation.stors.search.SearchStore.Label
-import info.sergeikolinichenko.myapplication.presentation.stors.search.SearchStore.State
+import info.sergeikolinichenko.myapplication.presentation.stores.search.SearchStore.Intent
+import info.sergeikolinichenko.myapplication.presentation.stores.search.SearchStore.Label
+import info.sergeikolinichenko.myapplication.presentation.stores.search.SearchStore.State
 import info.sergeikolinichenko.myapplication.utils.mapDtoToCity
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch

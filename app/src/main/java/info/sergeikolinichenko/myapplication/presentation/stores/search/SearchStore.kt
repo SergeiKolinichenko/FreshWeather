@@ -1,12 +1,12 @@
-package info.sergeikolinichenko.myapplication.presentation.stors.search
+package info.sergeikolinichenko.myapplication.presentation.stores.search
 
 /** Created by Sergei Kolinichenko on 21.02.2024 at 15:55 (GMT+3) **/
 
 import com.arkivanov.mvikotlin.core.store.Store
 import info.sergeikolinichenko.myapplication.network.dto.CityDto
-import info.sergeikolinichenko.myapplication.presentation.stors.search.SearchStore.Intent
-import info.sergeikolinichenko.myapplication.presentation.stors.search.SearchStore.Label
-import info.sergeikolinichenko.myapplication.presentation.stors.search.SearchStore.State
+import info.sergeikolinichenko.myapplication.presentation.stores.search.SearchStore.Intent
+import info.sergeikolinichenko.myapplication.presentation.stores.search.SearchStore.Label
+import info.sergeikolinichenko.myapplication.presentation.stores.search.SearchStore.State
 
 interface SearchStore : Store<Intent, State, Label> {
 

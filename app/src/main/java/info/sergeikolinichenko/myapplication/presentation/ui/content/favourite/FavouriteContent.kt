@@ -50,7 +50,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import info.sergeikolinichenko.myapplication.R
-import info.sergeikolinichenko.myapplication.presentation.stors.favourites.FavouriteStore
+import info.sergeikolinichenko.myapplication.presentation.stores.favourites.FavouriteStore
 import info.sergeikolinichenko.myapplication.presentation.components.favourite.FavouriteComponent
 
 /** Created by Sergei Kolinichenko on 21.02.2024 at 16:06 (GMT+3) **/

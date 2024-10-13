@@ -4,7 +4,7 @@ import android.content.Context
 import info.sergeikolinichenko.domain.entity.PRECIPITATION
 import info.sergeikolinichenko.domain.entity.PRESSURE
 import info.sergeikolinichenko.domain.entity.TEMPERATURE
-import info.sergeikolinichenko.myapplication.presentation.stors.settings.SettingsStore
+import info.sergeikolinichenko.myapplication.presentation.stores.settings.SettingsStore
 import kotlinx.coroutines.flow.StateFlow
 
 /** Created by Sergei Kolinichenko on 12.07.2024 at 19:02 (GMT+3) **/

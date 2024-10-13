@@ -1,6 +1,6 @@
 package info.sergeikolinichenko.myapplication.presentation.components.favourite
 
-import info.sergeikolinichenko.myapplication.presentation.stors.favourites.FavouriteStore
+import info.sergeikolinichenko.myapplication.presentation.stores.favourites.FavouriteStore
 import kotlinx.coroutines.flow.StateFlow
 
 /** Created by Sergei Kolinichenko on 21.02.2024 at 15:11 (GMT+3) **/

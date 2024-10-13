@@ -1,4 +1,4 @@
-package info.sergeikolinichenko.myapplication.presentation.stors.editing
+package info.sergeikolinichenko.myapplication.presentation.stores.editing
 
 import android.os.Parcelable
 import com.arkivanov.mvikotlin.core.store.Reducer
@@ -12,9 +12,9 @@ import info.sergeikolinichenko.domain.usecases.favourite.ChangeFavouriteStateUse
 import info.sergeikolinichenko.domain.usecases.favourite.GetFavouriteCitiesUseCase
 import info.sergeikolinichenko.domain.usecases.favourite.SetOrderCitiesViewedUseCase
 import info.sergeikolinichenko.domain.usecases.forecast.HandleForecastInDbUseCase
-import info.sergeikolinichenko.myapplication.presentation.stors.editing.EditingStore.Intent
-import info.sergeikolinichenko.myapplication.presentation.stors.editing.EditingStore.Label
-import info.sergeikolinichenko.myapplication.presentation.stors.editing.EditingStore.State
+import info.sergeikolinichenko.myapplication.presentation.stores.editing.EditingStore.Intent
+import info.sergeikolinichenko.myapplication.presentation.stores.editing.EditingStore.Label
+import info.sergeikolinichenko.myapplication.presentation.stores.editing.EditingStore.State
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize

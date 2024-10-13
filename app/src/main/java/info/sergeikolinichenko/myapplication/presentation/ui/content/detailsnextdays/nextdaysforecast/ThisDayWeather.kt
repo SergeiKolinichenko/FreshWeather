@@ -17,7 +17,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import info.sergeikolinichenko.myapplication.R
-import info.sergeikolinichenko.myapplication.presentation.stors.nextdaysforecast.NextdaysStore
+import info.sergeikolinichenko.myapplication.presentation.stores.nextdaysforecast.NextdaysStore
 import info.sergeikolinichenko.myapplication.utils.ResponsiveText
 import info.sergeikolinichenko.myapplication.utils.toIconId
 

@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.dp
 import info.sergeikolinichenko.myapplication.R
 import info.sergeikolinichenko.myapplication.entity.HourForecastFs
 import info.sergeikolinichenko.myapplication.presentation.components.nextdays.NextdaysComponent
-import info.sergeikolinichenko.myapplication.presentation.stors.nextdaysforecast.NextdaysStore
+import info.sergeikolinichenko.myapplication.presentation.stores.nextdaysforecast.NextdaysStore
 import java.time.Instant
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit

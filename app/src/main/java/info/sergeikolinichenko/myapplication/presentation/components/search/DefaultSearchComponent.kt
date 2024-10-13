@@ -8,8 +8,8 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import info.sergeikolinichenko.myapplication.network.dto.CityDto
-import info.sergeikolinichenko.myapplication.presentation.stors.search.SearchStore
-import info.sergeikolinichenko.myapplication.presentation.stors.search.SearchStoreFactory
+import info.sergeikolinichenko.myapplication.presentation.stores.search.SearchStore
+import info.sergeikolinichenko.myapplication.presentation.stores.search.SearchStoreFactory
 import info.sergeikolinichenko.myapplication.utils.componentScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.StateFlow

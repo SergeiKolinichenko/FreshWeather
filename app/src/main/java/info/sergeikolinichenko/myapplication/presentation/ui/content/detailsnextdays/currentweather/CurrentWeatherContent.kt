@@ -16,7 +16,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import info.sergeikolinichenko.myapplication.R
 import info.sergeikolinichenko.myapplication.presentation.components.details.DetailsComponent
-import info.sergeikolinichenko.myapplication.presentation.stors.details.DetailsStore
+import info.sergeikolinichenko.myapplication.presentation.stores.details.DetailsStore
 
 /** Created by Sergei Kolinichenko on 21.02.2024 at 15:57 (GMT+3) **/
 

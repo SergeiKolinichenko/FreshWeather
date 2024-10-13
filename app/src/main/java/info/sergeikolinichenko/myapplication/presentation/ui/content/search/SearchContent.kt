@@ -40,7 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import info.sergeikolinichenko.myapplication.R
 import info.sergeikolinichenko.myapplication.presentation.components.search.SearchComponent
-import info.sergeikolinichenko.myapplication.presentation.stors.search.SearchStore
+import info.sergeikolinichenko.myapplication.presentation.stores.search.SearchStore
 import info.sergeikolinichenko.myapplication.utils.ResponsiveText
 
 const val TEST_SEARCHBAR_TAG = "test_searchbar_tag"

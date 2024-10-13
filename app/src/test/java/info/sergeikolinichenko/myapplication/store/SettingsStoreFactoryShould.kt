@@ -14,8 +14,8 @@ import info.sergeikolinichenko.domain.entity.TEMPERATURE
 import info.sergeikolinichenko.domain.usecases.settings.DaysOfWeatherUseCase
 import info.sergeikolinichenko.domain.usecases.settings.SettingsUseCase
 import info.sergeikolinichenko.myapplication.presentation.ui.content.detailsnextdays.SourceOfOpening
-import info.sergeikolinichenko.myapplication.presentation.stors.settings.SettingsStore
-import info.sergeikolinichenko.myapplication.presentation.stors.settings.SettingsStoreFactory
+import info.sergeikolinichenko.myapplication.presentation.stores.settings.SettingsStore
+import info.sergeikolinichenko.myapplication.presentation.stores.settings.SettingsStoreFactory
 import info.sergeikolinichenko.myapplication.utils.BaseUnitTestsRules
 import info.sergeikolinichenko.myapplication.utils.test
 import junit.framework.TestCase.assertEquals

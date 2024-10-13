@@ -19,7 +19,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import info.sergeikolinichenko.myapplication.R
-import info.sergeikolinichenko.myapplication.presentation.stors.details.DetailsStore
+import info.sergeikolinichenko.myapplication.presentation.stores.details.DetailsStore
 import info.sergeikolinichenko.myapplication.utils.SYS_ICON_SIZE_24
 
 /** Created by Sergei Kolinichenko on 18.08.2024 at 13:11 (GMT+3) **/

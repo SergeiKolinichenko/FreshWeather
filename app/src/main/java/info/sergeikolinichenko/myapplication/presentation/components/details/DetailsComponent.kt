@@ -8,8 +8,8 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import info.sergeikolinichenko.myapplication.presentation.ui.content.detailsnextdays.SourceOfOpening
-import info.sergeikolinichenko.myapplication.presentation.stors.details.DetailsStore
-import info.sergeikolinichenko.myapplication.presentation.stors.details.DetailsStoreFactory
+import info.sergeikolinichenko.myapplication.presentation.stores.details.DetailsStore
+import info.sergeikolinichenko.myapplication.presentation.stores.details.DetailsStoreFactory
 import info.sergeikolinichenko.myapplication.utils.componentScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.StateFlow

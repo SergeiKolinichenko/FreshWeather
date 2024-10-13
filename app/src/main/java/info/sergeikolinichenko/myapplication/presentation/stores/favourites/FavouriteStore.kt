@@ -1,4 +1,4 @@
-package info.sergeikolinichenko.myapplication.presentation.stors.favourites
+package info.sergeikolinichenko.myapplication.presentation.stores.favourites
 
 import android.os.Parcelable
 import com.arkivanov.essenty.instancekeeper.InstanceKeeper

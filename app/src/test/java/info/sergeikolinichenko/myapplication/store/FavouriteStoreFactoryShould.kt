@@ -8,8 +8,8 @@ import info.sergeikolinichenko.domain.usecases.favourite.GetFavouriteCitiesUseCa
 import info.sergeikolinichenko.domain.usecases.forecast.GetForecastsFromNetUseCase
 import info.sergeikolinichenko.domain.usecases.search.SearchCitiesUseCase
 import info.sergeikolinichenko.myapplication.entity.CityFs
-import info.sergeikolinichenko.myapplication.presentation.stors.favourites.FavouriteStore
-import info.sergeikolinichenko.myapplication.presentation.stors.favourites.FavouriteStoreFactory
+import info.sergeikolinichenko.myapplication.presentation.stores.favourites.FavouriteStore
+import info.sergeikolinichenko.myapplication.presentation.stores.favourites.FavouriteStoreFactory
 import info.sergeikolinichenko.myapplication.utils.BaseUnitTestsRules
 import info.sergeikolinichenko.myapplication.utils.mapToForecastScreenList
 import info.sergeikolinichenko.myapplication.utils.test

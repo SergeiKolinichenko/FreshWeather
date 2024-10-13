@@ -50,8 +50,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import info.sergeikolinichenko.myapplication.R
 import info.sergeikolinichenko.myapplication.presentation.components.editing.EditingComponent
-import info.sergeikolinichenko.myapplication.presentation.stors.editing.EditingStore
-import info.sergeikolinichenko.myapplication.presentation.stors.editing.EditingStore.State.CityItem
+import info.sergeikolinichenko.myapplication.presentation.stores.editing.EditingStore
+import info.sergeikolinichenko.myapplication.presentation.stores.editing.EditingStore.State.CityItem
 import info.sergeikolinichenko.myapplication.utils.ResponsiveText
 import info.sergeikolinichenko.myapplication.utils.SYS_ICON_SIZE_24
 import info.sergeikolinichenko.myapplication.utils.toIconId

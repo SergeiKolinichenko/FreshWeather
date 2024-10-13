@@ -24,7 +24,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
-import info.sergeikolinichenko.myapplication.presentation.stors.nextdaysforecast.NextdaysStore
+import info.sergeikolinichenko.myapplication.presentation.stores.nextdaysforecast.NextdaysStore
 import info.sergeikolinichenko.myapplication.presentation.ui.content.detailsnextdays.AnimatingHourlyWeatherForecast
 import info.sergeikolinichenko.myapplication.presentation.ui.content.detailsnextdays.Charts
 import info.sergeikolinichenko.myapplication.presentation.ui.content.detailsnextdays.HumidityWindPressure

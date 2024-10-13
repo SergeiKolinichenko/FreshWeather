@@ -6,8 +6,8 @@ import info.sergeikolinichenko.domain.entity.City
 import info.sergeikolinichenko.domain.usecases.favourite.ChangeFavouriteStateUseCase
 import info.sergeikolinichenko.domain.usecases.search.SearchCitiesUseCase
 import info.sergeikolinichenko.myapplication.entity.CityFs
-import info.sergeikolinichenko.myapplication.presentation.stors.search.SearchStore
-import info.sergeikolinichenko.myapplication.presentation.stors.search.SearchStoreFactory
+import info.sergeikolinichenko.myapplication.presentation.stores.search.SearchStore
+import info.sergeikolinichenko.myapplication.presentation.stores.search.SearchStoreFactory
 import info.sergeikolinichenko.myapplication.utils.BaseUnitTestsRules
 import info.sergeikolinichenko.myapplication.utils.test
 import kotlinx.coroutines.ExperimentalCoroutinesApi

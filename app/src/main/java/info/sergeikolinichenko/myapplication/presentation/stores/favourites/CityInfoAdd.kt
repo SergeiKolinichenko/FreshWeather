@@ -1,4 +1,4 @@
-package info.sergeikolinichenko.myapplication.presentation.stors.favourites
+package info.sergeikolinichenko.myapplication.presentation.stores.favourites
 
 import info.sergeikolinichenko.domain.entity.City
 import info.sergeikolinichenko.domain.usecases.favourite.ChangeFavouriteStateUseCase

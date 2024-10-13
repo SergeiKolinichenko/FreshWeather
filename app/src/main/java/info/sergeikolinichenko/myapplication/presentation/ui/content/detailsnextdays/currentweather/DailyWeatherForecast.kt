@@ -123,7 +123,7 @@ private fun TittleDailyWeatherForecast(
         .size(TITLE_ICON_SIZE_16.dp),
       imageVector = ImageVector.vectorResource(id = R.drawable.calendar),
       contentDescription = stringResource(R.string.details_content_description_icon_calendar),
-      tint = Color.Unspecified
+      tint = MaterialTheme.colorScheme.surfaceTint
     )
     ResponsiveText(
       text = stringResource(

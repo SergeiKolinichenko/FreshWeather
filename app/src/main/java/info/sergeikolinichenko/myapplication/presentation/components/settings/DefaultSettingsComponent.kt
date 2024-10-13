@@ -1,7 +1,6 @@
 package info.sergeikolinichenko.myapplication.presentation.components.settings
 
 import android.content.Context
-import android.util.Log
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.mvikotlin.core.instancekeeper.getStore
 import com.arkivanov.mvikotlin.extensions.coroutines.labels
@@ -14,8 +13,8 @@ import info.sergeikolinichenko.domain.entity.PRESSURE
 import info.sergeikolinichenko.domain.entity.Settings
 import info.sergeikolinichenko.domain.entity.TEMPERATURE
 import info.sergeikolinichenko.myapplication.presentation.ui.content.detailsnextdays.SourceOfOpening
-import info.sergeikolinichenko.myapplication.presentation.stors.settings.SettingsStore
-import info.sergeikolinichenko.myapplication.presentation.stors.settings.SettingsStoreFactory
+import info.sergeikolinichenko.myapplication.presentation.stores.settings.SettingsStore
+import info.sergeikolinichenko.myapplication.presentation.stores.settings.SettingsStoreFactory
 import info.sergeikolinichenko.myapplication.utils.componentScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.StateFlow

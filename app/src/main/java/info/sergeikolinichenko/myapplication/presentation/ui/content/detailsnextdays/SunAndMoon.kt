@@ -114,7 +114,7 @@ internal fun SunAndMoon(
             .size(TITLE_ICON_SIZE_16.dp),
           painter = painterResource(id = R.mipmap.ic_sun_moon),
           contentDescription = stringResource(R.string.details_content_description_sun_and_moon_icon),
-          tint = Color.Unspecified
+          tint = MaterialTheme.colorScheme.surfaceTint
         )
         ResponsiveText(
           modifier = Modifier.padding(start = 4.dp),

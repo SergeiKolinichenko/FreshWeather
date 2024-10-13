@@ -1,4 +1,4 @@
-package info.sergeikolinichenko.myapplication.presentation.stors.nextdaysforecast
+package info.sergeikolinichenko.myapplication.presentation.stores.nextdaysforecast
 
 import com.arkivanov.mvikotlin.core.store.Reducer
 import com.arkivanov.mvikotlin.core.store.Store
@@ -11,9 +11,9 @@ import info.sergeikolinichenko.domain.usecases.forecast.GetForecastsFromNetUseCa
 import info.sergeikolinichenko.domain.usecases.forecast.HandleForecastInDbUseCase
 import info.sergeikolinichenko.myapplication.entity.CityFs
 import info.sergeikolinichenko.myapplication.entity.ForecastFs
-import info.sergeikolinichenko.myapplication.presentation.stors.nextdaysforecast.NextdaysStore.Intent
-import info.sergeikolinichenko.myapplication.presentation.stors.nextdaysforecast.NextdaysStore.Label
-import info.sergeikolinichenko.myapplication.presentation.stors.nextdaysforecast.NextdaysStore.State
+import info.sergeikolinichenko.myapplication.presentation.stores.nextdaysforecast.NextdaysStore.Intent
+import info.sergeikolinichenko.myapplication.presentation.stores.nextdaysforecast.NextdaysStore.Label
+import info.sergeikolinichenko.myapplication.presentation.stores.nextdaysforecast.NextdaysStore.State
 import info.sergeikolinichenko.myapplication.utils.DURATION_OF_FORECAST_LIFE_MINUTES
 import info.sergeikolinichenko.myapplication.utils.getMinutesDifferenceFromNow
 import info.sergeikolinichenko.myapplication.utils.mapCityFsListToCityList

@@ -1,4 +1,4 @@
-package info.sergeikolinichenko.myapplication.presentation.stors.details
+package info.sergeikolinichenko.myapplication.presentation.stores.details
 
 /** Created by Sergei Kolinichenko on 21.02.2024 at 15:26 (GMT+3) **/
 
@@ -13,9 +13,9 @@ import info.sergeikolinichenko.domain.usecases.forecast.HandleForecastInDbUseCas
 import info.sergeikolinichenko.domain.usecases.forecast.GetForecastsFromNetUseCase
 import info.sergeikolinichenko.myapplication.entity.CityFs
 import info.sergeikolinichenko.myapplication.entity.ForecastFs
-import info.sergeikolinichenko.myapplication.presentation.stors.details.DetailsStore.Intent
-import info.sergeikolinichenko.myapplication.presentation.stors.details.DetailsStore.Label
-import info.sergeikolinichenko.myapplication.presentation.stors.details.DetailsStore.State
+import info.sergeikolinichenko.myapplication.presentation.stores.details.DetailsStore.Intent
+import info.sergeikolinichenko.myapplication.presentation.stores.details.DetailsStore.Label
+import info.sergeikolinichenko.myapplication.presentation.stores.details.DetailsStore.State
 import info.sergeikolinichenko.myapplication.utils.DURATION_OF_FORECAST_LIFE_MINUTES
 import info.sergeikolinichenko.myapplication.utils.getMinutesDifferenceFromNow
 import info.sergeikolinichenko.myapplication.utils.mapToForecastScreenList

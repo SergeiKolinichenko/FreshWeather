@@ -1,7 +1,7 @@
 package info.sergeikolinichenko.myapplication.presentation.components.search
 
 import info.sergeikolinichenko.myapplication.network.dto.CityDto
-import info.sergeikolinichenko.myapplication.presentation.stors.search.SearchStore
+import info.sergeikolinichenko.myapplication.presentation.stores.search.SearchStore
 import kotlinx.coroutines.flow.StateFlow
 
 /** Created by Sergei Kolinichenko on 21.02.2024 at 15:11 (GMT+3) **/

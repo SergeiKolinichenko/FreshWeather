@@ -12,7 +12,7 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import info.sergeikolinichenko.myapplication.presentation.stors.details.DetailsStore
+import info.sergeikolinichenko.myapplication.presentation.stores.details.DetailsStore
 import info.sergeikolinichenko.myapplication.utils.DURATION_OF_ANIMATION
 
 /** Created by Sergei Kolinichenko on 25.09.2024 at 13:28 (GMT+3) **/

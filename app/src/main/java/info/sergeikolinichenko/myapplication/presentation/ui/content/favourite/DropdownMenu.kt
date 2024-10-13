@@ -20,7 +20,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import info.sergeikolinichenko.myapplication.R
-import info.sergeikolinichenko.myapplication.presentation.stors.favourites.FavouriteStore
+import info.sergeikolinichenko.myapplication.presentation.stores.favourites.FavouriteStore
 import info.sergeikolinichenko.myapplication.utils.ResponsiveText
 
 /** Created by Sergei Kolinichenko on 14.07.2024 at 12:58 (GMT+3) **/
