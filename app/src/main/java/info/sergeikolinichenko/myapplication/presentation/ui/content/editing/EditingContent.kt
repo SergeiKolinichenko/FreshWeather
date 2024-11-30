@@ -75,7 +75,8 @@ internal fun EditingContent(component: EditingComponent) {
       onCloseClicked = { component.onBackClicked() },
       onSwipeRight = { component.onBackClicked() },
       onDoneClicked = { component.onDoneClicked() },
-      changedListCities = { component.listOfCitiesChanged(it) }
+      changedListCities = { component.listOfCitiesChanged(it) },
+      removeItemFromListOfCities = { component.removeItemFromListOfCities(it) }
     )
   }
 }
@@ -85,6 +86,7 @@ internal fun EditingScreen(
   modifier: Modifier = Modifier,
   state: EditingStore.State,
   changedListCities: (cities: List<CityItem>) -> Unit,
+  removeItemFromListOfCities: (id: Int) -> Unit,
   onCloseClicked: () -> Unit,
   onDoneClicked: () -> Unit,
   onSwipeRight: () -> Unit
@@ -95,6 +97,7 @@ internal fun EditingScreen(
   Column(
     modifier = modifier
       .fillMaxSize()
+      .padding(top = 32.dp, bottom = 16.dp)
       .background(MaterialTheme.colorScheme.background)
       .pointerInput(Unit) {
         detectHorizontalDragGestures { change, dragAmount ->
@@ -113,7 +116,8 @@ internal fun EditingScreen(
     MainScreen(
       modifier = Modifier.padding(16.dp),
       state = state,
-      changedListCities = { changedListCities(it) }
+      changedListCities = { changedListCities(it) },
+      removeItemFromListOfCities = { id -> removeItemFromListOfCities(id) }
     )
   }
   if (swipeRight) onSwipeRight()
@@ -124,14 +128,17 @@ private fun MainScreen(
   modifier: Modifier = Modifier,
   state: EditingStore.State,
   changedListCities: (List<CityItem>) -> Unit,
+  removeItemFromListOfCities: (id: Int) -> Unit
 ) {
 
   val cityItems = state.cityItems.toMutableList()
 
-  val dragDropListState = rememberDragDropListState(onMove = { from, to ->
-    if (cityItems.isNotEmpty() && from in 0 until cityItems.size) {
-      cityItems.move(from, to)
-      changedListCities(cityItems)
+  val dragDropListState = rememberDragDropListState(
+    cityItems = cityItems, // Pass cityItems
+    onMove = { from, to, currentCityItems ->
+    if (currentCityItems.isNotEmpty() && from in 0 until currentCityItems.size) {
+      currentCityItems.move(from, to)
+      changedListCities(currentCityItems)
     }
   })
 
@@ -162,10 +169,7 @@ private fun MainScreen(
             } ?: 0f
           },
         item = cityItem,
-        onClickIconDelete = { id ->
-          cityItems.remove(cityItems.find { it.id == id })
-          changedListCities(cityItems)
-        },
+        onClickIconDelete = { id -> removeItemFromListOfCities(id)},
         dragDropListState = dragDropListState,
         lazyColumnCoordinates = lazyColumnCoordinates
       )
@@ -305,6 +309,7 @@ private fun CityItem(
           )
         },
       imageVector = Icons.Default.Menu,
+      tint = MaterialTheme.colorScheme.surfaceTint,
       contentDescription = "Menu icon editing order items"
     )
   }
@@ -319,7 +324,7 @@ internal fun TopBar(
   Row(
     modifier = modifier
       .fillMaxWidth()
-      .padding(start = 16.dp, end = 16.dp, top = 20.dp),
+      .padding(start = 16.dp, end = 16.dp, top = 16.dp),
     horizontalArrangement = Arrangement.Start,
     verticalAlignment = Alignment.CenterVertically
   ) {
@@ -329,6 +334,7 @@ internal fun TopBar(
         .size(SYS_ICON_SIZE_24.dp)
         .clickable { onCloseClicked() },
       imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+      tint = MaterialTheme.colorScheme.surfaceTint,
       contentDescription = "Close editing favourites screen"
     )
     Row(

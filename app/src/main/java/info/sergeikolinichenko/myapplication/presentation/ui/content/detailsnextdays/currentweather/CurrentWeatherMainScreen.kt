@@ -39,7 +39,7 @@ import java.util.Calendar
 /** Created by Sergei Kolinichenko on 20.08.2024 at 17:31 (GMT+3) **/
 
 @Composable
-internal fun MainScreen(
+internal fun CurrentWeatherMainScreen(
   modifier: Modifier = Modifier,
   state: DetailsStore.State,
   onDayClicked: (Int) -> Unit,
@@ -79,7 +79,7 @@ internal fun MainScreen(
   Column(
     modifier = modifier
       .background(MaterialTheme.colorScheme.surfaceBright)
-      .padding(16.dp)
+      .padding(start = 16.dp, end = 16.dp, top = 32.dp, bottom = 16.dp)
       .fillMaxSize()
       .nestedScroll(nestedScrollConnection)
       .verticalScroll(scrollState)
@@ -110,7 +110,7 @@ internal fun MainScreen(
         val forecast = state.forecastState.forecasts.first { it.id == city.id }
 
         TopBar(
-          modifier = Modifier,
+          modifier = Modifier.padding(top = 16.dp),
           state = state,
           onBackButtonClick = {
             onBackClicked()

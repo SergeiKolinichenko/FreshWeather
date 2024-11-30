@@ -12,6 +12,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.positionInWindow
+import info.sergeikolinichenko.myapplication.presentation.stores.editing.EditingStore
 import kotlinx.coroutines.Job
 
 /** Created by Sergei Kolinichenko on 15.08.2024 at 15:51 (GMT+3) **/
@@ -36,9 +37,12 @@ fun <T> MutableList<T>.move(from: Int, to: Int) {
 @Composable
 fun rememberDragDropListState(
   lazyListState: LazyListState = rememberLazyListState(),
-  onMove: (Int, Int) -> Unit
+  cityItems: MutableList<EditingStore.State.CityItem>, // Add cityItems parameter
+  onMove: (Int, Int, MutableList<EditingStore.State.CityItem>) -> Unit
 ): DragAndDropState {
-  return remember { DragAndDropState(lazyListState = lazyListState, onMove = onMove) }
+  return remember(cityItems) { DragAndDropState(lazyListState = lazyListState, onMove = { from, to ->
+    onMove(from, to, cityItems) // Pass cityItems to onMove
+  }) }
 }
 
 // state for drag and drop item
@@ -46,6 +50,7 @@ class DragAndDropState(
   val lazyListState: LazyListState,
   private val onMove: (Int, Int) -> Unit
 ) {
+
   private var draggedDistance by mutableFloatStateOf(0f)
   private var initiallyDraggedElement by mutableStateOf<LazyListItemInfo?>(null)
   var currentIndexOfDraggedItem by mutableStateOf<Int?>(null)
@@ -82,7 +87,6 @@ class DragAndDropState(
       currentIndexOfDraggedItem = it.index
       initiallyDraggedElement = it
     }
-
   }
 
   fun onDragInterrupted() {

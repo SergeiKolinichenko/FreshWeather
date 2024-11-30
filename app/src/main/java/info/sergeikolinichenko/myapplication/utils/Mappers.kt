@@ -10,18 +10,17 @@ import info.sergeikolinichenko.myapplication.entity.CurrentForecastFs
 import info.sergeikolinichenko.myapplication.entity.DayForecastFs
 import info.sergeikolinichenko.myapplication.entity.ForecastFs
 import info.sergeikolinichenko.myapplication.entity.HourForecastFs
-import info.sergeikolinichenko.myapplication.network.dto.CityDto
 
 /** Created by Sergei Kolinichenko on 11.08.2024 at 17:33 (GMT+3) **/
 
-internal fun CityDto.mapDtoToCity() = City(
-  id = id,
-  name = placeAddress.city?: placeAddress.town?: placeAddress.village?: "",
-  country = placeAddress.country,
-  region = placeAddress.state?: "",
-  lat = lat.toDouble(),
-  lon = lon.toDouble()
-)
+//internal fun CityDto.mapDtoToCity() = City(
+//  id = id,
+//  name = placeAddress.city?: placeAddress.town?: placeAddress.village?: "",
+//  country = placeAddress.country,
+//  region = placeAddress.state?: "",
+//  lat = lat.toDouble(),
+//  lon = lon.toDouble()
+//)
 
 internal fun City.mapCityToCityFs() = CityFs(
   id = id,

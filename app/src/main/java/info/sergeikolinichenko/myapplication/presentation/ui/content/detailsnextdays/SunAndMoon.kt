@@ -153,7 +153,7 @@ internal fun SunAndMoon(
           rise = timeMoonrise,
           set = timeMoonset,
           riseIcon = R.drawable.moonrise,
-          setIcon = R.drawable.moonset,
+          setIcon = if (moonset == LAST_ITEM_IN_THE_LIST) null else R.drawable.moonset,
           tittleRise = titleMoonrise,
           tittleSet = titleMoonset
         )
@@ -212,7 +212,7 @@ private fun Item(
   rise: String,
   set: String,
   riseIcon: Int,
-  setIcon: Int,
+  setIcon: Int?,
   tittleRise: String,
   tittleSet: String
 ) {
@@ -292,13 +292,15 @@ private fun Item(
           horizontalAlignment = Alignment.End,
           verticalArrangement = Arrangement.Top
         ) {
-          Icon(
-            modifier = Modifier
-              .size(WEATHER_ICON_SIZE_36.dp),
-            imageVector = ImageVector.vectorResource(id = setIcon),
-            tint = Color.Unspecified,
-            contentDescription = stringResource(R.string.details_content_description_set_icon)
-          )
+          setIcon?.let {
+            Icon(
+              modifier = Modifier
+                .size(WEATHER_ICON_SIZE_36.dp),
+              imageVector = ImageVector.vectorResource(id = setIcon),
+              tint = Color.Unspecified,
+              contentDescription = stringResource(R.string.details_content_description_set_icon)
+            )
+          }
           Text(
             text = set,
             style = MaterialTheme.typography.labelSmall,

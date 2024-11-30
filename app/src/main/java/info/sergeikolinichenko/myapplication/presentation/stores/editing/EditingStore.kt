@@ -35,24 +35,12 @@ interface EditingStore : Store<Intent, State, Label> {
       val name: String,
       val temp: String,
       val icon: String,
-//      val forecastState: ForecastState
     ) : Parcelable
-
-    @Parcelize
-    sealed interface ForecastState : Parcelable {
-      @Parcelize
-      data object Initial : ForecastState, Parcelable
-
-      @Parcelize
-      data class Loaded(
-        val temp: String,
-        val icon: String
-      ) : ForecastState, Parcelable
-    }
   }
 
   sealed interface Intent {
     data class ListOfCitiesChanged(val cityItems: List<State.CityItem>) : Intent
+    data class RemoveItemFromListOfCities(val id: Int) : Intent
     data object OnDoneClicked : Intent
     data object OnBackClicked : Intent
   }
@@ -88,6 +76,7 @@ class EditingStoreFactory @Inject constructor(
     data class FavoriteCitiesLoaded(val cities: List<City>) : Message
     data class ForecastsLoaded(val listForecasts: List<Forecast>) : Message
     data class ListOfCitiesChanged(val cityItems: List<State.CityItem>) : Message
+    data class RemoveItemFromListOfCities(val id: Int) : Message
   }
 
   private inner class BootstrapperImpl : CoroutineBootstrapper<Action>() {
@@ -112,6 +101,8 @@ class EditingStoreFactory @Inject constructor(
         Intent.OnBackClicked -> publish(Label.OnBackClicked)
 
         is Intent.ListOfCitiesChanged -> dispatch(Message.ListOfCitiesChanged(intent.cityItems))
+
+        is Intent.RemoveItemFromListOfCities -> dispatch(Message.RemoveItemFromListOfCities(intent.id))
 
         is Intent.OnDoneClicked -> {
 
@@ -184,7 +175,22 @@ class EditingStoreFactory @Inject constructor(
           }
         )
 
-        is Message.ListOfCitiesChanged -> copy(cityItems = msg.cityItems)
+        is Message.ListOfCitiesChanged -> {
+          /* It was done in this way because the simple method did not update the State when changing it. */
+          copy(cityItems = cityItems.mapIndexed { index, cityItem ->
+            val item = msg.cityItems[index]
+            cityItem.copy(
+              id = item.id,
+              name = item.name,
+              temp = item.temp,
+              icon = item.icon
+            )
+          })
+        }
+
+        is Message.RemoveItemFromListOfCities -> {
+          copy(cityItems = cityItems.filter { it.id != msg.id })
+        }
       }
   }
 }

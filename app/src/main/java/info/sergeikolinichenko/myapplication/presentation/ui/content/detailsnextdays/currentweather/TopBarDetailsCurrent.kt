@@ -1,6 +1,7 @@
 package info.sergeikolinichenko.myapplication.presentation.ui.content.detailsnextdays.currentweather
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -10,6 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,6 +45,7 @@ internal fun TopBar(
         .align(Alignment.CenterStart)
         .clickable { onBackButtonClick() },
       imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+      tint = MaterialTheme.colorScheme.surfaceTint,
       contentDescription = stringResource(R.string.details_content_description_text_back_button)
     )
 
@@ -60,14 +63,14 @@ internal fun TopBar(
               Icon(
                 modifier = Modifier.size(8.dp),
                 imageVector = ImageVector.vectorResource(id = R.drawable.ellipse),
-                tint = Color.Black,
+                tint = MaterialTheme.colorScheme.surfaceTint,
                 contentDescription = null
               )
             } else {
               Icon(
                 modifier = Modifier.size(8.dp),
                 imageVector = ImageVector.vectorResource(id = R.drawable.ellipse),
-                tint = Color.White,
+                tint = if (isSystemInDarkTheme()) Color.White.copy(alpha = 0.6f) else Color.White,
                 contentDescription = null
               )
             }
@@ -81,6 +84,7 @@ internal fun TopBar(
         .align(Alignment.CenterEnd)
         .clickable { onSettingsClicked() },
       imageVector = Icons.Default.Settings,
+      tint = MaterialTheme.colorScheme.surfaceTint,
       contentDescription = "Icon Settings"
     )
   }

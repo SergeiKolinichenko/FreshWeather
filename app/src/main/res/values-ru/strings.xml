@@ -25,7 +25,7 @@
   <string name="favourite_content_text_favourites_are_empty">В избранном пусто</string>
   <string name="favourite_content_add_cities_here">Добавляйте сюда города, чтобы отслеживать прогноз погоды</string>
   <string name="favourite_content_description_menu_icon">Показать меню</string>
-  <string name="content_description_text_clear_line">Очистить строку</string>
+  <string name="content_description_icon_search">Иконка поиска</string>
   <string name="settings_content_title_settings">Настройки</string>
   <string name="many_place_title_button_done">Готово</string>
   <string name="settings_content_unit_title_temperature">Температура</string>
@@ -120,4 +120,6 @@
   <string name="settings_content_number_of_forecast_days">Количество дней прогноза</string>
   <string name="details_content_error_loading_cities_text">Ошибка при получении городов из базы данных. Пожалуйста, попробуйте перезагрузить приложение, если ошибка возникнет снова, сообщите об этом разработчикам приложения.</string>
   <string name="details_content_error_loading_forecast_text">Ошибка при получении погоды для избранного города. Пожалуйста, попробуйте перезагрузить приложение, если ошибка возникнет снова, сообщите об этом разработчикам приложения.</string>
+  <string name="search_content_initial_text">Введите название искомого населенного пункта и нажмите на иконку поиска.</string>
+  <string name="search_content_placeholder_text">Поиск…</string>
 </resources>

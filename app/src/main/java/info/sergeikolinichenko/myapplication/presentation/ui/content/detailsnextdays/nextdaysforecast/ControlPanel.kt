@@ -69,6 +69,7 @@ internal fun ControlPanel(
         .align(Alignment.CenterEnd)
         .clickable { onCloseClicked() },
       imageVector = Icons.Default.Close,
+      tint = MaterialTheme.colorScheme.surfaceTint,
       contentDescription = "Close nextdays screen"
     )
   }

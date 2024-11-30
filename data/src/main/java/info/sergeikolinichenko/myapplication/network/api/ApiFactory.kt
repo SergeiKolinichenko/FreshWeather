@@ -14,10 +14,11 @@ object ApiFactory {
 
   private const val BASE_URL_VIS =
     "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/"
-  private const val BASE_URL_OSM = "https://nominatim.openstreetmap.org/"
   private const val PARAM_KEY = "key"
+  private const val PARAM_SEARCH_KEY = "apiKey"
   private const val PARAM_LANG = "lang"
-  private const val PARAM_ACCEPT_LANG = "accept-language"
+
+  private const val BASE_SEARCH_URL = "https://api.geoapify.com/v1/geocode/"
 
   // for UI test so created at Mockoon
   private const val TEST_BASE_URL = "http://10.0.2.2:3000/"
@@ -28,13 +29,14 @@ object ApiFactory {
     logging.level = HttpLoggingInterceptor.Level.BODY
   }
 
-  private val okHttpClientOsm = OkHttpClient.Builder()
+  private val okHttpClientSearch = OkHttpClient.Builder()
     .addInterceptor(logging)
     .addInterceptor { chain ->
       val originalRequest = chain.request()
       val originalHttpUrl = originalRequest.url
       val url = originalHttpUrl.newBuilder()
-        .addQueryParameter(PARAM_ACCEPT_LANG, Locale.getDefault().language)
+        .addQueryParameter(PARAM_LANG, Locale.getDefault().language)
+        .addQueryParameter(PARAM_SEARCH_KEY, BuildConfig.SEARCH_API_KEY)
         .build()
       val desiredRequest = originalRequest.newBuilder()
         .url(url)
@@ -59,10 +61,10 @@ object ApiFactory {
     }
     .build()
 
-  var apiServiceOpenStreetMap = Retrofit.Builder()
-    .baseUrl(BASE_URL_OSM)
+  val apiServiceSearch = Retrofit.Builder()
+    .baseUrl(BASE_SEARCH_URL)
     .addConverterFactory(GsonConverterFactory.create())
-    .client(okHttpClientOsm)
+    .client(okHttpClientSearch)
     .build()
     .create<ApiService>()
 

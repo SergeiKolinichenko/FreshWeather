@@ -12,8 +12,7 @@ import info.sergeikolinichenko.domain.usecases.favourite.GetFavouriteCitiesUseCa
 import info.sergeikolinichenko.domain.usecases.forecast.GetForecastsFromNetUseCase
 import info.sergeikolinichenko.domain.usecases.forecast.HandleForecastInDbUseCase
 import info.sergeikolinichenko.domain.usecases.search.SearchCitiesUseCase
-import info.sergeikolinichenko.myapplication.utils.DURATION_OF_FORECAST_LIFE_MINUTES
-import info.sergeikolinichenko.myapplication.utils.getMinutesDifferenceFromNow
+import info.sergeikolinichenko.myapplication.utils.DoNeedNewOne
 import info.sergeikolinichenko.myapplication.utils.mapCityFsListToCityList
 import info.sergeikolinichenko.myapplication.utils.mapCityListToCityFsList
 import info.sergeikolinichenko.myapplication.utils.mapToForecastScreenList
@@ -27,7 +26,8 @@ class FavouriteStoreFactory @Inject constructor(
   private val changeFavouriteStateInDb: ChangeFavouriteStateUseCase,
   private val searchCitiesOnNet: SearchCitiesUseCase,
   private val getForecastFromNet: GetForecastsFromNetUseCase,
-  private val handleForecastIntoDb: HandleForecastInDbUseCase
+  private val handleForecastIntoDb: HandleForecastInDbUseCase,
+  private val doNeedNewOne: DoNeedNewOne
 ) {
   fun create(): FavouriteStore =
     object : FavouriteStore,
@@ -86,6 +86,7 @@ class FavouriteStoreFactory @Inject constructor(
                 dispatch(Action.FavouriteCitiesLoaded(cities))
               }
             }
+
             result.isFailure -> {
               dispatch(Action.FavouriteCitiesLoadedError)
             }
@@ -108,6 +109,7 @@ class FavouriteStoreFactory @Inject constructor(
         is FavouriteStore.Intent.ItemCityClicked -> {
           publish(FavouriteStore.Label.OnItemClicked(id = intent.id))
         }
+
         FavouriteStore.Intent.ActionMenuClicked -> dispatch(Message.DropDownMenuOpened)
         FavouriteStore.Intent.ClosingActionMenu -> dispatch(Message.DropDownMenuClosed)
 
@@ -169,16 +171,14 @@ class FavouriteStoreFactory @Inject constructor(
             if (state().forecastState == FavouriteStore.State.ForecastState.Initial) {
               loadForecast(action.cities)
             } else if (state().forecastState is FavouriteStore.State.ForecastState.Loaded) {
-
               val forecastState = state().forecastState as FavouriteStore.State.ForecastState.Loaded
               val forecast = forecastState.listForecast.first()
-              val minuteDifference =
-                getMinutesDifferenceFromNow(forecast.currentForecast.date, forecast.tzId)
-
+              val ifForecastCorrect =
+                doNeedNewOne.invoke(forecast.currentForecast.date, forecast.tzId)
               val numberOfCities = action.cities.size
               val numberOfForecasts = forecastState.listForecast.size
 
-              if (minuteDifference > DURATION_OF_FORECAST_LIFE_MINUTES || numberOfCities != numberOfForecasts) {
+              if (ifForecastCorrect || numberOfCities != numberOfForecasts) {
                 loadForecast(action.cities)
               }
             }

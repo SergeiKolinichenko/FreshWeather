@@ -7,7 +7,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.mockito.Mockito
-import org.mockito.Mockito.mock
+import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 
 /** Created by Sergei Kolinichenko on 15.06.2024 at 16:31 (GMT+3) **/
@@ -21,8 +21,9 @@ class ChangeFavouriteStateUseCaseShould {
   // endregion constants
 
   private val systemUnderTest = ChangeFavouriteStateUseCase(repository)
+
   @Test
-  fun `add favourite city to db`() = runBlocking {
+  fun `add favourite city to db`(): Unit = runBlocking {
     // Act
     systemUnderTest.addToFavourite(city)
     // Assert

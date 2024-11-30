@@ -1,5 +1,6 @@
 package info.sergeikolinichenko.domain.usecases.search
 
+import info.sergeikolinichenko.domain.entity.City
 import info.sergeikolinichenko.domain.repositories.SearchRepository
 import javax.inject.Inject
 
@@ -9,5 +10,5 @@ import javax.inject.Inject
 class SearchCitiesUseCase @Inject constructor(
   private val repository: SearchRepository
 ){
-  suspend operator fun <T> invoke(query: String): List<T> = repository.searchCities(query)
+  suspend operator fun invoke(query: String): List<City> = repository.searchCities(query)
 }

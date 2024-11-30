@@ -13,7 +13,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -42,6 +42,7 @@ import info.sergeikolinichenko.myapplication.R
 import info.sergeikolinichenko.myapplication.presentation.components.search.SearchComponent
 import info.sergeikolinichenko.myapplication.presentation.stores.search.SearchStore
 import info.sergeikolinichenko.myapplication.utils.ResponsiveText
+import kotlinx.coroutines.delay
 
 const val TEST_SEARCHBAR_TAG = "test_searchbar_tag"
 const val TEST_SEARCH_TEXT_TAG = "test_search_text_tag"
@@ -71,7 +72,10 @@ private fun SearchScreen(
   val state by component.model.collectAsState()
 
   val focusRequester = remember { FocusRequester() }
-  LaunchedEffect(key1 = null) { focusRequester.requestFocus() }
+  LaunchedEffect(key1 = null) {
+    delay(350)
+    focusRequester.requestFocus()
+  }
 
   SearchBar(
     modifier = modifier
@@ -82,8 +86,31 @@ private fun SearchScreen(
     inputField = {
       SearchBarDefaults.InputField(
         query = state.query,
-        onQueryChange = { component.onQueryChanged(it) },
-        onSearch = { component.onQueryChanged(it) },
+        onQueryChange = {
+          component.onQueryChanged(it)
+        },
+        onSearch = {
+          component.onSearch()
+        },
+        placeholder = {
+          Box(
+            modifier = Modifier
+              .fillMaxSize(),
+          ) {
+            ResponsiveText(
+              modifier = Modifier
+                .fillMaxSize()
+                .align(Alignment.CenterStart),
+              text = stringResource(R.string.search_content_placeholder_text),
+              fontFamily = FontFamily.SansSerif,
+              fontWeight = FontWeight.Normal,
+              targetTextSizeHeight = 16.sp,
+              textAlign = TextAlign.Start,
+              color = MaterialTheme.colorScheme.onBackground,
+            )
+          }
+
+        },
         expanded = true,
         onExpandedChange = {
           if (!it) component.onBackClicked()
@@ -99,11 +126,13 @@ private fun SearchScreen(
           }
         },
         trailingIcon = {
-          IconButton(onClick = { component.onClickedClearLine() }) {
+          IconButton(onClick = {
+            component.onSearch()
+          }) {
             Icon(
               modifier = Modifier.size(24.dp),
-              imageVector = Icons.Default.Close,
-              contentDescription = stringResource(R.string.content_description_text_clear_line),
+              imageVector = Icons.Default.Search,
+              contentDescription = stringResource(R.string.content_description_icon_search),
               tint = MaterialTheme.colorScheme.onBackground
             )
           }
@@ -133,7 +162,19 @@ private fun SearchScreen(
           text = stringResource(R.string.search_content_message_text_error_something_gone_wrong)
         )
 
-      SearchStore.State.SearchState.Initial -> {}
+      SearchStore.State.SearchState.Initial -> {
+        ResponsiveText(
+          modifier = Modifier
+            .fillMaxSize()
+            .padding(top = 32.dp, start = 16.dp, end = 16.dp),
+          text = stringResource(R.string.search_content_initial_text),
+          fontFamily = FontFamily.SansSerif,
+          fontWeight = FontWeight.Normal,
+          targetTextSizeHeight = 16.sp,
+          textAlign = TextAlign.Start,
+          color = MaterialTheme.colorScheme.onBackground,
+        )
+      }
       SearchStore.State.SearchState.Loading -> {
         Box(
           modifier = Modifier.fillMaxSize(),
@@ -166,7 +207,7 @@ private fun SearchScreen(
                 .align(Alignment.Start)
                 .clickable { component.onItemClicked(city = item) }
                 .testTag(TEST_SEARCH_TEXT_TAG),
-              text = item.displayName,
+              text = item.name + ", " + item.region + ", " + item.country,
               fontFamily = FontFamily.SansSerif,
               fontWeight = FontWeight.Normal,
               targetTextSizeHeight = 16.sp,
@@ -176,12 +217,6 @@ private fun SearchScreen(
           }
         }
       }
-
-      SearchStore.State.SearchState.NotEnoughLetters ->
-        ErrorMessage(
-          modifier = Modifier.align(Alignment.CenterHorizontally),
-          text = stringResource(R.string.search_content_message_enter_more_than_3_letters_to_start_the_search)
-        )
     }
   }
 }
@@ -192,13 +227,13 @@ private fun ErrorMessage(
   modifier: Modifier = Modifier,
   text: String
 ) {
-    ResponsiveText(
-      modifier = modifier.padding(top = 16.dp),
-      text = text,
-      textAlign = TextAlign.Start,
-      fontFamily = FontFamily.SansSerif,
-      fontWeight = FontWeight.Normal,
-      targetTextSizeHeight = 16.sp,
-      color = MaterialTheme.colorScheme.onBackground
-    )
+  ResponsiveText(
+    modifier = modifier.padding(top = 16.dp),
+    text = text,
+    textAlign = TextAlign.Start,
+    fontFamily = FontFamily.SansSerif,
+    fontWeight = FontWeight.Normal,
+    targetTextSizeHeight = 16.sp,
+    color = MaterialTheme.colorScheme.onBackground
+  )
 }

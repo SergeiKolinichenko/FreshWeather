@@ -1,8 +1,17 @@
 package info.sergeikolinichenko.myapplication.presentation.ui.content.root
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.arkivanov.decompose.FaultyDecomposeApi
 import com.arkivanov.decompose.extensions.compose.stack.Children
@@ -69,6 +78,19 @@ fun RootContent(component: RootComponent) {
         is RootComponent.Child.Nextdays -> NextdaysContent(component = instance.component)
         is RootComponent.Child.EditingFavourites -> EditingContent(component = instance.component)
       }
+    }
+    Box(
+      modifier = Modifier
+        .fillMaxSize()
+        .statusBarsPadding()
+    ) {
+      Box(
+        modifier = Modifier
+          .align(Alignment.BottomCenter)
+          .background(MaterialTheme.colorScheme.primary)
+          .fillMaxWidth()
+          .windowInsetsPadding(WindowInsets.systemBars)
+      )
     }
   }
 }

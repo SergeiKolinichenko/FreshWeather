@@ -8,7 +8,7 @@ plugins {
 
 android {
   namespace = "info.sergeikolinichenko.data"
-  compileSdk = 34
+  compileSdk = 35
 
   defaultConfig {
     minSdk = 26
@@ -19,8 +19,8 @@ android {
     val apikeyVisualcrossing = property("apikeyVisualcrossing")?.toString() ?: error("Set apikey property in local.properties")
     buildConfigField("String", "API_KEY_VISUALCROSSING", apikeyVisualcrossing)
 
-    val apikeyWeatherapi = property("apikeyWeatherapi")?.toString() ?: error("Set apikey property in local.properties")
-    buildConfigField("String", "API_KEY_WEATHERAPI", apikeyWeatherapi)
+    val apikeySearch = property("apikeySearch")?.toString() ?: error("Set apikey property in local.properties")
+    buildConfigField("String", "SEARCH_API_KEY", apikeySearch)
 
     room {
       schemaDirectory("$projectDir/schemas")
@@ -34,11 +34,11 @@ android {
     }
   }
   compileOptions {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
   }
   kotlinOptions {
-    jvmTarget = "17"
+    jvmTarget = "21"
     freeCompilerArgs = listOf(
       "-Xstring-concat=inline"
     )
@@ -46,6 +46,10 @@ android {
   buildFeatures {
     buildConfig = true
   }
+}
+
+tasks.withType<Test> {
+  jvmArgs("-XX:+EnableDynamicAgentLoading")
 }
 
 dependencies {

@@ -8,12 +8,13 @@ import androidx.compose.animation.slideIn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
@@ -94,8 +95,7 @@ internal fun HourlyWeatherForecast(
 ) {
 
   Card(
-    modifier = modifier
-      .height(140.dp),
+    modifier = modifier.height(160.dp),
     colors = CardDefaults.cardColors(
       containerColor = MaterialTheme.colorScheme.surface
     )
@@ -114,6 +114,7 @@ internal fun HourlyWeatherForecast(
           key = { it.date }
         ) {
           HourlyWeatherItem(
+            modifier = Modifier.fillMaxHeight(),
             time = if (it.date.isCurrentHour()) stringResource(R.string.details_content_title_now_date)
             else getTime(it.date, tzId),
             icon = it.icon,
@@ -140,8 +141,7 @@ private fun HourlyWeatherItem(
 ) {
   Column(
     modifier = modifier
-      .fillMaxHeight()
-      .sizeIn(minWidth = 58.dp),
+      .width(IntrinsicSize.Max),
     horizontalAlignment = Alignment.CenterHorizontally,
     verticalArrangement = Arrangement.SpaceBetween
   ) {
@@ -152,12 +152,15 @@ private fun HourlyWeatherItem(
       color = MaterialTheme.colorScheme.onBackground,
       maxLines = 1
     )
+
     Icon(
-      modifier = Modifier.size(WEATHER_ICON_SIZE_36.dp),
+      modifier = Modifier
+        .size(WEATHER_ICON_SIZE_36.dp),
       painter = painterResource(id = icon.toIconId()),
       tint = Color.Unspecified,
       contentDescription = null
     )
+
     if (chanceOfPrecip > 0f && precipType != null) {
       ResponsiveText(
         text = precipType,
@@ -168,7 +171,6 @@ private fun HourlyWeatherItem(
         lineHeight = 10.sp,
         color = chanceOfPrecip.precipitationToColour()
       )
-
       ResponsiveText(
         text = chanceOfPrecip.toPerCentFromFloat(),
         fontFamily = FontFamily.SansSerif,

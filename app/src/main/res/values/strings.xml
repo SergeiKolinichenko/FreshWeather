@@ -24,7 +24,7 @@
   <string name="favourite_content_text_favourites_are_empty">Favourites are empty</string>
   <string name="favourite_content_add_cities_here">Add cities here, to keep track of the weather forecast</string>
   <string name="favourite_content_description_menu_icon">Show menu</string>
-  <string name="content_description_text_clear_line">Clear line</string>
+  <string name="content_description_icon_search">Search icon</string>
   <string name="settings_content_title_settings">Settings</string>
   <string name="many_place_title_button_done">Done</string>
   <string name="settings_content_unit_title_temperature">Temperature</string>
@@ -119,4 +119,6 @@
   <string name="settings_content_number_of_forecast_days">Number of forecast days</string>
   <string name="details_content_error_loading_cities_text">Error retrieving cities from the database. Please try reloading the application, if the error occurs again, please inform the application developers.</string>
   <string name="details_content_error_loading_forecast_text">Error while retrieving weather for the favourite city. Please try reloading the app, if the error occurs again, please notify the app developers.</string>
+  <string name="search_content_initial_text">Enter the name of the locality you are looking for and click on the search icon.</string>
+  <string name="search_content_placeholder_text">Search…</string>
 </resources>

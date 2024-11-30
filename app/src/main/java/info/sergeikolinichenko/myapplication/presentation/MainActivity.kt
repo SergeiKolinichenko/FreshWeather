@@ -3,7 +3,7 @@ package info.sergeikolinichenko.myapplication.presentation
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.activity.enableEdgeToEdge
 import com.arkivanov.decompose.defaultComponentContext
 import info.sergeikolinichenko.myapplication.di.WeatherApp
 import info.sergeikolinichenko.myapplication.presentation.components.root.DefaultRootComponent
@@ -19,13 +19,7 @@ class MainActivity : ComponentActivity() {
     (applicationContext as WeatherApp).appComponent.inject(this)
     super.onCreate(savedInstanceState)
 
-    installSplashScreen().apply {
-      setOnExitAnimationListener { splashScreenViewProvider ->
-        splashScreenViewProvider.view.animate().alpha(0f).withEndAction {
-          splashScreenViewProvider.remove()
-        }
-      }
-    }
+    enableEdgeToEdge()
 
     setContent {
       RootContent(component = rootComponent.create(defaultComponentContext()))

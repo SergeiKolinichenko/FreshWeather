@@ -15,15 +15,15 @@
       android:label="@string/app_name"
       android:roundIcon="@drawable/icon_weather"
       android:supportsRtl="true"
-      android:theme="@style/Theme.FreshWeather"
       android:enableOnBackInvokedCallback="true"
       tools:targetApi="tiramisu">
     <!-- TODO In the future it is necessary to fix the this line "android:screenOrientation="portrait" and to add screen orientation handling.-->
     <activity
         android:name=".presentation.MainActivity"
         android:exported="true"
+        android:windowSoftInputMode="adjustResize"
         android:screenOrientation="portrait"
-        android:theme="@style/Theme.FreshWeatherSplash">
+        android:theme="@style/Theme.FreshWeather">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
 

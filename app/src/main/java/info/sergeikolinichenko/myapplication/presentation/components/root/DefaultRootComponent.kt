@@ -14,13 +14,13 @@ import com.arkivanov.decompose.value.Value
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import info.sergeikolinichenko.myapplication.presentation.ui.content.detailsnextdays.SourceOfOpening
 import info.sergeikolinichenko.myapplication.presentation.components.details.DefaultDetailsComponent
 import info.sergeikolinichenko.myapplication.presentation.components.editing.DefaultEditingComponent
 import info.sergeikolinichenko.myapplication.presentation.components.favourite.DefaultFavouriteComponent
 import info.sergeikolinichenko.myapplication.presentation.components.nextdays.DefaultNextdaysComponent
 import info.sergeikolinichenko.myapplication.presentation.components.search.DefaultSearchComponent
 import info.sergeikolinichenko.myapplication.presentation.components.settings.DefaultSettingsComponent
+import info.sergeikolinichenko.myapplication.presentation.ui.content.detailsnextdays.SourceOfOpening
 import kotlinx.parcelize.Parcelize
 
 class DefaultRootComponent @AssistedInject constructor(

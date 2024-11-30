@@ -16,23 +16,17 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import info.sergeikolinichenko.myapplication.R
@@ -52,16 +46,12 @@ import java.util.Calendar
 
 /** Created by Sergei Kolinichenko on 24.07.2024 at 17:09 (GMT+3) **/
 
-private const val NUMBER_OF_SHOWN_DAYS = 7
-
 @Composable
 internal fun DailyWeatherForecast(
   modifier: Modifier = Modifier,
   forecast: ForecastFs,
   onDayClicked: (Int) -> Unit
 ) {
-
-  val maxItemHeight = remember { mutableStateOf(0.dp) }
 
   Card(
     modifier = modifier
@@ -85,7 +75,7 @@ internal fun DailyWeatherForecast(
 
       LazyColumn(
         modifier = Modifier
-          .height(maxItemHeight.value * NUMBER_OF_SHOWN_DAYS),
+          .height(300.dp),
         horizontalAlignment = Alignment.Start
       ) {
         itemsIndexed(
@@ -96,8 +86,7 @@ internal fun DailyWeatherForecast(
             modifier = Modifier,
             forecast = forecast,
             numberOfDay = index,
-            onDayClicked = { onDayClicked(it) },
-            maxItemHeight = maxItemHeight
+            onDayClicked = { onDayClicked(it) }
           )
           DividingLine()
         }
@@ -145,12 +134,10 @@ private fun DailyWeatherItem(
   modifier: Modifier = Modifier,
   forecast: ForecastFs,
   numberOfDay: Int,
-  onDayClicked: (Int) -> Unit,
-  maxItemHeight: MutableState<Dp>
+  onDayClicked: (Int) -> Unit
 ) {
 
   val day = forecast.upcomingDays[numberOfDay]
-  val density = LocalDensity.current
 
   val weekday = when (numberOfDay) {
     0 -> stringResource(R.string.details_content_daily_forecast_text_today)
@@ -171,13 +158,7 @@ private fun DailyWeatherItem(
   Row(
     modifier = modifier
       .fillMaxWidth()
-      .clickable { if (!seeIfToday(day.date, forecast.tzId)) onDayClicked(numberOfDay) }
-      .onGloballyPositioned { coords ->
-        val itemHeight = with(density) { coords.size.height.toDp() }
-        if (itemHeight > maxItemHeight.value) {
-          maxItemHeight.value = itemHeight
-        }
-      },
+      .clickable { if (!seeIfToday(day.date, forecast.tzId)) onDayClicked(numberOfDay)},
     verticalAlignment = Alignment.CenterVertically,
     horizontalArrangement = Arrangement.SpaceBetween
   ) {

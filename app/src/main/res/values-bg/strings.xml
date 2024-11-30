@@ -25,7 +25,7 @@
   <string name="favourite_content_text_favourites_are_empty">Любимите ми са празни</string>
   <string name="favourite_content_add_cities_here">Добавете градове тук, за да следите прогнозите за времето</string>
   <string name="favourite_content_description_menu_icon">Показване на менюто</string>
-  <string name="content_description_text_clear_line">Изчистена линия</string>
+  <string name="content_description_icon_search">Икона за търсене</string>
   <string name="settings_content_title_settings">Настройки</string>
   <string name="many_place_title_button_done">Готово</string>
   <string name="settings_content_unit_title_temperature">Температура</string>
@@ -120,4 +120,6 @@
   <string name="settings_content_number_of_forecast_days">Брой прогнозни дни</string>
   <string name="details_content_error_loading_cities_text">Грешка при извличането на градове от базата данни. Моля, опитайте да презаредите приложението, ако грешката се появи отново, моля, информирайте разработчиците на приложението.</string>
   <string name="details_content_error_loading_forecast_text">Грешка при извличането на времето за любимия град. Моля, опитайте да презаредите приложението, а ако грешката се появи отново, уведомете разработчиците на приложението.</string>
+  <string name="search_content_initial_text">Въведете името на населеното място, което търсите, и кликнете върху иконата за търсене.</string>
+  <string name="search_content_placeholder_text">Търсене…</string>
 </resources>

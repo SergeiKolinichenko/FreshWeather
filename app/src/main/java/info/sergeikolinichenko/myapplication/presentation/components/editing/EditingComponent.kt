@@ -20,6 +20,7 @@ interface EditingComponent {
   val model: StateFlow<EditingStore.State>
 
   fun listOfCitiesChanged(items: List<EditingStore.State.CityItem>)
+  fun removeItemFromListOfCities(id: Int)
   fun onBackClicked()
   fun onDoneClicked()
 }
@@ -50,8 +51,13 @@ class DefaultEditingComponent @AssistedInject constructor(
 
   @OptIn(ExperimentalCoroutinesApi::class)
   override val model: StateFlow<EditingStore.State> = store.stateFlow
+
   override fun listOfCitiesChanged(items: List<EditingStore.State.CityItem>) {
     store.accept(EditingStore.Intent.ListOfCitiesChanged(cityItems = items))
+  }
+
+  override fun removeItemFromListOfCities(id: Int) {
+    store.accept(EditingStore.Intent.RemoveItemFromListOfCities(id = id))
   }
 
   override fun onBackClicked() {

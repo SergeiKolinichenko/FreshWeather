@@ -1,6 +1,7 @@
 package info.sergeikolinichenko.myapplication.presentation.ui.content.detailsnextdays.nextdaysforecast
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -60,11 +61,11 @@ fun NextdaysContent(
       is NextdaysStore.State.CitiesState.Loaded -> {
 
 
-
         when (state.forecastState) {
           NextdaysStore.State.ForecastState.Error -> ErrorScreen(
             text = stringResource(R.string.error_receiving_weather_forecast_please_try_again_later_if_the_error_occurs_again_please_notify_the_developers)
           )
+
           NextdaysStore.State.ForecastState.Initial -> LoadingScreen()
           is NextdaysStore.State.ForecastState.Loaded -> {
 
@@ -125,10 +126,11 @@ private fun TopBar(
   modifier: Modifier = Modifier,
   state: NextdaysStore.State,
 ) {
+
   Box(
     modifier = modifier
       .fillMaxWidth()
-      .padding(start = 16.dp, end = 16.dp, top = 20.dp),
+      .padding(start = 16.dp, end = 16.dp, top = 48.dp, bottom = 16.dp),
   ) {
     Row(
       modifier = modifier
@@ -139,12 +141,11 @@ private fun TopBar(
       if (state.citiesState is NextdaysStore.State.CitiesState.Loaded) {
         for (number in state.citiesState.cities) {
           if (number.id == state.citiesState.id) {
-
             Icon(
               modifier = Modifier
                 .size(8.dp),
               imageVector = ImageVector.vectorResource(id = R.drawable.ellipse),
-              tint = Color.Black,
+              tint = MaterialTheme.colorScheme.surfaceTint,
               contentDescription = null
             )
           } else {
@@ -152,7 +153,7 @@ private fun TopBar(
               modifier = Modifier
                 .size(8.dp),
               imageVector = ImageVector.vectorResource(id = R.drawable.ellipse),
-              tint = Color.White,
+              tint = if (isSystemInDarkTheme()) Color.White.copy(alpha = 0.6f) else Color.White,
               contentDescription = null
             )
           }

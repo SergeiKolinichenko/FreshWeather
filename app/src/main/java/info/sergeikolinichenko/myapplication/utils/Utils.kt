@@ -30,9 +30,13 @@ import java.time.format.TextStyle
 import java.util.Calendar
 import java.util.Locale
 import java.util.TimeZone
+import javax.inject.Inject
 import kotlin.math.roundToInt
 
 /** Created by Sergei Kolinichenko on 25.02.2024 at 16:40 (GMT+3) **/
+
+// the duration in minutes after which the weather forecast is updated
+private const val DURATION_OF_FORECAST_LIFE_MINUTES = 60
 
 internal fun ComponentContext.componentScope() =
   CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
@@ -136,12 +140,6 @@ internal fun thisIsToday(date: Long, tzId: String): Boolean {
   val now = LocalDate.now(ZoneId.of(tzId))
   val dateIn = Instant.ofEpochSecond(date).atZone(ZoneId.of(tzId)).toLocalDate()
   return now == dateIn
-}
-
-fun getMinutesDifferenceFromNow(date: Long, tzId: String): Long {
-  val now = ZonedDateTime.now()
-  val zonedDateTime = ZonedDateTime.ofInstant(Instant.ofEpochSecond(date), ZoneId.of(tzId))
-  return Duration.between(zonedDateTime, now).toMinutes()
 }
 
 internal fun durationBetweenTwoTimes(
@@ -277,6 +275,15 @@ internal fun DividingLine(
       .height(1.dp)
       .background(MaterialTheme.colorScheme.surfaceBright)
   )
+}
+
+class DoNeedNewOne @Inject constructor() {
+  operator fun invoke(date: Long, tzId: String): Boolean {
+    val now = ZonedDateTime.now()
+    val zonedDateTime = ZonedDateTime.ofInstant(Instant.ofEpochSecond(date), ZoneId.of(tzId))
+    val result = Duration.between(zonedDateTime, now).toMinutes()
+    return result > DURATION_OF_FORECAST_LIFE_MINUTES
+  }
 }
 
 

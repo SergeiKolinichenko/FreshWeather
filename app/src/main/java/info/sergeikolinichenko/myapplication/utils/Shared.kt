@@ -8,9 +8,6 @@ internal const val TITLE_ICON_SIZE_16 = 16
 internal const val SYS_ICON_SIZE_24 = 24
 internal const val WEATHER_ICON_SIZE_36 = 36
 
-// the duration in minutes after which the weather forecast is updated
-internal const val DURATION_OF_FORECAST_LIFE_MINUTES = 60
-
 // the duration in milliseconds for the animation of the Nextdays and CurrentWeather screens
 internal const val DURATION_OF_ANIMATION = 300
 

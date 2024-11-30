@@ -1,6 +1,5 @@
 package info.sergeikolinichenko.myapplication.presentation.ui.content.settings
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -63,7 +62,7 @@ private fun SettingsScreen(
   Column(
     modifier = modifier
       .fillMaxSize()
-      .padding(16.dp)
+      .padding(start = 16.dp, end = 16.dp, top = 48.dp, bottom = 16.dp)
       .verticalScroll(rememberScrollState())
       .background(MaterialTheme.colorScheme.background),
     horizontalAlignment = Alignment.Start
@@ -166,6 +165,7 @@ private fun ScreenTopBar(
           .clickable {
             onClickedBack() },
         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+        tint = MaterialTheme.colorScheme.surfaceTint,
         contentDescription = stringResource(id = R.string.settings_content_description_text_back_button)
       )
       ResponsiveText(

@@ -10,14 +10,14 @@ plugins {
 
 android {
   namespace = "info.sergeikolinichenko.myapplication"
-  compileSdk = 34
+  compileSdk = 35
 
   defaultConfig {
     applicationId = "info.sergeikolinichenko.myapplication"
     minSdk = 26
-    targetSdk = 34
-    versionCode = 12
-    versionName = "2.1.1"
+    targetSdk = 35
+    versionCode = 14
+    versionName = "2.1.3"
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     vectorDrawables { useSupportLibrary = true }
@@ -28,15 +28,18 @@ android {
     release {
       isMinifyEnabled = true
       proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+      ndk {
+        debugSymbolLevel = "full"
+      }
     }
   }
   compileOptions {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
   }
 
   kotlinOptions {
-    jvmTarget = "17"
+    jvmTarget = "21"
     freeCompilerArgs = listOf(
       "-Xstring-concat=inline"
     )
@@ -65,6 +68,10 @@ composeCompiler {
   )
   reportsDestination = layout.buildDirectory.dir("compose_compiler")
   stabilityConfigurationFile = rootProject.layout.projectDirectory.file("stability_config.conf")
+}
+
+tasks.withType<Test> {
+  jvmArgs("-XX:+EnableDynamicAgentLoading")
 }
 
 dependencies {
@@ -119,4 +126,6 @@ dependencies {
   debugImplementation(libs.ui.test.manifest)
 
   testImplementation(libs.androidx.junit.ktx)
+
+//  testImplementation ("io.mockk:mockk:1.12.0")
 }

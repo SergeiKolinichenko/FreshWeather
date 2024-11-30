@@ -14,8 +14,7 @@ import info.sergeikolinichenko.myapplication.entity.ForecastFs
 import info.sergeikolinichenko.myapplication.presentation.stores.nextdaysforecast.NextdaysStore.Intent
 import info.sergeikolinichenko.myapplication.presentation.stores.nextdaysforecast.NextdaysStore.Label
 import info.sergeikolinichenko.myapplication.presentation.stores.nextdaysforecast.NextdaysStore.State
-import info.sergeikolinichenko.myapplication.utils.DURATION_OF_FORECAST_LIFE_MINUTES
-import info.sergeikolinichenko.myapplication.utils.getMinutesDifferenceFromNow
+import info.sergeikolinichenko.myapplication.utils.DoNeedNewOne
 import info.sergeikolinichenko.myapplication.utils.mapCityFsListToCityList
 import info.sergeikolinichenko.myapplication.utils.mapCityToCityFs
 import info.sergeikolinichenko.myapplication.utils.mapToForecastScreenList
@@ -66,7 +65,8 @@ class NextdaysStoreFactory @Inject constructor(
   private val storeFactory: StoreFactory,
   private val getFavouriteCities: GetFavouriteCitiesUseCase,
   private val getForecast: GetForecastsFromNetUseCase,
-  private val handleForecastIntoDb: HandleForecastInDbUseCase
+  private val handleForecastIntoDb: HandleForecastInDbUseCase,
+  private val doNeedNewOne: DoNeedNewOne
 ) {
 
   fun create(id: Int, index: Int): NextdaysStore =
@@ -200,9 +200,9 @@ class NextdaysStoreFactory @Inject constructor(
                 if (it.isSuccess) {
                   it.getOrNull()?.let { forecasts ->
                     val forecast = forecasts.first { it.id == action.id }
-                    val minuteDifference =
-                      getMinutesDifferenceFromNow(forecast.currentForecast.date, forecast.tzId)
-                    if (minuteDifference > DURATION_OF_FORECAST_LIFE_MINUTES) {
+                    val ifForecastCorrect =
+                      doNeedNewOne.invoke(forecast.currentForecast.date, forecast.tzId)
+                    if (ifForecastCorrect) {
                       scope.launch {
                         loadForecastFromNet(action.cities.mapCityFsListToCityList())
                       }
@@ -219,6 +219,7 @@ class NextdaysStoreFactory @Inject constructor(
         Action.CitiesLoadingFailed -> dispatch(Message.CitiesLoadingFailed)
       }
     }
+
     private suspend fun loadForecastFromNet(cities: List<City>) {
 
       val result = getForecast(cities)

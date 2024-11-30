@@ -1,7 +1,7 @@
 package info.sergeikolinichenko.myapplication.network.api
 
-import info.sergeikolinichenko.myapplication.network.dto.CityDto
 import info.sergeikolinichenko.myapplication.network.dto.ForecastDto
+import info.sergeikolinichenko.myapplication.network.dto.FoundDto
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -12,12 +12,11 @@ import retrofit2.http.Query
 interface ApiService {
 
   @GET("search")
-  suspend fun searchCities(
-    @Query("q") query: String,
+  suspend fun search(
+    @Query("text") query: String,
     @Query("format") format: String = "json",
-    @Query("addressdetails") addressDetails: Int = 1,
     @Query("limit") limit: Int = LIMIT_ON_THE_NUMBER_OF_LOCATIONS_FOUND,
-  ): Response<List<CityDto>>
+  ): Response<FoundDto>
 
   @GET("{location}/next{days}days?unitGroup=metric&iconSet=icons2&elements=datetime,datetimeEpoch,name,cityAddressDto,resolvedAddress,latitude,longitude,tempmax,tempmin,temp,feelslike,humidity,precip,precipprob,preciptype,windspeed,winddir,pressure,uvindex,moonphase,sunriseEpoch,sunsetEpoch,moonriseEpoch,moonsetEpoch,conditions,description,icon,cloudcover&include=current,days,hours,fcst")
   suspend fun getCurrentWeather(

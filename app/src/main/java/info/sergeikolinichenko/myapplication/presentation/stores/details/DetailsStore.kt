@@ -16,8 +16,7 @@ import info.sergeikolinichenko.myapplication.entity.ForecastFs
 import info.sergeikolinichenko.myapplication.presentation.stores.details.DetailsStore.Intent
 import info.sergeikolinichenko.myapplication.presentation.stores.details.DetailsStore.Label
 import info.sergeikolinichenko.myapplication.presentation.stores.details.DetailsStore.State
-import info.sergeikolinichenko.myapplication.utils.DURATION_OF_FORECAST_LIFE_MINUTES
-import info.sergeikolinichenko.myapplication.utils.getMinutesDifferenceFromNow
+import info.sergeikolinichenko.myapplication.utils.DoNeedNewOne
 import info.sergeikolinichenko.myapplication.utils.mapToForecastScreenList
 import info.sergeikolinichenko.myapplication.utils.mapCityToCityFs
 import info.sergeikolinichenko.myapplication.utils.mapCityFsListToCityList
@@ -62,9 +61,10 @@ interface DetailsStore : Store<Intent, State, Label> {
 
 class DetailsStoreFactory @Inject constructor(
   private val storeFactory: StoreFactory,
-  private val getForecast: GetForecastsFromNetUseCase,
+  private val getForecastsFromNet: GetForecastsFromNetUseCase,
   private val getFavouriteCities: GetFavouriteCitiesUseCase,
-  private val handleForecastIntoDb: HandleForecastInDbUseCase
+  private val handleForecastIntoDb: HandleForecastInDbUseCase,
+  private val doNeedNewOne: DoNeedNewOne
 ) {
 
   fun create(id: Int): DetailsStore =
@@ -100,9 +100,7 @@ class DetailsStoreFactory @Inject constructor(
     override fun invoke() {
 
       scope.launch {
-
         getFavouriteCities().collect {
-
           when {
             it.isSuccess -> {
               dispatch(
@@ -111,7 +109,6 @@ class DetailsStoreFactory @Inject constructor(
                   cities = it.getOrNull()!!.map { city -> city.mapCityToCityFs() })
               )
             }
-
             it.isFailure -> {
               dispatch(Action.CitiesLoadingFailed)
             }
@@ -156,11 +153,8 @@ class DetailsStoreFactory @Inject constructor(
         Intent.OnSwipeLeft -> {
 
           if (state().citiesState is State.CitiesState.Loaded) {
-
             val citiesState = state().citiesState as State.CitiesState.Loaded
-
             val cityIndex = citiesState.cities.indexOfFirst { it.id == citiesState.id }
-
             if (cityIndex > 0) {
               scope.launch {
                 val id = citiesState.cities[cityIndex - 1].id
@@ -175,11 +169,8 @@ class DetailsStoreFactory @Inject constructor(
         Intent.OnSwipeRight -> {
 
           if (state().citiesState is State.CitiesState.Loaded) {
-
             val citiesState = state().citiesState as State.CitiesState.Loaded
-
             val cityIndex = citiesState.cities.indexOfFirst { it.id == citiesState.id }
-
             if (cityIndex < citiesState.cities.size - 1) {
               scope.launch {
                 val id = citiesState.cities[cityIndex + 1].id
@@ -196,27 +187,18 @@ class DetailsStoreFactory @Inject constructor(
       when (action) {
 
         is Action.CitiesLoaded -> {
-
           dispatch(Message.CitiesLoaded(id = action.id, cities = action.cities))
-
           val citiesState = state().citiesState as State.CitiesState.Loaded
 
           if (state().forecastState is State.ForecastsState.Initial) {
-
             scope.launch {
-
-              handleForecastIntoDb.getForecastsFromDb().collect {
-
-                if (it.isSuccess) {
-
-                  it.getOrNull()?.let { forecasts ->
-
+              handleForecastIntoDb.getForecastsFromDb().collect { dbForecast ->
+                if (dbForecast.isSuccess) {
+                  dbForecast.getOrNull()?.let { forecasts ->
                     val forecast = forecasts.first { it.id == citiesState.id }
-
-                    val minuteDifference =
-                      getMinutesDifferenceFromNow(forecast.currentForecast.date, forecast.tzId)
-
-                    if (minuteDifference > DURATION_OF_FORECAST_LIFE_MINUTES) {
+                    val ifForecastCorrect =
+                      doNeedNewOne.invoke(forecast.currentForecast.date, forecast.tzId)
+                    if (ifForecastCorrect) {
                       scope.launch {
                         loadForecastFromNet(action.cities.mapCityFsListToCityList())
                       }
@@ -225,13 +207,8 @@ class DetailsStoreFactory @Inject constructor(
                     }
                   }
                 }
-
               }
-
-
             }
-
-
           }
         }
 
@@ -241,17 +218,25 @@ class DetailsStoreFactory @Inject constructor(
 
     private suspend fun loadForecastFromNet(cities: List<City>) {
 
-      val result = getForecast(cities)
-
+      val result = getForecastsFromNet(cities)
       when {
         result.isSuccess -> {
-          val forecast = result.getOrNull()!!
-          handleForecastIntoDb.insertForecastToDb(forecast)
+          val forecast = result.getOrNull()
+          if (forecast != null) {
+            println("true")
+            handleForecastIntoDb.insertForecastToDb(forecast)
+          } else {
+            println("falce")
+            dispatch(Message.ForecastLoadingFailed("unexpected state loading"))
+          }
         }
-
         result.isFailure -> {
-          val errorCode = result.exceptionOrNull()!!.message!!
-          dispatch(Message.ForecastLoadingFailed(errorCode))
+          val errorCode = result.exceptionOrNull()?.message
+          if (errorCode != null) {
+            dispatch(Message.ForecastLoadingFailed(errorCode))
+          } else {
+            dispatch(Message.ForecastLoadingFailed("unexpected state exception"))
+          }
         }
       }
     }

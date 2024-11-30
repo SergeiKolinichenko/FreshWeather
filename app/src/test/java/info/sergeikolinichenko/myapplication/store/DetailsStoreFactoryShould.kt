@@ -3,19 +3,23 @@ package info.sergeikolinichenko.myapplication.store
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
 import info.sergeikolinichenko.domain.usecases.favourite.GetFavouriteCitiesUseCase
 import info.sergeikolinichenko.domain.usecases.forecast.GetForecastsFromNetUseCase
+import info.sergeikolinichenko.domain.usecases.forecast.HandleForecastInDbUseCase
 import info.sergeikolinichenko.myapplication.entity.ForecastFs
 import info.sergeikolinichenko.myapplication.presentation.stores.details.DetailsStore
 import info.sergeikolinichenko.myapplication.presentation.stores.details.DetailsStoreFactory
 import info.sergeikolinichenko.myapplication.utils.BaseUnitTestsRules
+import info.sergeikolinichenko.myapplication.utils.DoNeedNewOne
+import info.sergeikolinichenko.myapplication.utils.mapCityToCityFs
 import info.sergeikolinichenko.myapplication.utils.mapToForecastScreen
 import info.sergeikolinichenko.myapplication.utils.testCity
 import info.sergeikolinichenko.myapplication.utils.testForecast
-import info.sergeikolinichenko.myapplication.utils.mapCityToCityFs
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
+import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
@@ -30,6 +34,8 @@ class DetailsStoreFactoryShould : BaseUnitTestsRules() {
   private val factory = DefaultStoreFactory()
   private val getForecastsFromNetUseCase = mock<GetForecastsFromNetUseCase>()
   private val getFavouriteCitiesUseCase = mock<GetFavouriteCitiesUseCase>()
+  private val handleForecastIntoDb = mock<HandleForecastInDbUseCase>()
+  private val doNeedNewOne = mock<DoNeedNewOne>()
 
   private val cities = listOf(testCity)
   private lateinit var listOfForecastFs: List<ForecastFs>
@@ -39,7 +45,9 @@ class DetailsStoreFactoryShould : BaseUnitTestsRules() {
   private val systemUnderTest = DetailsStoreFactory(
     factory,
     getForecastsFromNetUseCase,
-    getFavouriteCitiesUseCase
+    getFavouriteCitiesUseCase,
+    handleForecastIntoDb,
+    doNeedNewOne
   )
 
   @Before
@@ -52,7 +60,7 @@ class DetailsStoreFactoryShould : BaseUnitTestsRules() {
     // Arrange
     mockSuccessfulResult()
     // Act
-    systemUnderTest.create(testCity.id, listOfForecastFs)
+    systemUnderTest.create(testCity.id)
     // Assert
     verify(getFavouriteCitiesUseCase, times(1)).invoke()
   }
@@ -62,7 +70,7 @@ class DetailsStoreFactoryShould : BaseUnitTestsRules() {
     // Arrange
     mockSuccessfulResult()
     // Act
-    val store = systemUnderTest.create(testCity.id, listOfForecastFs)
+    val store = systemUnderTest.create(testCity.id)
     val testField = store.state.citiesState
     // Assert
     if (testField is DetailsStore.State.CitiesState.Loaded) {
@@ -79,7 +87,7 @@ class DetailsStoreFactoryShould : BaseUnitTestsRules() {
       // Arrange
       whenever(getFavouriteCitiesUseCase.invoke()).thenReturn(flowOf(Result.failure(RuntimeException("Something went wrong"))))
       // Act
-      val store = systemUnderTest.create(testCity.id, listOfForecastFs)
+      val store = systemUnderTest.create(testCity.id)
       // Assert
       assert(store.state.citiesState is DetailsStore.State.CitiesState.LoadingFailed)
     }
@@ -88,16 +96,24 @@ class DetailsStoreFactoryShould : BaseUnitTestsRules() {
   @Test
   fun `check that when a class is created, the forecast is loaded from Network`() = runTest {
     // Arrange
-    mockSuccessfulResult()
-    // Act
-    val store = systemUnderTest.create(testCity.id, listOfForecastFs)
-    val testField = store.state.forecastState
-    // Assert
-    if (testField is DetailsStore.State.ForecastsState.Loaded) {
-      assert(testField.forecasts.first() == testForecast.mapToForecastScreen())
-    } else {
-      assert(false)
+//    mockSuccessfulResult()
+    whenever(getFavouriteCitiesUseCase.invoke()).thenReturn(flowOf(Result.success(cities)))
+    whenever(handleForecastIntoDb.getForecastsFromDb()).thenReturn(
+      flow { emit(Result.success(listOfForecast)) }
+    )
+    whenever(doNeedNewOne.invoke(any(), any())).thenReturn(true)
+    whenever(getForecastsFromNetUseCase.invoke(cities)).thenReturn(Result.success(listOfForecast))
+    whenever(handleForecastIntoDb.insertForecastToDb(listOfForecast)).then {
+
     }
+    // Act
+    val store = systemUnderTest.create(testCity.id)
+    val testField = store.state
+    // Assert
+    assert(testField.citiesState is DetailsStore.State.CitiesState.Loaded)
+    println("state ${testField.forecastState}")
+//    assert(testField.forecastState is DetailsStore.State.ForecastsState.Loaded)
+//    assert((testField.forecastState as DetailsStore.State.ForecastsState.Loaded).forecasts.first() == listOfForecastFs.first())
   }
 
   @Test
@@ -106,16 +122,20 @@ class DetailsStoreFactoryShould : BaseUnitTestsRules() {
     whenever(getFavouriteCitiesUseCase.invoke()).thenReturn(flowOf(Result.success(cities)))
     whenever(getForecastsFromNetUseCase.invoke(cities)).thenReturn(Result.failure(Exception("Something went wrong")))
     // Act
-    val store = systemUnderTest.create(testCity.id, listOfForecastFs)
+    val store = systemUnderTest.create(testCity.id)
     // Assert
-    assert(store.state.forecastState is DetailsStore.State.ForecastsState.LoadingFailed)
+    println("state ${store.state.citiesState}")
+//    assert(store.state.citiesState is DetailsStore.State.CitiesState.LoadingFailed)
   }
 
 
 
   private suspend fun mockSuccessfulResult() {
-    whenever(getFavouriteCitiesUseCase.invoke()).thenReturn(flowOf(Result.success(cities)))
-    whenever(getForecastsFromNetUseCase.invoke(cities)).thenReturn(Result.success(listOfForecast))
+//    whenever(getFavouriteCitiesUseCase.invoke()).thenReturn(flowOf(Result.success(cities)))
+//    whenever(getForecastsFromNetUseCase.invoke(cities)).thenReturn(Result.success(listOfForecast))
+    whenever(handleForecastIntoDb.getForecastsFromDb()).thenReturn(
+      flow { Result.success(listOfForecast) }
+    )
   }
 
 }

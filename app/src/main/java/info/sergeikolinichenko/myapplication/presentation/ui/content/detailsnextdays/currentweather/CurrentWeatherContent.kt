@@ -76,7 +76,7 @@ internal fun CurrentWeatherScreen(
   val city = (state.citiesState as DetailsStore.State.CitiesState.Loaded)
     .cities.first { it.id == state.citiesState.id }
 
-  MainScreen(
+  CurrentWeatherMainScreen(
     modifier = modifier,
     state = state,
     onDayClicked = { dayNumber -> onDayClicked(city.id, dayNumber) },

@@ -6,6 +6,7 @@ import info.sergeikolinichenko.domain.entity.DayForecast
 import info.sergeikolinichenko.domain.entity.Forecast
 import info.sergeikolinichenko.domain.entity.HourForecast
 import info.sergeikolinichenko.myapplication.entity.CityFs
+import java.util.TimeZone
 
 /** Created by Sergei Kolinichenko on 06.07.2024 at 18:39 (GMT+3) **/
 
@@ -79,7 +80,7 @@ private val testHourForecast = HourForecast(
 
 internal val testForecast = Forecast(
   id = 1,
-  tzId = "Europe/Sofia",
+  tzId = TimeZone.getDefault().id,
   currentForecast = testCurrentForecast,
   upcomingDays = listOf(testDayForecast),
   upcomingHours = listOf(testHourForecast)

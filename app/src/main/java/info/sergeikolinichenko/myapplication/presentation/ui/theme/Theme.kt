@@ -1,6 +1,5 @@
 package info.sergeikolinichenko.myapplication.presentation.ui.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -9,12 +8,9 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
-import androidx.core.view.WindowCompat
 
 private val DarkColorScheme = darkColorScheme(
   primary = Color(0xFFBBC6DB),
@@ -31,6 +27,7 @@ private val DarkColorScheme = darkColorScheme(
   onTertiary = Color.White,
   onBackground = Color(0xFFF4FBF8),
   onSurface = Color(0xFFF4FBF8),
+  surfaceTint = Color(0xFFF4FBF8),
   outline = Color(0xFF050C1A),
   onSurfaceVariant = Color(0xFF7DC3F5),
   surfaceContainerLowest = Color(0xFF3E619C),
@@ -55,6 +52,7 @@ private val LightColorScheme = lightColorScheme(
   onTertiary = Color.White,
   onBackground = Color(0xFF091933),
   onSurface = Color(0xFF091933),
+  surfaceTint = Color(0xFF091933),
   outline = Color(0xFFD9E4F9),
   onSurfaceVariant = Color(0xFF5FAEE8),
   surfaceContainerLowest = Color(0xFF9BD4FB),
@@ -79,14 +77,17 @@ fun FreshWeatherTheme(
     darkTheme -> DarkColorScheme
     else -> LightColorScheme
   }
+
   val view = LocalView.current
-  if (!view.isInEditMode) {
-    SideEffect {
-      val window = (view.context as Activity).window
-      window.statusBarColor = colorScheme.background.toArgb()
-      WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
-    }
-  }
+
+//  if (!view.isInEditMode) {
+//    SideEffect {
+//      val window = (view.context as Activity).window
+//      window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+//      window.statusBarColor = colorScheme.background.toArgb()
+//      WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
+//    }
+//  }
 
   MaterialTheme(
     colorScheme = colorScheme,

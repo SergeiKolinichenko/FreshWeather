@@ -107,7 +107,7 @@ internal fun FavoriteVerticalGrid(
   LazyVerticalGrid(
     modifier = modifier
       .fillMaxSize()
-      .padding(16.dp)
+      .padding(top = 48.dp, start = 16.dp, end = 16.dp, bottom = 16.dp)
       .pointerInput(Unit) {
         detectHorizontalDragGestures { change, dragAmount ->
           if (dragAmount > 0) {
