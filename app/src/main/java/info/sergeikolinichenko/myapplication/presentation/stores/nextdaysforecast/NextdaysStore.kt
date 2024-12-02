@@ -6,7 +6,7 @@ import com.arkivanov.mvikotlin.core.store.StoreFactory
 import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineBootstrapper
 import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineExecutor
 import info.sergeikolinichenko.domain.entity.City
-import info.sergeikolinichenko.domain.usecases.favourite.GetFavouriteCitiesUseCase
+import info.sergeikolinichenko.domain.usecases.favourite.GetFavouriteCitiesFromDbUseCase
 import info.sergeikolinichenko.domain.usecases.forecast.GetForecastsFromNetUseCase
 import info.sergeikolinichenko.domain.usecases.forecast.HandleForecastInDbUseCase
 import info.sergeikolinichenko.myapplication.entity.CityFs
@@ -63,7 +63,7 @@ interface NextdaysStore : Store<Intent, State, Label> {
 
 class NextdaysStoreFactory @Inject constructor(
   private val storeFactory: StoreFactory,
-  private val getFavouriteCities: GetFavouriteCitiesUseCase,
+  private val getFavouriteCities: GetFavouriteCitiesFromDbUseCase,
   private val getForecast: GetForecastsFromNetUseCase,
   private val handleForecastIntoDb: HandleForecastInDbUseCase,
   private val doNeedNewOne: DoNeedNewOne

@@ -2,7 +2,7 @@ package info.sergeikolinichenko.myapplication.usecases
 
 import info.sergeikolinichenko.domain.entity.City
 import info.sergeikolinichenko.domain.repositories.FavouriteRepository
-import info.sergeikolinichenko.domain.usecases.favourite.GetFavouriteCitiesUseCase
+import info.sergeikolinichenko.domain.usecases.favourite.GetFavouriteCitiesFromDbUseCase
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runTest
@@ -15,7 +15,7 @@ import org.mockito.kotlin.whenever
 
 /** Created by Sergei Kolinichenko on 15.06.2024 at 17:28 (GMT+3) **/
 
-class GetFavouriteCitiesUseCaseShould {
+class GetFavouriteCitiesFromDbUseCaseShould {
 
   // region constants
   private val repository = mock<FavouriteRepository>()
@@ -23,7 +23,7 @@ class GetFavouriteCitiesUseCaseShould {
   private val exception = RuntimeException("Something went wrong")
   // endregion  constants
 
-  private val systemUnderTest = GetFavouriteCitiesUseCase(repository)
+  private val systemUnderTest = GetFavouriteCitiesFromDbUseCase(repository)
 
   @Test
   fun `get list of favourite cities from repository`(): Unit = runTest {

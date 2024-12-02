@@ -61,7 +61,7 @@ object ApiFactory {
     }
     .build()
 
-  val apiServiceSearch = Retrofit.Builder()
+  var apiServiceSearch = Retrofit.Builder()
     .baseUrl(BASE_SEARCH_URL)
     .addConverterFactory(GsonConverterFactory.create())
     .client(okHttpClientSearch)

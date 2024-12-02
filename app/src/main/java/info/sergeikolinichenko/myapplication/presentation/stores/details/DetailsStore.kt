@@ -8,7 +8,7 @@ import com.arkivanov.mvikotlin.core.store.StoreFactory
 import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineBootstrapper
 import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineExecutor
 import info.sergeikolinichenko.domain.entity.City
-import info.sergeikolinichenko.domain.usecases.favourite.GetFavouriteCitiesUseCase
+import info.sergeikolinichenko.domain.usecases.favourite.GetFavouriteCitiesFromDbUseCase
 import info.sergeikolinichenko.domain.usecases.forecast.HandleForecastInDbUseCase
 import info.sergeikolinichenko.domain.usecases.forecast.GetForecastsFromNetUseCase
 import info.sergeikolinichenko.myapplication.entity.CityFs
@@ -62,7 +62,7 @@ interface DetailsStore : Store<Intent, State, Label> {
 class DetailsStoreFactory @Inject constructor(
   private val storeFactory: StoreFactory,
   private val getForecastsFromNet: GetForecastsFromNetUseCase,
-  private val getFavouriteCities: GetFavouriteCitiesUseCase,
+  private val getFavouriteCities: GetFavouriteCitiesFromDbUseCase,
   private val handleForecastIntoDb: HandleForecastInDbUseCase,
   private val doNeedNewOne: DoNeedNewOne
 ) {
@@ -193,18 +193,24 @@ class DetailsStoreFactory @Inject constructor(
           if (state().forecastState is State.ForecastsState.Initial) {
             scope.launch {
               handleForecastIntoDb.getForecastsFromDb().collect { dbForecast ->
-                if (dbForecast.isSuccess) {
-                  dbForecast.getOrNull()?.let { forecasts ->
-                    val forecast = forecasts.first { it.id == citiesState.id }
-                    val ifForecastCorrect =
-                      doNeedNewOne.invoke(forecast.currentForecast.date, forecast.tzId)
-                    if (ifForecastCorrect) {
-                      scope.launch {
-                        loadForecastFromNet(action.cities.mapCityFsListToCityList())
+
+                when {
+                  dbForecast.isSuccess -> {
+                    dbForecast.getOrNull()?.let { forecasts ->
+                      val forecast = forecasts.first { it.id == citiesState.id }
+                      val ifForecastCorrect =
+                        doNeedNewOne.invoke(forecast.currentForecast.date, forecast.tzId)
+                      if (ifForecastCorrect) {
+                        scope.launch {
+                          loadForecastFromNet(action.cities.mapCityFsListToCityList())
+                        }
+                      } else {
+                        dispatch(Message.ForecastLoaded(forecasts.mapToForecastScreenList()))
                       }
-                    } else {
-                      dispatch(Message.ForecastLoaded(forecasts.mapToForecastScreenList()))
                     }
+                  }
+                  dbForecast.isFailure -> {
+                    loadForecastFromNet(action.cities.mapCityFsListToCityList())
                   }
                 }
               }
@@ -223,10 +229,8 @@ class DetailsStoreFactory @Inject constructor(
         result.isSuccess -> {
           val forecast = result.getOrNull()
           if (forecast != null) {
-            println("true")
             handleForecastIntoDb.insertForecastToDb(forecast)
           } else {
-            println("falce")
             dispatch(Message.ForecastLoadingFailed("unexpected state loading"))
           }
         }

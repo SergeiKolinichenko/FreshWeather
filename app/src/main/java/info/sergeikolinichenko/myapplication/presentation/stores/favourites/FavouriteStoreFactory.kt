@@ -8,7 +8,7 @@ import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineExecutor
 import info.sergeikolinichenko.domain.entity.City
 import info.sergeikolinichenko.domain.entity.Forecast
 import info.sergeikolinichenko.domain.usecases.favourite.ChangeFavouriteStateUseCase
-import info.sergeikolinichenko.domain.usecases.favourite.GetFavouriteCitiesUseCase
+import info.sergeikolinichenko.domain.usecases.favourite.GetFavouriteCitiesFromDbUseCase
 import info.sergeikolinichenko.domain.usecases.forecast.GetForecastsFromNetUseCase
 import info.sergeikolinichenko.domain.usecases.forecast.HandleForecastInDbUseCase
 import info.sergeikolinichenko.domain.usecases.search.SearchCitiesUseCase
@@ -22,7 +22,7 @@ import javax.inject.Inject
 /** Created by Sergei Kolinichenko on 02.07.2024 at 19:07 (GMT+3) **/
 class FavouriteStoreFactory @Inject constructor(
   private val storeFactory: StoreFactory,
-  private val getFavouriteCitiesFromDb: GetFavouriteCitiesUseCase,
+  private val getFavouriteCitiesFromDb: GetFavouriteCitiesFromDbUseCase,
   private val changeFavouriteStateInDb: ChangeFavouriteStateUseCase,
   private val searchCitiesOnNet: SearchCitiesUseCase,
   private val getForecastFromNet: GetForecastsFromNetUseCase,
@@ -69,20 +69,18 @@ class FavouriteStoreFactory @Inject constructor(
 
   private inner class BootstrapperImpl : CoroutineBootstrapper<Action>() {
     override fun invoke() {
-
       scope.launch {
         getFavouriteCitiesFromDb().collect { result ->
-
           when {
-
             result.isSuccess -> {
               result.getOrNull()?.let { cities ->
-                cities.forEach { city ->
 
+                cities.forEach { city ->
                   if (city.lat == 0.0 || city.lon == 0.0) {
                     cityInfoAdd(city, changeFavouriteStateInDb, searchCitiesOnNet)
                   }
                 }
+
                 dispatch(Action.FavouriteCitiesLoaded(cities))
               }
             }
@@ -135,11 +133,8 @@ class FavouriteStoreFactory @Inject constructor(
         }
 
         FavouriteStore.Intent.ReloadCities -> {
-
           scope.launch {
-
             getFavouriteCitiesFromDb().collect { result ->
-
               when {
                 result.isSuccess -> {
                   result.getOrNull()?.let { cities ->
@@ -165,12 +160,12 @@ class FavouriteStoreFactory @Inject constructor(
         is Action.FavouriteCitiesLoaded -> {
 
           scope.launch {
-
             dispatch(Message.FavoriteCitiesLoaded(action.cities))
-
             if (state().forecastState == FavouriteStore.State.ForecastState.Initial) {
+              println("FavouriteStore.State.ForecastState.Initial")
               loadForecast(action.cities)
             } else if (state().forecastState is FavouriteStore.State.ForecastState.Loaded) {
+              println("FavouriteStore.State.ForecastState.Loaded")
               val forecastState = state().forecastState as FavouriteStore.State.ForecastState.Loaded
               val forecast = forecastState.listForecast.first()
               val ifForecastCorrect =
@@ -200,13 +195,9 @@ class FavouriteStoreFactory @Inject constructor(
     }
 
     private suspend fun loadForecast(cities: List<City>) {
-
       dispatch(Message.WeatherLoading)
-
       val result = getForecastFromNet.invoke(cities)
-
       when {
-
         result.isSuccess -> {
           handleForecastIntoDb.insertForecastToDb(result.getOrNull()!!)
         }

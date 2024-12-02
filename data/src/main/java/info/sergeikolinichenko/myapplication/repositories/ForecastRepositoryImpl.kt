@@ -44,7 +44,7 @@ class ForecastRepositoryImpl @Inject constructor(
 
   override val getForecastsFromDb: Flow<Result<List<Forecast>>> get() =
     dao.getForecastsFromDb().map {
-      if (it.isEmpty()) Result.failure(RuntimeException("No forecast in db"))
+      if (it.isEmpty()) Result.failure(Exception("No forecast in db"))
       else Result.success(it.mapListDbModelsToListForecast())
     }
 

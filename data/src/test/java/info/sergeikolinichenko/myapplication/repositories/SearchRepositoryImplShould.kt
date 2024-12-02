@@ -1,11 +1,12 @@
 package info.sergeikolinichenko.myapplication.repositories
 
+import info.sergeikolinichenko.domain.entity.City
 import info.sergeikolinichenko.myapplication.network.api.ApiFactory
 import info.sergeikolinichenko.myapplication.network.api.ApiService
-import info.sergeikolinichenko.myapplication.network.dto.CityDto
-import info.sergeikolinichenko.myapplication.network.dto.PlaceAddressDto
+import info.sergeikolinichenko.myapplication.network.dto.FoundDto
+import info.sergeikolinichenko.myapplication.utils.testFoundDto
+import info.sergeikolinichenko.myapplication.utils.testPlaceDto
 import junit.framework.TestCase.assertEquals
-import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
@@ -14,6 +15,7 @@ import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.mock
 import retrofit2.Response
+import kotlin.math.abs
 
 
 /** Created by Sergei Kolinichenko on 19.06.2024 at 14:38 (GMT+3) **/
@@ -21,14 +23,14 @@ import retrofit2.Response
 class SearchRepositoryImplShould {
 
   @Mock private lateinit var mockApiService: ApiService
-  @Mock private lateinit var mockResponse: Response<List<CityDto>> // Use a generic type for the response body
+  @Mock private lateinit var mockResponse: Response<FoundDto> // Use a generic type for the response body
   @Mock private lateinit var mockRepository: SearchRepositoryImpl
 
   @Before
   fun setup() {
     MockitoAnnotations.openMocks(this)
     mockApiService = mock()
-    ApiFactory.apiServiceOpenStreetMap = mockApiService // Inject the mocked API
+    ApiFactory.apiServiceSearch = mockApiService // Inject the mocked API
     mockRepository = SearchRepositoryImpl()
   }
 
@@ -37,16 +39,18 @@ class SearchRepositoryImplShould {
 
     // Mock a successful response
     Mockito.`when`(mockResponse.isSuccessful).thenReturn(true)
-    Mockito.`when`(mockResponse.body()).thenReturn(listOf(cityDto1, cityDto2)) // Mock response body
-    Mockito.`when`(mockApiService.searchCities(Mockito.anyString(), Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt())).thenReturn(mockResponse)
+    Mockito.`when`(mockResponse.body()).thenReturn(testFoundDto) // Mock response body
+    Mockito.`when`(mockApiService.search(Mockito.anyString(), Mockito.anyString(), Mockito.anyInt())).thenReturn(mockResponse)
 
     // Call the function and assert the result
-    val cities: List<CityDto> = mockRepository.searchCities(query)
+    val result = mockRepository.searchCities(query).first()
 
-    assertTrue(cities.isNotEmpty()) // Or more specific assertions based on your toListCities() logic
-    assertEquals(2, cities.size)
-    assert(cityDto1 == cities[0])
-    assert(cityDto2 == cities[1])
+    assertEquals(abs(testPlaceDto.placeId.hashCode()), result.id )
+    assertEquals(testPlaceDto.city, result.name)
+    assertEquals(testPlaceDto.state, result.region)
+    assertEquals(testPlaceDto.country, result.country)
+    assertEquals(testPlaceDto.lat, result.lat)
+    assertEquals(testPlaceDto.lon, result.lon)
   }
 
   @Test(expected = Exception::class)
@@ -54,10 +58,10 @@ class SearchRepositoryImplShould {
     val exception = Exception("Error while searching cities")
     // Mock an unsuccessful response
     Mockito.`when`(mockResponse.isSuccessful).thenThrow(exception)
-    Mockito.`when`(mockApiService.searchCities(Mockito.anyString())).thenReturn(mockResponse)
+    Mockito.`when`(mockApiService.search(Mockito.anyString())).thenReturn(mockResponse)
 
     // Call the function (expecting an exception)
-    val result: List<CityDto> = mockRepository.searchCities(query)
+    val result: List<City> = mockRepository.searchCities(query)
 
     assertEquals(0, result.size)
     assertEquals(exception, result)
@@ -66,40 +70,3 @@ class SearchRepositoryImplShould {
 }
 
 private const val query = "London"
-
-
-private val placeAddressDto1 = PlaceAddressDto(
-  state = "England",
-  country = "United Kingdom",
-  city = "London",
-  village = "village",
-  town = "town",
-)
-
-private val cityDto1 = CityDto(
-  id = 1,
-  displayName = "London, England, United Kingdom",
-  lat = "51.5074",
-  lon = "0.1278",
-  classType = "classType 1",
-  type = "type 1",
-  placeAddress = placeAddressDto1
-)
-
-private val placeAddressDto2 = PlaceAddressDto(
-  state = "Northern Ireland",
-  country = "United Kingdom",
-  city = "Londonderry",
-  village = "village 2",
-  town = "town 2",
-)
-
-private val cityDto2 = CityDto(
-  id = 2,
-  displayName = "Londonderry, Northern Ireland, United Kingdom",
-  lat = "51.5074",
-  lon = "0.1278",
-  classType = "classType 2",
-  type = "type 2",
-  placeAddress = placeAddressDto2
-)
